@@ -1,0 +1,1842 @@
+import { PrismaClient } from '@prisma/client';
+
+<<<<<<< HEAD
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<User>): Promise<User>;
+  deleteUser(id: number): Promise<void>;
+
+  // Quiz retake operations
+  recordQuizAttempt(
+    attempt: Omit<InsertQuizAttempt, "id">,
+  ): Promise<QuizAttempt>;
+  getQuizAttemptsCount(userId: number): Promise<number>;
+  getQuizAttempts(userId: number): Promise<QuizAttempt[]>;
+  getQuizAttemptsByUserId(userId: number): Promise<QuizAttempt[]>; // Alias for getQuizAttempts
+  getQuizAttempt(attemptId: number): Promise<QuizAttempt | undefined>;
+  canUserRetakeQuiz(userId: number): Promise<boolean>;
+
+  // AI content operations (NEW TABLE-BASED)
+  saveAIContent(
+    quizAttemptId: number,
+    contentType: string,
+    content: any,
+  ): Promise<AiContent>;
+  getAIContent(
+    quizAttemptId: number,
+    contentType: string,
+  ): Promise<AiContent | null>;
+  getAllAIContentForQuizAttempt(quizAttemptId: number): Promise<AiContent[]>;
+  deleteAIContent(
+    quizAttemptId: number,
+    contentType: string,
+  ): Promise<void>;
+
+  // DEPRECATED AI content operations (for backward compatibility)
+  saveAIContentToQuizAttempt(
+    quizAttemptId: number,
+    contentType: string,
+    content: any,
+  ): Promise<void>;
+  getAIContentForQuizAttempt(quizAttemptId: number): Promise<any | null>;
+  decrementQuizRetakes(userId: number): Promise<void>;
+
+  // Payment operations
+  createPayment(payment: Omit<InsertPayment, "id">): Promise<Payment>;
+  completePayment(paymentId: number): Promise<void>;
+  linkPaymentToQuizAttempt(
+    paymentId: number,
+    quizAttemptId: number,
+  ): Promise<void>;
+  getPaymentsByUser(userId: number): Promise<Payment[]>;
+  getPaymentsByStripeId(stripePaymentIntentId: string): Promise<Payment[]>;
+  getPaymentById(paymentId: number): Promise<Payment | undefined>;
+  getAllPayments(limit?: number): Promise<Payment[]>;
+  getPaymentsWithUsers(options?: {
+    limit?: number;
+    offset?: number;
+    status?: string;
+  }): Promise<
+    Array<
+      Payment & {
+        user: { id: number; email: string; username?: string } | null;
+      }
+    >
+  >;
+
+  // Refund operations
+  createRefund(refund: Omit<InsertRefund, "id">): Promise<Refund>;
+  updateRefundStatus(
+    refundId: number,
+    status: string,
+    processedAt?: Date,
+    stripeRefundId?: string,
+    paypalRefundId?: string,
+  ): Promise<void>;
+  getRefundsByPayment(paymentId: number): Promise<Refund[]>;
+  getRefundById(refundId: number): Promise<Refund | undefined>;
+  getAllRefunds(limit?: number): Promise<Refund[]>;
+
+  // Temporary user management (consolidated into users table)
+  storeTemporaryUser(
+    sessionId: string,
+    email: string,
+    data: any,
+  ): Promise<User>;
+  getTemporaryUser(sessionId: string): Promise<User | undefined>;
+  getTemporaryUserByEmail(email: string): Promise<User | undefined>;
+  cleanupExpiredTemporaryUsers(): Promise<void>;
+  convertTemporaryUserToPaid(sessionId: string): Promise<User | undefined>;
+
+  // Legacy methods (for backward compatibility during transition)
+  storeUnpaidUserEmail(
+    sessionId: string,
+    email: string,
+    quizData: any,
+  ): Promise<UnpaidUserEmail>;
+  getUnpaidUserEmail(sessionId: string): Promise<UnpaidUserEmail | undefined>;
+  cleanupExpiredUnpaidEmails(): Promise<void>;
+
+  // User status checks
+  isPaidUser(userId: number): Promise<boolean>;
+  
+  // Quiz attempt payment status
+  isQuizAttemptPaid(quizAttemptId: number): Promise<boolean>;
+  getLatestPaidQuizAttempt(userId: number): Promise<QuizAttempt | undefined>;
+
+  // Password reset operations
+  createPasswordResetToken(
+    userId: number,
+    token: string,
+    expiresAt: Date,
+  ): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  deletePasswordResetToken(token: string): Promise<void>;
+  updateUserPassword(userId: number, hashedPassword: string): Promise<void>;
+
+  // Data cleanup utilities
+  cleanupExpiredData(): Promise<void>;
+}
+
+export class MemStorage implements IStorage {
+  private users: Map<number, User>;
+  private quizAttempts: Map<number, QuizAttempt>;
+  private payments: Map<number, Payment>;
+  private unpaidUserEmails: Map<string, UnpaidUserEmail>;
+  private passwordResetTokens: Map<string, PasswordResetToken>;
+  currentId: number;
+  currentQuizAttemptId: number;
+  currentPaymentId: number;
+  currentUnpaidEmailId: number;
+  currentPasswordResetTokenId: number;
+
+  constructor() {
+    this.users = new Map();
+    this.quizAttempts = new Map();
+    this.payments = new Map();
+    this.unpaidUserEmails = new Map();
+    this.passwordResetTokens = new Map();
+    this.currentId = 1;
+    this.currentQuizAttemptId = 1;
+    this.currentPaymentId = 1;
+    this.currentUnpaidEmailId = 1;
+    this.currentPasswordResetTokenId = 1;
+
+    // Add a test user for development
+    const testUser: User = {
+      id: 1,
+      email: "test@example.com",
+      password: "$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // "password"
+      firstName: "Test",
+      lastName: "User",
+      isUnsubscribed: false,
+      sessionId: null,
+      isPaid: true,
+      isTemporary: false,
+      hasUnlockedFirstReport: false, // Will be set when they pay for first report
+      tempQuizData: null,
+      expiresAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(1, testUser);
+    this.currentId = 2; // Set next ID to 2
+=======
+class Storage {
+  private prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = new PrismaClient();
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)
+  }
+
+  async getUser(id: number) {
+    return await this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async getUserByEmail(email: string) {
+    return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+<<<<<<< HEAD
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.currentId++;
+    const user: User = {
+      ...insertUser,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
+      id,
+      isUnsubscribed: false,
+      sessionId: null,
+      isPaid: true, // Regular users are paid users
+      isTemporary: false,
+      hasUnlockedFirstReport: false, // Will be set when they pay for first report
+      tempQuizData: null,
+      expiresAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(id, user);
+    return user;
+=======
+  async createUser(data: any) {
+    return await this.prisma.user.create({ data });
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)
+  }
+
+  async updateUser(id: number, data: any) {
+    return await this.prisma.user.update({ where: { id }, data });
+  }
+
+  async deleteUser(id: number) {
+    return await this.prisma.user.delete({ where: { id } });
+  }
+
+<<<<<<< HEAD
+  async recordQuizAttempt(
+    attempt: Omit<InsertQuizAttempt, "id">,
+  ): Promise<QuizAttempt> {
+    const id = this.currentQuizAttemptId++;
+    const quizAttempt: QuizAttempt = {
+      ...attempt,
+      id,
+      isPaid: false, // New quiz attempts are unpaid by default
+      completedAt: new Date(),
+      aiContent: attempt.aiContent || null,
+    };
+    this.quizAttempts.set(id, quizAttempt);
+    return quizAttempt;
+=======
+  async recordQuizAttempt(data: any) {
+    return await this.prisma.quizAttempt.create({ data });
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)
+  }
+
+  async getQuizAttemptsCount(userId: number) {
+    return await this.prisma.quizAttempt.count({ where: { userId } });
+  }
+
+  async getQuizAttempts(userId: number) {
+    return await this.prisma.quizAttempt.findMany({ where: { userId }, orderBy: { completedAt: 'desc' } });
+  }
+
+  async getQuizAttemptsByUserId(userId: number) {
+    return this.getQuizAttempts(userId);
+  }
+
+  async getQuizAttempt(id: number) {
+    return await this.prisma.quizAttempt.findUnique({ where: { id } });
+  }
+
+  async updateQuizAttempt(id: number, data: any) {
+    return await this.prisma.quizAttempt.update({ where: { id }, data });
+  }
+
+  async saveAIContent(quizAttemptId: number, contentType: string, content: any) {
+    return await this.prisma.aiContent.create({
+      data: {
+        quizAttemptId,
+        contentType,
+        content,
+        generatedAt: new Date(),
+<<<<<<< HEAD
+        createdAt: new Date(),
+      };
+    }
+    return null;
+  }
+
+  async getAllAIContentForQuizAttempt(quizAttemptId: number): Promise<AiContent[]> {
+    const attempt = this.quizAttempts.get(quizAttemptId);
+    if (!attempt) return [];
+
+    const aiContentArray: AiContent[] = [];
+    for (const [type, content] of Object.entries(attempt.aiContent || {})) {
+      aiContentArray.push({
+        id: 1, // Placeholder
+        quizAttemptId,
+        contentType: type,
+        content: content,
+        contentHash: "placeholder", // Placeholder
+        generatedAt: new Date(),
+        createdAt: new Date(),
+      });
+    }
+    return aiContentArray;
+  }
+
+  async deleteAIContent(
+    quizAttemptId: number,
+    contentType: string,
+  ): Promise<void> {
+    const attempt = this.quizAttempts.get(quizAttemptId);
+    if (attempt && attempt.aiContent) {
+      delete (attempt.aiContent as Record<string, any>)[contentType];
+      console.log(`MemStorage: Deleted AI content ${contentType} for attempt ${quizAttemptId}`);
+    }
+  }
+
+  // DEPRECATED AI content operations (for backward compatibility)
+  async saveAIContentToQuizAttempt(
+    quizAttemptId: number,
+    contentType: string,
+    content: any,
+  ): Promise<void> {
+    const attempt = this.quizAttempts.get(quizAttemptId);
+    if (attempt) {
+      if (!attempt.aiContent) {
+        attempt.aiContent = {};
+      }
+      (attempt.aiContent as Record<string, any>)[contentType] = content;
+    }
+  }
+
+  async getAIContentForQuizAttempt(quizAttemptId: number): Promise<any | null> {
+    const attempt = this.quizAttempts.get(quizAttemptId);
+    return attempt?.aiContent || null;
+  }
+
+  async decrementQuizRetakes(userId: number): Promise<void> {
+    // No longer needed in pay-per-report system
+    // This method is kept for backward compatibility but does nothing
+    console.log(
+      "decrementQuizRetakes called but no longer needed in pay-per-report system",
+    );
+  }
+
+  async createPayment(payment: Omit<InsertPayment, "id">): Promise<Payment> {
+    const id = this.currentPaymentId++;
+    const newPayment: Payment = {
+      ...payment,
+      id,
+      status: "pending",
+      currency: payment.currency || "usd",
+      stripePaymentIntentId: payment.stripePaymentIntentId || null,
+      quizAttemptId: payment.quizAttemptId || null,
+      createdAt: new Date(),
+      completedAt: null,
+      type: payment.type,
+      version: payment.version ?? 1,
+      amount: payment.amount,
+      userId: payment.userId,
+      paypalOrderId: payment.paypalOrderId ?? null,
+    };
+    this.payments.set(id, newPayment);
+    return newPayment;
+  }
+
+  async completePayment(paymentId: number): Promise<void> {
+    const payment = this.payments.get(paymentId);
+    if (!payment) return;
+
+    // Update payment status
+    const completedPayment = {
+      ...payment,
+      status: "completed" as const,
+      completedAt: new Date(),
+    };
+    this.payments.set(paymentId, completedPayment);
+
+    // Payment completed - no need to update user access in pay-per-report model
+  }
+
+  async linkPaymentToQuizAttempt(
+    paymentId: number,
+    quizAttemptId: number,
+  ): Promise<void> {
+    const payment = this.payments.get(paymentId);
+    if (!payment) return;
+
+    const updatedPayment = {
+      ...payment,
+      quizAttemptId,
+    };
+    this.payments.set(paymentId, updatedPayment);
+  }
+
+  async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    return Array.from(this.payments.values())
+      .filter((payment) => payment.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getPaymentsByStripeId(
+    stripePaymentIntentId: string,
+  ): Promise<Payment[]> {
+    return Array.from(this.payments.values()).filter(
+      (payment) => payment.stripePaymentIntentId === stripePaymentIntentId,
+    );
+  }
+
+  async getPaymentById(paymentId: number): Promise<Payment | undefined> {
+    return this.payments.get(paymentId);
+  }
+
+  async getAllPayments(limit: number = 1000): Promise<Payment[]> {
+    console.warn(
+      "⚠️ getAllPayments() is deprecated. Use getPaymentsWithUsers() for better performance.",
+    );
+    return Array.from(this.payments.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  async getPaymentsWithUsers(
+    options: {
+      limit?: number;
+      offset?: number;
+      status?: string;
+    } = {},
+  ): Promise<
+    Array<
+      Payment & {
+        user: { id: number; email: string; username?: string } | null;
+      }
+    >
+  > {
+    const { limit = 100, offset = 0, status } = options;
+
+    let paymentsArray = Array.from(this.payments.values());
+
+    if (status) {
+      paymentsArray = paymentsArray.filter((p) => p.status === status);
+    }
+
+    paymentsArray.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    paymentsArray = paymentsArray.slice(offset, offset + limit);
+
+    return paymentsArray.map((payment) => {
+      const user = this.users.get(payment.userId);
+      return {
+        ...payment,
+        user: user
+          ? {
+              id: user.id,
+              email: user.email,
+              // username: user.name, // removed, use email or firstName/lastName if needed
+            }
+          : null,
+      };
+=======
+      },
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    });
+  }
+
+  async saveAIContentToQuizAttempt(quizAttemptId: number, contentType: string, content: any) {
+    return await this.saveAIContent(quizAttemptId, contentType, content);
+  }
+
+  async getAIContent(quizAttemptId: number, contentType: string) {
+    return await this.prisma.aiContent.findFirst({
+      where: { quizAttemptId, contentType },
+      orderBy: { generatedAt: 'desc' },
+    });
+  }
+
+  async getAllAIContentForQuizAttempt(quizAttemptId: number) {
+    return await this.prisma.aiContent.findMany({
+      where: { quizAttemptId },
+      orderBy: { generatedAt: 'desc' },
+    });
+  }
+
+  async createPayment(data: any) {
+    return await this.prisma.payment.create({ data });
+  }
+
+  async completePayment(paymentId: number) {
+    return await this.prisma.payment.update({
+      where: { id: paymentId },
+      data: { status: 'completed', completedAt: new Date() },
+    });
+  }
+
+<<<<<<< HEAD
+  // Temporary user management (consolidated into users table)
+  async storeTemporaryUser(
+    sessionId: string,
+    email: string,
+    data: any,
+  ): Promise<User> {
+    const id = this.currentId++;
+    // Set 3-month expiration for users who provide email (90 days)
+    const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days from now
+
+    const user: User = {
+      id,
+      email,
+      password: data.password || null, // Use null instead of empty string for temporary users
+      firstName: data.firstName || null,
+      lastName: data.lastName || null,
+      isUnsubscribed: false,
+      sessionId,
+      isPaid: false,
+      isTemporary: true,
+      hasUnlockedFirstReport: false, // Temporary users haven't unlocked first report
+      tempQuizData: data.quizData || data,
+      expiresAt,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.users.set(id, user);
+    return user;
+=======
+  async linkPaymentToQuizAttempt(paymentId: number, quizAttemptId: number) {
+    return await this.prisma.payment.update({ where: { id: paymentId }, data: { quizAttemptId } });
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)
+  }
+
+  async getPaymentsByUser(userId: number) {
+    return await this.prisma.payment.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } });
+  }
+
+  async getPaymentsByStripeId(stripePaymentIntentId: string) {
+    return await this.prisma.payment.findMany({ where: { stripePaymentIntentId } });
+  }
+
+  async getPaymentById(paymentId: number) {
+    return await this.prisma.payment.findUnique({ where: { id: paymentId } });
+  }
+
+  async getAllPayments(limit = 100) {
+    return await this.prisma.payment.findMany({ orderBy: { createdAt: 'desc' }, take: limit });
+  }
+
+  async getPaymentsWithUsers(options: any = {}) {
+    const { limit = 100, offset = 0, status } = options;
+    return await this.prisma.payment.findMany({
+      where: status ? { status } : undefined,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+      include: { user: true },
+    });
+  }
+
+  async createRefund(data: any) {
+    return await this.prisma.refund.create({ data });
+  }
+
+  async updateRefundStatus(refundId: number, status: string, processedAt?: Date, stripeRefundId?: string, paypalRefundId?: string) {
+    return await this.prisma.refund.update({
+      where: { id: refundId },
+      data: { status, processedAt, stripeRefundId, paypalRefundId },
+    });
+  }
+
+  async getRefundsByPayment(paymentId: number) {
+    return await this.prisma.refund.findMany({ where: { paymentId }, orderBy: { createdAt: 'desc' } });
+  }
+
+  async getRefundById(refundId: number) {
+    return await this.prisma.refund.findUnique({ where: { id: refundId } });
+  }
+
+  async getAllRefunds(limit = 100) {
+    return await this.prisma.refund.findMany({ orderBy: { createdAt: 'desc' }, take: limit });
+  }
+
+  async storeTemporaryUser(sessionId: string, email: string, data: any) {
+    return await this.prisma.user.create({
+      data: {
+        email,
+        password: data.password || '',
+        isTemporary: true,
+        sessionId,
+        tempQuizData: data.quizData || null,
+        expiresAt: data.expiresAt || null,
+        firstName: data.firstName || null,
+        lastName: data.lastName || null,
+      },
+    });
+  }
+
+  async getTemporaryUser(sessionId: string) {
+    return await this.prisma.user.findFirst({
+      where: { sessionId, isTemporary: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getTemporaryUserByEmail(email: string) {
+    return await this.prisma.user.findFirst({ where: { email, isTemporary: true }, orderBy: { createdAt: 'desc' } });
+  }
+
+  async cleanupExpiredTemporaryUsers() {
+    const now = new Date();
+    await this.prisma.user.deleteMany({ where: { isTemporary: true, expiresAt: { lt: now } } });
+  }
+
+  async convertTemporaryUserToPaid(sessionId: string) {
+    return await this.prisma.user.updateMany({
+      where: { sessionId, isTemporary: true },
+      data: { isPaid: true, isTemporary: false, sessionId: undefined, tempQuizData: undefined, expiresAt: undefined, updatedAt: new Date() },
+    });
+  }
+
+  async isPaidUser(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    return !!(user && user.isPaid);
+  }
+
+  async createPasswordResetToken(userId: number, token: string, expiresAt: Date) {
+    return await this.prisma.passwordResetToken.create({ data: { userId, token, expiresAt } });
+  }
+
+  async getPasswordResetToken(token: string) {
+    return await this.prisma.passwordResetToken.findUnique({ where: { token } });
+  }
+
+  async deletePasswordResetToken(token: string) {
+    return await this.prisma.passwordResetToken.delete({ where: { token } });
+  }
+
+<<<<<<< HEAD
+  async isQuizAttemptPaid(quizAttemptId: number): Promise<boolean> {
+    const attempt = this.quizAttempts.get(quizAttemptId);
+    if (!attempt) return false;
+    
+    // Check if there's a completed payment for this quiz attempt
+    return Array.from(this.payments.values()).some(
+      payment => 
+        payment.quizAttemptId === quizAttemptId && 
+        payment.status === "completed" &&
+        payment.type === "report_unlock"
+    );
+  }
+
+  async getLatestPaidQuizAttempt(userId: number): Promise<QuizAttempt | undefined> {
+    const userAttempts = Array.from(this.quizAttempts.values())
+      .filter(attempt => attempt.userId === userId)
+      .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
+    
+    // Find the first (most recent) paid attempt
+    for (const attempt of userAttempts) {
+      if (await this.isQuizAttemptPaid(attempt.id)) {
+        return attempt;
+      }
+    }
+    
+    return undefined;
+  }
+
+  // Password reset operations
+  async createPasswordResetToken(
+    userId: number,
+    token: string,
+    expiresAt: Date,
+  ): Promise<PasswordResetToken> {
+    const id = this.currentPasswordResetTokenId++;
+    const resetToken: PasswordResetToken = {
+      id,
+      userId,
+      token,
+      expiresAt,
+      createdAt: new Date(),
+    };
+    this.passwordResetTokens.set(token, resetToken);
+    return resetToken;
+  }
+
+  async getPasswordResetToken(
+    token: string,
+  ): Promise<PasswordResetToken | undefined> {
+    return this.passwordResetTokens.get(token);
+  }
+
+  async deletePasswordResetToken(token: string): Promise<void> {
+    this.passwordResetTokens.delete(token);
+  }
+
+  async updateUserPassword(
+    userId: number,
+    hashedPassword: string,
+  ): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      this.users.set(userId, {
+        ...user,
+        password: hashedPassword,
+        updatedAt: new Date(),
+      });
+    }
+  }
+
+  // Data cleanup utilities
+  async cleanupExpiredData(): Promise<void> {
+    // Clean up expired unpaid email data (legacy 24h storage)
+    await this.cleanupExpiredUnpaidEmails();
+
+    // Clean up expired temporary users (3-month storage for email-provided users)
+    await this.cleanupExpiredTemporaryUsers();
+
+    console.log("Successfully cleaned up all expired data (MemStorage)");
+  }
+}
+
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  private ensureDb() {
+    if (!db) {
+      throw new Error("Database not available");
+    }
+    return db;
+  }
+
+  // Auto-migration method to ensure ai_content table exists
+  async ensureAiContentTable(): Promise<void> {
+    try {
+      // Check if ai_content table exists by trying to select from it
+      await this.ensureDb().select().from(aiContent).limit(1);
+      console.log("AI content table exists");
+    } catch (error: any) {
+      if (error.message.includes('relation "ai_content" does not exist')) {
+        console.log("AI content table missing, creating it...");
+        try {
+          await this.ensureDb().execute(sql`
+            CREATE TABLE IF NOT EXISTS ai_content (
+              id SERIAL PRIMARY KEY,
+              quiz_attempt_id INTEGER NOT NULL REFERENCES quiz_attempts(id) ON DELETE CASCADE,
+              content_type VARCHAR(100) NOT NULL,
+              content JSONB NOT NULL,
+              content_hash VARCHAR(64),
+              generated_at TIMESTAMP DEFAULT NOW() NOT NULL,
+              created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+              UNIQUE(quiz_attempt_id, content_type)
+            )
+          `);
+          console.log("AI content table created successfully");
+        } catch (createError) {
+          console.error("Failed to create ai_content table:", createError);
+          throw createError;
+        }
+      } else {
+        // Some other error, let it propagate
+        throw error;
+      }
+    }
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await this.ensureDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await this.ensureDb()
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await this.ensureDb()
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User> {
+    console.log("Storage updateUser: Updating user", id, "with:", updates);
+
+    const [user] = await this.ensureDb()
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+
+    console.log(
+      "Storage updateUser: Result:",
+      user ? { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email } : "null",
+    );
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await this.ensureDb().transaction(async (tx) => {
+      // Delete quiz attempts first (due to foreign key constraints)
+      await tx.delete(quizAttempts).where(eq(quizAttempts.userId, id));
+
+      // Delete payments
+      await tx.delete(payments).where(eq(payments.userId, id));
+
+      // Finally delete the user
+      const [deletedUser] = await tx
+        .delete(users)
+        .where(eq(users.id, id))
+        .returning();
+
+      if (!deletedUser) {
+        throw new Error("User not found");
+      }
+    });
+  }
+
+  async recordQuizAttempt(
+    attempt: Omit<InsertQuizAttempt, "id">,
+  ): Promise<QuizAttempt> {
+    console.log("recordQuizAttempt called with:", attempt);
+    
+    try {
+      // Use direct insert for maximum reliability
+      console.log("Starting direct insert for quiz attempt creation");
+      const [quizAttempt] = await this.ensureDb()
+        .insert(quizAttempts)
+        .values({
+          ...attempt,
+          isPaid: false, // New quiz attempts are unpaid by default
+        })
+        .returning();
+      
+      console.log("Quiz attempt created successfully:", quizAttempt);
+      
+      // Verify the insert worked by querying it back
+      const [verification] = await this.ensureDb()
+        .select()
+        .from(quizAttempts)
+        .where(eq(quizAttempts.id, quizAttempt.id));
+      
+      console.log("Verification query result:", verification ? [verification] : []);
+      
+      if (!verification) {
+        throw new Error(`Quiz attempt ${quizAttempt.id} was not persisted to database`);
+      }
+      
+      return quizAttempt;
+    } catch (error) {
+      console.error("Error in recordQuizAttempt:", error);
+      throw error;
+    }
+  }
+
+  async getQuizAttemptsCount(userId: number): Promise<number> {
+    const result = await this.ensureDb()
+      .select({ count: count() })
+      .from(quizAttempts)
+      .where(eq(quizAttempts.userId, userId));
+    return result[0].count;
+  }
+
+  async getQuizAttempts(userId: number): Promise<QuizAttempt[]> {
+    return await this.ensureDb()
+      .select()
+      .from(quizAttempts)
+      .where(eq(quizAttempts.userId, userId))
+      .orderBy(desc(quizAttempts.completedAt));
+  }
+
+  async getQuizAttemptsByUserId(userId: number): Promise<QuizAttempt[]> {
+    return this.getQuizAttempts(userId);
+  }
+
+  async getQuizAttempt(attemptId: number): Promise<QuizAttempt | undefined> {
+    console.log(`Storage getQuizAttempt: Looking for attempt ID ${attemptId}`);
+    const [attempt] = await this.ensureDb()
+      .select()
+      .from(quizAttempts)
+      .where(eq(quizAttempts.id, attemptId));
+    console.log(`Storage getQuizAttempt: Result for ID ${attemptId}:`, attempt);
+    return attempt;
+  }
+
+  async canUserRetakeQuiz(userId: number): Promise<boolean> {
+    const [user] = await this.ensureDb()
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+    // In the pure pay-per-report system: everyone can take unlimited quizzes
+    return user ? true : false;
+  }
+
+  // NEW AI CONTENT TABLE METHODS
+  async saveAIContent(
+    quizAttemptId: number,
+    contentType: string,
+    content: any,
+  ): Promise<AiContent> {
+    // Ensure ai_content table exists before proceeding
+    await this.ensureAiContentTable();
+
+    // Generate content hash for deduplication
+    const crypto = await import("crypto");
+    const contentHash = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(content))
+      .digest("hex");
+
+    // First, check if identical content already exists
+    const [existing] = await this.ensureDb()
+      .select()
+      .from(aiContent)
+      .where(
+        and(
+          eq(aiContent.quizAttemptId, quizAttemptId),
+          eq(aiContent.contentType, contentType),
+          eq(aiContent.contentHash, contentHash),
+        ),
+      );
+
+    if (existing) {
+      console.log(
+        `AI content ${contentType} already exists with same hash, skipping insert`,
+      );
+      return existing;
+    }
+
+    // Try to insert, if conflict then update
+    try {
+      console.log(
+        `Attempting to insert AI content: ${contentType} for quiz attempt ${quizAttemptId}`,
+      );
+      const [result] = await this.ensureDb()
+        .insert(aiContent)
+        .values({
+          quizAttemptId,
+          contentType,
+          content,
+          contentHash,
+        })
+        .returning();
+      return result;
+    } catch (error: any) {
+      console.error(`Error inserting AI content: ${error.message}`, {
+        code: error.code,
+        constraint: error.constraint,
+        table: error.table,
+      });
+
+      // If unique constraint violation, update existing record
+      if (error.code === "23505") {
+        // PostgreSQL unique violation
+        console.log(
+          `Updating existing AI content due to unique constraint violation`,
+        );
+        const [result] = await this.ensureDb()
+          .update(aiContent)
+          .set({
+            content,
+            contentHash,
+            generatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(aiContent.quizAttemptId, quizAttemptId),
+              eq(aiContent.contentType, contentType),
+            ),
+          )
+          .returning();
+        return result;
+      }
+
+      // Check if the error is about missing table
+      if (error.message.includes('relation "ai_content" does not exist')) {
+        console.error(
+          "AI Content table does not exist! Please run the database migration.",
+        );
+        throw new Error(
+          "Database migration required: ai_content table is missing. Please contact support.",
+        );
+      }
+
+      throw error;
+    }
+
+    console.log(
+      `AI content saved: ${contentType} for quiz attempt ${quizAttemptId}`,
+    );
+  }
+
+  async getAIContent(
+    quizAttemptId: number,
+    contentType: string,
+  ): Promise<AiContent | null> {
+    const [result] = await this.ensureDb()
+      .select()
+      .from(aiContent)
+      .where(
+        and(
+          eq(aiContent.quizAttemptId, quizAttemptId),
+          eq(aiContent.contentType, contentType),
+        ),
+      )
+      .orderBy(desc(aiContent.generatedAt))
+      .limit(1);
+
+    return result || null;
+  }
+
+  async getAllAIContentForQuizAttempt(
+    quizAttemptId: number,
+  ): Promise<AiContent[]> {
+    return await this.ensureDb()
+      .select()
+      .from(aiContent)
+      .where(eq(aiContent.quizAttemptId, quizAttemptId))
+      .orderBy(desc(aiContent.generatedAt));
+  }
+
+  async deleteAIContent(
+    quizAttemptId: number,
+    contentType: string,
+  ): Promise<void> {
+    await this.ensureDb()
+      .delete(aiContent)
+      .where(
+        and(
+          eq(aiContent.quizAttemptId, quizAttemptId),
+          eq(aiContent.contentType, contentType),
+        ),
+      );
+    console.log(`DatabaseStorage: Deleted AI content ${contentType} for attempt ${quizAttemptId}`);
+  }
+
+  // MIGRATION FUNCTION: Move existing JSONB data to new AI content table
+  async migrateAIContentToNewTable(): Promise<{
+    totalAttempts: number;
+    migratedAttempts: number;
+    errors: string[];
+  }> {
+    console.log(" Starting AI content migration from JSONB to new table...");
+
+    const errors: string[] = [];
+    let migratedAttempts = 0;
+
+    // Get all quiz attempts that have AI content in the old JSONB field
+    const attempts = await this.ensureDb()
+      .select({
+        id: quizAttempts.id,
+        aiContent: quizAttempts.aiContent,
+      })
+      .from(quizAttempts)
+      .where(
+        sql`${quizAttempts.aiContent} IS NOT NULL AND ${quizAttempts.aiContent} != 'null'`,
+      );
+
+    console.log(
+      ` Found ${attempts.length} quiz attempts with AI content to migrate`,
+    );
+
+    for (const attempt of attempts) {
+      try {
+        if (!attempt.aiContent || typeof attempt.aiContent !== "object") {
+          continue;
+        }
+
+        const aiData = attempt.aiContent as any;
+
+        // Migrate different types of AI content based on structure
+        if (aiData.insights) {
+          await this.saveAIContent(attempt.id, "preview", aiData.insights);
+        }
+
+        if (aiData.personalizedRecommendations || aiData.keyInsights) {
+          await this.saveAIContent(attempt.id, "fullReport", aiData);
+        }
+
+        if (aiData.characteristics && Array.isArray(aiData.characteristics)) {
+          await this.saveAIContent(attempt.id, "characteristics", {
+            characteristics: aiData.characteristics,
+          });
+        }
+
+        // Handle model-specific insights (look for model names in the data)
+        if (aiData.modelFitReason || aiData.successPredictors) {
+          // Try to determine model name from the data or use generic
+          const modelName =
+            aiData.modelName || aiData.businessModel || "unknown";
+          await this.saveAIContent(attempt.id, `model_${modelName}`, aiData);
+        }
+
+        // Handle any other content types that might be structured
+        for (const [key, value] of Object.entries(aiData)) {
+          if (
+            key !== "insights" &&
+            key !== "personalizedRecommendations" &&
+            key !== "keyInsights" &&
+            key !== "characteristics" &&
+            key !== "modelFitReason" &&
+            key !== "successPredictors" &&
+            value &&
+            typeof value === "object"
+          ) {
+            await this.saveAIContent(attempt.id, key, value);
+          }
+        }
+
+        migratedAttempts++;
+
+        if (migratedAttempts % 10 === 0) {
+          console.log(
+            ` Migration progress: ${migratedAttempts}/${attempts.length} quiz attempts`,
+          );
+        }
+      } catch (error: any) {
+        const errorMsg = `Failed to migrate quiz attempt ${attempt.id}: ${error.message}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
+      }
+    }
+
+    console.log(`AI content migration completed!`);
+    console.log(`Total attempts: ${attempts.length}`);
+    console.log(`Successfully migrated: ${migratedAttempts}`);
+    console.log(`Errors: ${errors.length}`);
+
+    if (errors.length > 0) {
+      console.log("Migration errors:", errors);
+    }
+
+    return {
+      totalAttempts: attempts.length,
+      migratedAttempts,
+      errors,
+    };
+  }
+
+  // DEPRECATED METHODS (for backward compatibility)
+  async saveAIContentToQuizAttempt(
+    quizAttemptId: number,
+    contentType: string,
+    content: any,
+  ): Promise<void> {
+    // NEW BEHAVIOR: Use the new AI content table
+    console.log(
+      ` Saving AI content via new table: ${contentType} for quiz attempt ${quizAttemptId}`,
+    );
+    await this.saveAIContent(quizAttemptId, contentType, content);
+
+    // LEGACY BEHAVIOR: Also update the old JSONB field for backward compatibility during transition
+    try {
+      const existingContent =
+        await this.getAIContentForQuizAttempt(quizAttemptId);
+      const updatedContent = {
+        ...existingContent,
+        [contentType]: content,
+        lastUpdated: new Date().toISOString(),
+      };
+
+      await this.ensureDb()
+        .update(quizAttempts)
+        .set({ aiContent: updatedContent })
+        .where(eq(quizAttempts.id, quizAttemptId));
+    } catch (error) {
+      console.warn(`Failed to update legacy JSONB field:`, error);
+      // Don't throw - new table is the primary storage now
+    }
+  }
+
+  async getAIContentForQuizAttempt(quizAttemptId: number): Promise<any | null> {
+    const [attempt] = await this.ensureDb()
+      .select({ aiContent: quizAttempts.aiContent })
+      .from(quizAttempts)
+      .where(eq(quizAttempts.id, quizAttemptId));
+    return attempt?.aiContent || null;
+  }
+
+  async decrementQuizRetakes(userId: number): Promise<void> {
+    // No longer needed in pay-per-report system
+    // This method is kept for backward compatibility but does nothing
+    console.log(
+      "decrementQuizRetakes called but no longer needed in pay-per-report system",
+    );
+  }
+
+  async createPayment(payment: Omit<InsertPayment, "id">): Promise<Payment> {
+    const [newPayment] = await this.ensureDb()
+      .insert(payments)
+      .values(payment)
+      .returning();
+    return newPayment;
+  }
+
+  async completePayment(paymentId: number): Promise<void> {
+    await this.ensureDb().transaction(async (tx) => {
+      // Get current payment with version for optimistic locking
+      const [currentPayment] = await tx
+        .select()
+        .from(payments)
+        .where(eq(payments.id, paymentId))
+        .limit(1);
+
+      if (!currentPayment) {
+        throw new Error("Payment not found");
+      }
+
+      // Check if payment is already completed (idempotency)
+      if (currentPayment.status === "completed") {
+        console.log(`Payment ${paymentId} already completed, skipping`);
+        return;
+      }
+
+      // Check if payment is in a valid state for completion
+      if (currentPayment.status !== "pending") {
+        throw new Error(
+          `Payment ${paymentId} is in invalid state: ${currentPayment.status}`,
+        );
+      }
+
+      // Use optimistic locking to prevent race conditions
+      const [updatedPayment] = await tx
+        .update(payments)
+        .set({
+          status: "completed",
+          completedAt: new Date(),
+          version: currentPayment.version + 1, // Increment version
+        })
+        .where(
+          and(
+            eq(payments.id, paymentId),
+            eq(payments.version, currentPayment.version), // Only update if version matches
+          ),
+        )
+        .returning();
+
+      if (!updatedPayment) {
+        throw new Error(
+          `Payment ${paymentId} was modified by another process (race condition detected)`,
+        );
+      }
+
+      console.log(
+        `Payment ${paymentId} completed successfully with version ${updatedPayment.version}`,
+      );
+
+      // Convert temporary user to permanent if this is their first completed payment
+      if (currentPayment.userId) {
+        const [user] = await tx
+          .select()
+          .from(users)
+          .where(eq(users.id, currentPayment.userId))
+          .limit(1);
+
+        if (user && user.isTemporary) {
+          // Check if this is their first completed payment
+          const completedPayments = await tx
+            .select()
+            .from(payments)
+            .where(
+              and(
+                eq(payments.userId, currentPayment.userId),
+                eq(payments.status, "completed"),
+              ),
+            );
+
+          // If this is the first completed payment, convert to permanent user and mark as having unlocked first report
+          if (completedPayments.length === 1) {
+            await tx
+              .update(users)
+              .set({
+                isTemporary: false,
+                hasUnlockedFirstReport: true,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.id, currentPayment.userId));
+
+            console.log(
+              `Converted temporary user ${currentPayment.userId} to permanent and unlocked first report`,
+            );
+          }
+          
+          // If payment is linked to a quiz attempt, mark that attempt as paid
+          if (currentPayment.quizAttemptId) {
+            await tx
+              .update(quizAttempts)
+              .set({
+                isPaid: true,
+              })
+              .where(eq(quizAttempts.id, currentPayment.quizAttemptId));
+            
+            console.log(`Quiz attempt ${currentPayment.quizAttemptId} marked as paid`);
+          }
+        }
+      }
+    });
+  }
+
+  async linkPaymentToQuizAttempt(
+    paymentId: number,
+    quizAttemptId: number,
+  ): Promise<void> {
+    await this.ensureDb()
+      .update(payments)
+      .set({
+        quizAttemptId: quizAttemptId,
+      })
+      .where(eq(payments.id, paymentId));
+  }
+
+  async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    return await this.ensureDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.userId, userId))
+      .orderBy(desc(payments.createdAt));
+  }
+
+  async getPaymentsByStripeId(
+    stripePaymentIntentId: string,
+  ): Promise<Payment[]> {
+    return await this.ensureDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.stripePaymentIntentId, stripePaymentIntentId));
+  }
+
+  async getPaymentById(paymentId: number): Promise<Payment | undefined> {
+    const [payment] = await this.ensureDb()
+      .select()
+      .from(payments)
+      .where(eq(payments.id, paymentId));
+    return payment || undefined;
+  }
+
+  async getAllPayments(limit: number = 1000): Promise<Payment[]> {
+    console.warn(
+      "⚠️ getAllPayments() is deprecated. Use getPaymentsWithUsers() for better performance.",
+    );
+    return await this.ensureDb()
+      .select()
+      .from(payments)
+      .orderBy(desc(payments.createdAt))
+      .limit(limit);
+  }
+
+  // Optimized method to get payments with user data in a single query (fixes N+1 problem)
+  async getPaymentsWithUsers(
+    options: {
+      limit?: number;
+      offset?: number;
+      status?: string;
+    } = {},
+  ): Promise<
+    Array<
+      Payment & {
+        user: { id: number; email: string; username?: string } | null;
+      }
+    >
+  > {
+    const { limit = 100, offset = 0, status } = options;
+
+    let query = this.ensureDb()
+      .select({
+        // Payment fields
+        id: payments.id,
+        userId: payments.userId,
+        amount: payments.amount,
+        currency: payments.currency,
+        type: payments.type,
+        stripePaymentIntentId: payments.stripePaymentIntentId,
+        paypalOrderId: payments.paypalOrderId,
+        status: payments.status,
+        quizAttemptId: payments.quizAttemptId,
+        createdAt: payments.createdAt,
+        completedAt: payments.completedAt,
+        version: payments.version,
+        // User fields
+        userEmail: users.email,
+        userFirstName: users.firstName,
+        userLastName: users.lastName,
+      })
+      .from(payments)
+      .leftJoin(users, eq(payments.userId, users.id))
+      .orderBy(desc(payments.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    if (status) {
+      // Only call .where if status is provided
+      query = (query as any).where(eq(payments.status, status));
+    }
+
+    const results = await query;
+
+    return results.map((row) => ({
+      id: row.id,
+      userId: row.userId,
+      amount: row.amount,
+      currency: row.currency,
+      type: row.type,
+      stripePaymentIntentId: row.stripePaymentIntentId,
+      paypalOrderId: row.paypalOrderId,
+      status: row.status,
+      quizAttemptId: row.quizAttemptId,
+      createdAt: row.createdAt,
+      completedAt: row.completedAt,
+      version: row.version,
+      user: row.userEmail
+        ? {
+            id: row.userId,
+            email: row.userEmail,
+            // username: user.name, // removed, use email or firstName/lastName if needed
+          }
+        : null,
+    }));
+  }
+
+  // Refund operations
+  async createRefund(refund: Omit<InsertRefund, "id">): Promise<Refund> {
+    const [newRefund] = await this.ensureDb()
+      .insert(refunds)
+      .values(refund)
+      .returning();
+    return newRefund;
+  }
+
+  async updateRefundStatus(
+    refundId: number,
+    status: string,
+    processedAt?: Date,
+    stripeRefundId?: string,
+    paypalRefundId?: string,
+  ): Promise<void> {
+    const updateData: any = { status };
+    if (processedAt) updateData.processedAt = processedAt;
+    if (stripeRefundId) updateData.stripeRefundId = stripeRefundId;
+    if (paypalRefundId) updateData.paypalRefundId = paypalRefundId;
+
+    await this.ensureDb()
+      .update(refunds)
+      .set(updateData)
+      .where(eq(refunds.id, refundId));
+  }
+
+  async getRefundsByPayment(paymentId: number): Promise<Refund[]> {
+    return await this.ensureDb()
+      .select()
+      .from(refunds)
+      .where(eq(refunds.paymentId, paymentId))
+      .orderBy(desc(refunds.createdAt));
+  }
+
+  async getRefundById(refundId: number): Promise<Refund | undefined> {
+    const [refund] = await this.ensureDb()
+      .select()
+      .from(refunds)
+      .where(eq(refunds.id, refundId));
+    return refund || undefined;
+  }
+
+  async getAllRefunds(limit: number = 1000): Promise<Refund[]> {
+    return await this.ensureDb()
+      .select()
+      .from(refunds)
+      .orderBy(desc(refunds.createdAt))
+      .limit(limit);
+  }
+
+  async storeUnpaidUserEmail(
+    sessionId: string,
+    email: string,
+    quizData: any,
+  ): Promise<UnpaidUserEmail> {
+    console.log("storeUnpaidUserEmail called with:", {
+      sessionId,
+      email,
+      quizDataKeys: Object.keys(quizData),
+    });
+
+    try {
+      // Use transaction for concurrent safety
+      return await this.ensureDb().transaction(async (tx) => {
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+        console.log("Calculated expiresAt:", expiresAt);
+
+        console.log("Deleting existing record for session:", sessionId);
+        // Delete any existing record for this session
+        await tx
+          .delete(unpaidUserEmails)
+          .where(eq(unpaidUserEmails.sessionId, sessionId));
+
+        console.log("Inserting new unpaid user email record...");
+        const [newUnpaidUserEmail] = await tx
+          .insert(unpaidUserEmails)
+          .values({
+            sessionId,
+            email,
+            quizData,
+            expiresAt,
+          })
+          .returning();
+
+        console.log(
+          "Successfully stored unpaid user email:",
+          newUnpaidUserEmail?.id,
+        );
+        return newUnpaidUserEmail;
+      });
+    } catch (error) {
+      console.error("Error in storeUnpaidUserEmail:", error);
+      console.error(
+        "Error stack:",
+        error instanceof Error ? error.stack : "No stack trace",
+      );
+      throw error;
+    }
+  }
+
+  async getUnpaidUserEmail(
+    sessionId: string,
+  ): Promise<UnpaidUserEmail | undefined> {
+    const [email] = await this.ensureDb()
+      .select()
+      .from(unpaidUserEmails)
+      .where(eq(unpaidUserEmails.sessionId, sessionId));
+
+    if (!email) return undefined;
+
+    // Check if expired
+    if (email.expiresAt < new Date()) {
+      await this.ensureDb()
+        .delete(unpaidUserEmails)
+        .where(eq(unpaidUserEmails.sessionId, sessionId));
+      return undefined;
+    }
+
+    return email;
+  }
+
+  async cleanupExpiredUnpaidEmails(): Promise<void> {
+    try {
+      await this.ensureDb()
+        .delete(unpaidUserEmails)
+        .where(sql`${unpaidUserEmails.expiresAt} < ${new Date()}`);
+    } catch (error) {
+      console.error("Error cleaning up expired unpaid emails:", error);
+      // Don't throw - just log the error
+    }
+  }
+
+  // New consolidated temporary user methods for DatabaseStorage
+  async storeTemporaryUser(
+    sessionId: string,
+    email: string,
+    data: any,
+  ): Promise<User> {
+    console.log("storeTemporaryUser called with:", {
+      sessionId,
+      email,
+      dataKeys: Object.keys(data),
+    });
+
+    try {
+      return await this.ensureDb().transaction(async (tx) => {
+        // Set 3-month expiration for users who provide email (90 days)
+        const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days from now
+
+        // Delete any existing temporary user for this session or email
+        await tx
+          .delete(users)
+          .where(
+            or(
+              and(eq(users.sessionId, sessionId), eq(users.isTemporary, true)),
+              and(eq(users.email, email), eq(users.isTemporary, true)),
+            ),
+          );
+
+        // Insert new temporary user
+        const [newUser] = await tx
+          .insert(users)
+          .values({
+            email,
+            password: data.password || null, // Use null instead of empty string for temporary users
+            firstName: data.firstName || null,
+            lastName: data.lastName || null,
+            sessionId,
+            isPaid: false,
+            isTemporary: true,
+            tempQuizData: data.quizData || data,
+            expiresAt,
+          })
+          .returning();
+
+        console.log("Successfully stored temporary user:", newUser?.id);
+        
+        // If quiz data is provided, also create a quiz attempt in the same transaction
+        if (data.quizData) {
+          const [quizAttempt] = await tx
+            .insert(quizAttempts)
+            .values({
+              userId: newUser.id,
+              quizData: data.quizData,
+            })
+            .returning();
+          
+          console.log("Successfully created quiz attempt in same transaction:", quizAttempt?.id);
+        }
+        
+        return newUser;
+      });
+    } catch (error) {
+      console.error("Error in storeTemporaryUser:", error);
+      throw error;
+    }
+  }
+
+  async getTemporaryUser(sessionId: string): Promise<User | undefined> {
+    const [user] = await this.ensureDb()
+      .select()
+      .from(users)
+      .where(and(eq(users.sessionId, sessionId), eq(users.isTemporary, true)));
+
+    if (!user) return undefined;
+
+    // Check if expired
+    if (user.expiresAt && user.expiresAt < new Date()) {
+      await this.ensureDb().delete(users).where(eq(users.id, user.id));
+      return undefined;
+    }
+
+    return user;
+  }
+
+  async getTemporaryUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await this.ensureDb()
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email), eq(users.isTemporary, true)));
+
+    if (!user) return undefined;
+
+    // Check if expired
+    if (user.expiresAt && user.expiresAt < new Date()) {
+      await this.ensureDb().delete(users).where(eq(users.id, user.id));
+      return undefined;
+    }
+
+    return user;
+  }
+
+  async cleanupExpiredTemporaryUsers(): Promise<void> {
+    try {
+      await this.ensureDb()
+        .delete(users)
+        .where(
+          and(
+            eq(users.isTemporary, true),
+            sql`${users.expiresAt} < ${new Date()}`,
+          ),
+        );
+    } catch (error) {
+      console.error("Error cleaning up expired temporary users:", error);
+    }
+  }
+
+  async convertTemporaryUserToPaid(
+    sessionId: string,
+  ): Promise<User | undefined> {
+    try {
+      return await this.ensureDb().transaction(async (tx) => {
+        const [user] = await tx
+          .select()
+          .from(users)
+          .where(
+            and(eq(users.sessionId, sessionId), eq(users.isTemporary, true)),
+          );
+
+        if (!user) return undefined;
+
+        // Convert to paid user
+        const [updatedUser] = await tx
+          .update(users)
+          .set({
+            isPaid: true,
+            isTemporary: false,
+            sessionId: null,
+            tempQuizData: null,
+            expiresAt: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id))
+          .returning();
+
+        console.log(
+          `Converted temporary user ${user.email} to paid - removed expiration (quiz attempts will persist via user)`,
+        );
+
+        return updatedUser;
+      });
+    } catch (error) {
+      console.error("Error converting temporary user to paid:", error);
+      throw error;
+    }
+  }
+
+  async isPaidUser(userId: number): Promise<boolean> {
+    try {
+      const userPayments = await this.ensureDb()
+        .select()
+        .from(payments)
+        .where(
+          and(eq(payments.userId, userId), eq(payments.status, "completed")),
+        );
+      return userPayments.length > 0;
+    } catch (error) {
+      console.error("Error checking if user is paid:", error);
+      return false; // Default to unpaid if there's an error
+    }
+  }
+
+  async isQuizAttemptPaid(quizAttemptId: number): Promise<boolean> {
+    const [attempt] = await this.ensureDb()
+      .select()
+      .from(quizAttempts)
+      .where(eq(quizAttempts.id, quizAttemptId));
+    return attempt ? attempt.isPaid : false;
+  }
+
+  async getLatestPaidQuizAttempt(userId: number): Promise<QuizAttempt | undefined> {
+    const [attempt] = await this.ensureDb()
+      .select()
+      .from(quizAttempts)
+      .where(
+        and(
+          eq(quizAttempts.userId, userId),
+          eq(quizAttempts.isPaid, true)
+        )
+      )
+      .orderBy(desc(quizAttempts.completedAt))
+      .limit(1);
+    return attempt;
+  }
+
+  async createPasswordResetToken(
+    userId: number,
+    token: string,
+    expiresAt: Date,
+  ): Promise<PasswordResetToken> {
+    const [resetToken] = await this.ensureDb()
+      .insert(passwordResetTokens)
+      .values({
+        userId,
+        token,
+        expiresAt,
+      })
+      .returning();
+    return resetToken;
+  }
+
+  async getPasswordResetToken(
+    token: string,
+  ): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await this.ensureDb()
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+    return resetToken || undefined;
+  }
+
+  async deletePasswordResetToken(token: string): Promise<void> {
+    await this.ensureDb()
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+  }
+
+  async updateUserPassword(
+    userId: number,
+    hashedPassword: string,
+  ): Promise<void> {
+    await this.ensureDb()
+      .update(users)
+      .set({
+        password: hashedPassword,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  public async fixSchema(): Promise<void> {
+    // Add missing columns to users table
+    await this.ensureDb().execute(sql`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP
+    `);
+
+    // Add missing PayPal column to payments table
+    await this.ensureDb().execute(sql`
+      ALTER TABLE payments
+      ADD COLUMN IF NOT EXISTS paypal_order_id VARCHAR UNIQUE
+    `);
+
+    // Create ai_content table if it doesn't exist
+    await this.ensureDb().execute(sql`
+      CREATE TABLE IF NOT EXISTS ai_content (
+        id SERIAL PRIMARY KEY,
+        quiz_attempt_id INTEGER NOT NULL REFERENCES quiz_attempts(id) ON DELETE CASCADE,
+        content_type VARCHAR(100) NOT NULL,
+        content JSONB NOT NULL,
+        content_hash VARCHAR(64),
+        generated_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        UNIQUE(quiz_attempt_id, content_type)
+      )
+    `);
+
+    // Mark all existing users as paid
+    await this.ensureDb().execute(sql`
+      UPDATE users
+      SET is_paid = TRUE, is_temporary = FALSE
+      WHERE is_paid IS NULL OR is_temporary IS NULL
+    `);
+  }
+
+  async cleanupExpiredData(): Promise<void> {
+    try {
+      // Clean up expired unpaid email data (legacy 24h storage)
+      await this.cleanupExpiredUnpaidEmails();
+
+      // Clean up expired temporary users (3-month storage for email-provided users)
+      await this.cleanupExpiredTemporaryUsers();
+
+      console.log("Successfully cleaned up all expired data");
+    } catch (error) {
+      console.error("❌ Error during data cleanup:", error);
+      // Don't throw - just log the error to prevent server crashes
+    }
+  }
+}
+
+export const storage = process.env.DATABASE_URL
+  ? new DatabaseStorage()
+  : new MemStorage();
+=======
+  async updateUserPassword(userId: number, hashedPassword: string) {
+    return await this.prisma.user.update({ where: { id: userId }, data: { password: hashedPassword, updatedAt: new Date() } });
+  }
+}
+
+export const storage = new Storage();
+>>>>>>> 02c75d7 (Automated commit: apply latest changes)

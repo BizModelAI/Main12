@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  password            String
+  firstName           String?              @map("first_name")
+  lastName            String?              @map("last_name")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  expiresAt           DateTime?            @map("expires_at")
+  isPaid              Boolean              @default(false) @map("is_paid")
+  isTemporary         Boolean              @default(false) @map("is_temporary")
+  isUnsubscribed      Boolean              @default(false) @map("is_unsubscribed")
+  sessionId           String?              @map("session_id")
+  tempQuizData        Json?                @map("temp_quiz_data")
+  updatedAt           DateTime             @default(now()) @map("updated_at")
+  passwordResetTokens PasswordResetToken[]
+  payments            Payment[]
+  quizAttempts        QuizAttempt[]
+  refundsProcessed    Refund[]             @relation("RefundAdminUser")
+  reportViews         ReportView[]
+
+  @@map("users")
+}
+
+model QuizAttempt {
+  id          Int          @id @default(autoincrement())
+  userId      Int?         @map("user_id")
+  sessionId   String?      @map("session_id")
+  quizData    Json         @map("quiz_data")
+  aiContent   Json?        @map("ai_content")
+  isPaid      Boolean      @default(false) @map("is_paid")
+  completedAt DateTime     @default(now()) @map("completed_at")
+  expiresAt   DateTime?    @map("expires_at")
+  aiContents  AiContent[]
+  payments    Payment[]
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reportViews ReportView[]
+
+  @@map("quiz_attempts")
+}
+
+model AiContent {
+  id            Int         @id @default(autoincrement())
+  quizAttemptId Int         @map("quiz_attempt_id")
+  contentType   String      @map("content_type")
+  content       Json
+  contentHash   String?     @map("content_hash")
+  generatedAt   DateTime    @default(now()) @map("generated_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+
+  @@unique([quizAttemptId, contentType])
+  @@map("ai_content")
+}
+
+model Payment {
+  id                    Int          @id @default(autoincrement())
+  userId                Int          @map("user_id")
+  amount                Decimal      @db.Decimal(10, 2)
+  currency              String       @default("usd")
+  type                  String
+  stripePaymentIntentId String?      @unique @map("stripe_payment_intent_id")
+  paypalOrderId         String?      @unique @map("paypal_order_id")
+  status                String       @default("pending")
+  quizAttemptId         Int?         @map("quiz_attempt_id")
+  createdAt             DateTime     @default(now()) @map("created_at")
+  completedAt           DateTime?    @map("completed_at")
+  version               Int          @default(1)
+  quizAttempt           QuizAttempt? @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refunds               Refund[]
+
+  @@index([status], map: "idx_payment_status")
+  @@index([userId], map: "idx_payment_user")
+  @@index([stripePaymentIntentId], map: "idx_payment_stripe")
+  @@index([paypalOrderId], map: "idx_payment_paypal")
+  @@map("payments")
+}
+
+model Refund {
+  id             Int       @id @default(autoincrement())
+  paymentId      Int       @map("payment_id")
+  amount         Decimal   @db.Decimal(10, 2)
+  currency       String    @default("usd")
+  reason         String
+  status         String    @default("pending")
+  stripeRefundId String?   @map("stripe_refund_id")
+  paypalRefundId String?   @map("paypal_refund_id")
+  adminUserId    Int?      @map("admin_user_id")
+  adminNote      String?   @map("admin_note")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  processedAt    DateTime? @map("processed_at")
+  adminUser      User?     @relation("RefundAdminUser", fields: [adminUserId], references: [id])
+  payment        Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("refunds")
+}
+
+model ReportView {
+  id            Int         @id @default(autoincrement())
+  userId        Int?        @map("user_id")
+  sessionId     String?     @map("session_id")
+  quizAttemptId Int         @map("quiz_attempt_id")
+  viewedAt      DateTime    @default(now()) @map("viewed_at")
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  user          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("report_views")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model sessions {
+  sid    String   @id(map: "session_pkey") @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+}
