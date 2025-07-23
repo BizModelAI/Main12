@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTokenFromRequest, verifyToken } from '../../../../../server/utils/jwtUtils';
-import { storage } from '../../../../../server/storage';
+import { getTokenFromRequest, verifyToken } from '../../../../server/utils/jwtUtils';
+import { storage } from '../../../../server/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const token = getTokenFromRequest(req);
