@@ -38,9 +38,9 @@ app.get('/api/health', (_req, res) => {
 
 async function startServer() {
   try {
-    // Initialize database connection
-    await storage.initialize();
-    console.log('✅ Database connected');
+    // Register API routes
+    await registerRoutes(app);
+    console.log('✅ Routes registered');
 
     // Setup Vite development server
     await setupVite(app, server);
