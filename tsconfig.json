@@ -22,7 +22,8 @@
     "typeRoots": ["./node_modules/@types", "./client/src/types", "./server"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "api/_lib/*": ["./api/_lib/*"]
     }
   }
 }
