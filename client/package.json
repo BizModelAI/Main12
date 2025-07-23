@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "recharts": "^2.15.4",
+    "date-fns": "^3.6.0",
+    "clsx": "^2.1.1",
     "@fontsource/noto-emoji": "^5.2.6",
     "@tanstack/react-query": "^5.83.0",
     "@types/react": "^19.1.8",
