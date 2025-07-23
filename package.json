@@ -17,7 +17,8 @@
     "remove-quiz-attempt-expiration": "tsx scripts/remove-quiz-attempt-expiration.ts",
     "check-emoji-corruption": "node scripts/check-emoji-corruption.js",
     "fix-emoji-corruption": "node scripts/fix-emoji-corruption.js",
-    "dev:backend": "ts-node --transpile-only server/index.ts"
+    "dev:backend": "ts-node --transpile-only server/index.ts",
+    "postinstall": "cd client && ln -s ../node_modules node_modules || true"
   },
   "dependencies": {
     "@fontsource/noto-emoji": "^5.2.6",
