@@ -22,6 +22,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(401).json({ error: 'User not found' });
     return;
   }
-  const { passwordHash, ...userInfo } = user;
+  const { password, ...userInfo } = user;
   res.status(200).json(userInfo);
 } 
