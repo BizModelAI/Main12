@@ -4,16 +4,11 @@ import postgres from 'postgres';
 import { users, quizAttempts, payments, aiContent } from './shared/schema.ts';
 
 async function checkDatabase() {
-<<<<<<< HEAD
   console.log('🔍 Checking database state...\n');
   
   const sql = postgres(process.env.DATABASE_URL);
   const db = drizzle(sql);
   
-=======
-  console.log('� Checking Database State...\n');
-
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
   try {
     // Check users table
     console.log('📊 USERS TABLE:');
@@ -85,11 +80,8 @@ async function checkDatabase() {
   } finally {
     await sql.end();
   }
-<<<<<<< HEAD
-=======
 
-  console.log('\n� Database Check Complete');
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+  console.log('\n🔍 Database Check Complete');
 }
 
 checkDatabase(); 

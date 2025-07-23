@@ -723,14 +723,12 @@ ${userProfile}`;
           return existingContent;
         }
         console.log(`❌ No existing model_${modelName} content found, will generate new API call`);
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
       }
     }
 
       console.log(
         ` Generating fresh model insights for ${modelName} (${fitType}) (API CALL)`,
       );
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
       const userProfile = this.createUserProfile(quizData);
       let fitPrompt = "";
 
