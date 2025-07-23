@@ -444,78 +444,10 @@ const FullReport: React.FC<FullReportProps> = ({
     // Generate all 6 characteristics with OpenAI
     const generateAllCharacteristics = async () => {
       try {
-        // Helper function to convert numerical ratings to descriptive text
-        const getRatingDescription = (rating: number): string => {
-          if (rating >= 4) return "high";
-          if (rating >= 3) return "moderate";
-          return "low";
-        };
-
-        const prompt = `Based on this quiz data, generate exactly 6 short positive characteristics that reflect the user's entrepreneurial strengths. Each should be 3-5 words maximum and highlight unique aspects of their entrepreneurial potential.
-
-Quiz Data:
-- Self-motivation level: ${getRatingDescription(quizData.selfMotivationLevel)}
-- Risk comfort level: ${getRatingDescription(quizData.riskComfortLevel)}
-- Tech skills rating: ${getRatingDescription(quizData.techSkillsRating)}
-- Direct communication enjoyment: ${getRatingDescription(quizData.directCommunicationEnjoyment)}
-- Learning preference: ${quizData.learningPreference}
-- Organization level: ${getRatingDescription(quizData.organizationLevel)}
-- Creative work enjoyment: ${getRatingDescription(quizData.creativeWorkEnjoyment)}
-- Work collaboration preference: ${quizData.workCollaborationPreference}
-- Decision making style: ${quizData.decisionMakingStyle}
-- Work structure preference: ${quizData.workStructurePreference}
-- Long-term consistency: ${getRatingDescription(quizData.longTermConsistency)}
-- Uncertainty handling: ${getRatingDescription(quizData.uncertaintyHandling)}
-- Tools familiar with: ${quizData.familiarTools?.join(", ")}
-- Main motivation: ${quizData.mainMotivation}
-- Weekly time commitment: ${quizData.weeklyTimeCommitment}
-- Income goal: ${quizData.successIncomeGoal}
-
-Return a JSON object with this exact structure:
-{
-  "characteristics": ["characteristic 1", "characteristic 2", "characteristic 3", "characteristic 4", "characteristic 5", "characteristic 6"]
-}
-
-Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", "Tech-savvy innovator", "Clear communicator", "Organized planner", "Creative problem solver"]}`;
-
-        const response = await fetch("/api/openai-chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: prompt,
-            maxTokens: 200,
-            temperature: 0.7,
-            responseFormat: { type: "json_object" },
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to generate characteristics");
-        }
-
-        const data = await response.json();
-
-        // Clean up the response content (remove markdown code blocks if present)
-        let cleanContent = data.content;
-        if (cleanContent.includes("```json")) {
-          cleanContent = cleanContent
-            .replace(/```json\n?/g, "")
-            .replace(/```/g, "");
-        }
-
-        const parsed = JSON.parse(cleanContent);
-        if (
-          parsed &&
-          parsed.characteristics &&
-          Array.isArray(parsed.characteristics) &&
-          parsed.characteristics.length === 6
-        ) {
-          setAllCharacteristics(parsed.characteristics);
-        } else {
-          throw new Error("Invalid response format");
-        }
+        const aiService = AIService.getInstance();
+        const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+        const result = await aiService.generateAllCharacteristics(quizData, quizAttemptId);
+        setAllCharacteristics(result.characteristics);
       } catch (error) {
         console.error("Error generating all characteristics:", error);
         // Fallback characteristics based on quiz data
@@ -576,10 +508,14 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
           actionPlan: { phase1: ["Setup"], phase2: ["Launch"], phase3: ["Scale"] }
         }));
 
+        // Get quizAttemptId from props, context, or localStorage
+        const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+
         const insights = await aiService.generatePersonalizedInsights(
           quizData,
           paths.slice(0, 3),
           bottomPaths,
+          quizAttemptId,
         );
         
         // Import hardcoded content

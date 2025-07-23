@@ -80,6 +80,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 (async () => {
   try {
     // Setup authentication routes
@@ -105,11 +109,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
       serveStatic(app);
     }
 
-    // ALWAYS serve the app on port 5000
+    // ALWAYS serve the app on port 5073
     // this serves both the API and the client.
     // It is the only port that is not firewalled.
     // Use process.env.PORT or default to 5073
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 5073;
+    const port = 9000;
     server.listen(
       {
         port,

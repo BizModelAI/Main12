@@ -1409,7 +1409,3 @@ export function calculateAllBusinessModelMatches(data: any): Array<{
 
   return categorizedResults;
 }
-
-// Legacy function name for backward compatibility
-export const calculateAdvancedBusinessModelMatches =
-  calculateAllBusinessModelMatches;

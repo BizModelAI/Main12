@@ -6,7 +6,7 @@ async function testAPIFix() {
   try {
     // Test the latest quiz data endpoint
     console.log('📡 Testing /api/auth/latest-quiz-data endpoint...');
-    const response = await fetch('http://localhost:5073/api/auth/latest-quiz-data', {
+    const response = await fetch('http://localhost:9000/api/auth/latest-quiz-data', {
       credentials: 'include',
       headers: {
         'Cookie': 'sessionId=r9jr2EiBEneGuSCrjov7YxXc1VeLAkRM' // Use the session ID from the curl test

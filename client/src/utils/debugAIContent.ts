@@ -1,8 +1,6 @@
 // Debugging utilities for AI content system
 const API_BASE =
-  typeof window !== "undefined" && window.location.port === "5073"
-    ? "http://localhost:5073"
-    : "";
+  "http://localhost:6000";
 
 export const debugAIContent = {
   // Test AI content endpoints

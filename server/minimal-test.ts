@@ -6,7 +6,7 @@ type Response = express.Response;
 console.log("Starting minimal test server...");
 
 const app = express();
-const port = 5000;
+const port = 9000;
 
 app.get("/api/health", (req: Request, res: Response) => {
   res.json({ status: "Test server is running!" });

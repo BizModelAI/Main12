@@ -135,7 +135,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       firstName: firstName,
       lastName: lastName,
       hasAccessPass: false,
-      quizRetakesRemaining: 0,
       isTemporary: true,
     });
   } catch (error) {

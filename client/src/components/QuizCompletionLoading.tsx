@@ -908,9 +908,11 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
               console.log(
                 " Generating PREVIEW insights ONLY during quiz loading phase (no full report data)",
               );
+              const quizAttemptId = localStorage.getItem('currentQuizAttemptId');
               const previewData = await aiService.generateResultsPreview(
                 activeQuizData,
                 pathsForInsights,
+                quizAttemptId,
               );
 
               console.log(

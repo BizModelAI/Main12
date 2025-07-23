@@ -1,9 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import path from 'path';
-
-type Request = express.Request;
-type Response = express.Response;
+// Use express.Request and express.Response directly in type annotations
 type NextFunction = express.NextFunction;
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -112,6 +110,11 @@ app.use("/api/*", (err: any, req: any, res: any, next: any) => {
   }
 });
 
+// Add a guaranteed /api/health route for health checks
+app.get("/api/health", (req: express.Request, res: express.Response) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Import routes dynamically inside setup function
 async function setupRoutes() {
   try {
@@ -150,7 +153,7 @@ async function setupApiRoutes() {
 }
 
 // Basic health check endpoint
-app.get("/api/health", (req: Request, res: Response) => {
+app.get("/api/health", (req: express.Request, res: express.Response) => {
   res.json({
     status: "Server is running!",
     environment: "local-development",
@@ -160,7 +163,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 });
 
 // Comprehensive health check endpoint
-app.get("/api/health/detailed", async (req: Request, res: Response) => {
+app.get("/api/health/detailed", async (req: express.Request, res: express.Response) => {
   const health = {
     status: "healthy",
     timestamp: new Date().toISOString(),
@@ -229,7 +232,7 @@ app.get("/api/health/detailed", async (req: Request, res: Response) => {
 
 // Test endpoint removed for production
 
-const port = 5000;
+const PORT = 9000;
 
 // Global error handler for unhandled errors
 process.on("unhandledRejection", (reason, promise) => {
@@ -334,7 +337,7 @@ async function setupApp() {
         app.use(express.static(distPath));
       }
 
-      app.get("*", (req: Request, res: Response) => {
+      app.get("*", (req: express.Request, res: express.Response) => {
         try {
           const clientTemplate = path.resolve(
             import.meta.dirname,
@@ -454,7 +457,7 @@ async function setupApp() {
     });
 
     // Fallback to basic HTML for non-API routes
-    app.get("*", (req: Request, res: Response) => {
+    app.get("*", (req: express.Request, res: express.Response) => {
       res.send(`
         <!DOCTYPE html>
         <html>
@@ -487,8 +490,12 @@ Promise.race([
   ),
 ])
   .then((server: any) => {
-    server.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+    server.listen(PORT, (err?: Error) => {
+      if (err) {
+        console.error(`❌ Failed to bind to port ${PORT}:`, err.message);
+        process.exit(1);
+      }
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {
@@ -498,7 +505,7 @@ Promise.race([
     // Try basic fallback server
     console.log("Starting fallback server...");
 
-    app.get("*", (req: Request, res: Response) => {
+    app.get("*", (req: express.Request, res: express.Response) => {
       res.send(`
         <!DOCTYPE html>
         <html>

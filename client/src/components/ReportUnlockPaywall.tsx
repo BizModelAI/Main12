@@ -27,7 +27,7 @@ interface ReportPaymentFormProps {
   onSuccess: () => void;
   onError: (error: string) => void;
   quizAttemptId: number;
-  onPricingUpdate: (amount: string, isFirstReport: boolean) => void;
+  onPricingUpdate: (amount: string) => void;
   amount: string;
 }
 
@@ -60,7 +60,7 @@ const ReportPaymentForm: React.FC<ReportPaymentFormProps> = ({
       });
 
       setClientSecret(data.clientSecret);
-      onPricingUpdate(data.amount || "4.99", data.isFirstReport || false);
+      onPricingUpdate(data.amount || "4.99");
     } catch (error) {
       console.error("Error creating report unlock payment:", error);
       onError(
@@ -170,7 +170,6 @@ export const ReportUnlockPaywall: React.FC<ReportUnlockPaywallProps> = ({
 }) => {
   const { user } = useAuth();
   const [amount, setAmount] = useState("4.99");
-  const [isFirstReport, setIsFirstReport] = useState(false);
   const [showPayment, setShowPayment] = useState(true); // Start with payment form for logged-in users
   const [error, setError] = useState<string>("");
 
@@ -242,9 +241,8 @@ export const ReportUnlockPaywall: React.FC<ReportUnlockPaywallProps> = ({
             onSuccess={handlePaymentSuccess}
             onError={handlePaymentError}
             quizAttemptId={quizAttemptId}
-            onPricingUpdate={(newAmount, newIsFirstReport) => {
+            onPricingUpdate={(newAmount) => {
               setAmount(newAmount);
-              setIsFirstReport(newIsFirstReport);
             }}
             amount={amount}
           />

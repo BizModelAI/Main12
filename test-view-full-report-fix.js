@@ -1,8 +1,30 @@
 import puppeteer from 'puppeteer';
+import fetch from 'node-fetch';
+
+async function setupTestUserAndQuiz() {
+  // Ensure the test user exists and is paid, and has a paid quiz attempt
+  const email = 'caseyedunham@gmail.com';
+  const password = 'testpassword123';
+  // 1. Create or update the user
+  await fetch('http://localhost:9000/api/test-setup-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, isPaid: true })
+  });
+  // 2. Create or update a paid quiz attempt for the user
+  await fetch('http://localhost:9000/api/test-setup-quiz-attempt', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, isPaid: true })
+  });
+}
 
 async function testViewFullReportFix() {
   console.log('🧪 Testing View Full Report button fix...');
-  
+
+  // Setup test user and quiz attempt
+  await setupTestUserAndQuiz();
+
   const browser = await puppeteer.launch({ 
     headless: false,
     defaultViewport: null,
@@ -19,7 +41,7 @@ async function testViewFullReportFix() {
     
     // Navigate to the app
     console.log('📱 Navigating to app...');
-    await page.goto('http://localhost:5073', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:9000', { waitUntil: 'networkidle0' });
     
     // Wait for the page to load
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -30,19 +52,61 @@ async function testViewFullReportFix() {
       console.log('🔐 Logging in...');
       await loginButton.click();
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Fill in login form
-      await page.type('input[type="email"]', 'caseyedunham@gmail.com');
-      await page.type('input[type="password"]', 'testpassword123');
-      await page.click('button[type="submit"]');
-      
-      // Wait for login to complete
-      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Enable request interception to log login POST
+      await page.setRequestInterception(true);
+      page.on('request', request => {
+        if (request.url().includes('/api/auth/login')) {
+          console.log('➡️ Login request:', request.method(), request.url(), request.headers());
+        }
+        request.continue();
+      });
+      page.on('response', async response => {
+        if (response.url().includes('/api/auth/login')) {
+          const headers = response.headers();
+          console.log('⬅️ Login response headers:', headers);
+        }
+      });
+
+      // Use native form submit
+      await page.evaluate(() => {
+        document.querySelector('input[type="email"]').value = 'caseyedunham@gmail.com';
+        document.querySelector('input[type="password"]').value = 'testpassword123';
+        const form = document.querySelector('form');
+        if (form) form.submit();
+      });
+      // Wait for dashboard element or fallback to timeout
+      try {
+        await page.waitForSelector('.dashboard, h1, h2', { timeout: 10000 });
+      } catch (e) {
+        console.log('⚠️ Dashboard element not found after login, continuing...');
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Log all cookies
+      const cookies = await page.cookies();
+      console.log('🍪 Cookies after login:', cookies);
+      const hasSessionCookie = cookies.some(c => c.name.includes('sid'));
+      if (!hasSessionCookie) {
+        console.log('❌ No session cookie found after login, aborting test.');
+        await browser.close();
+        return;
+      }
+      // Check /api/auth/me
+      const authMe = await page.evaluate(async () => {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        return { status: res.status, json: await res.json() };
+      });
+      console.log('🔎 /api/auth/me after login:', authMe);
+      if (authMe.status !== 200) {
+        console.log('❌ Authentication failed after login, aborting test.');
+        await browser.close();
+        return;
+      }
     }
     
     // Navigate to dashboard
     console.log('🏠 Navigating to dashboard...');
-    await page.goto('http://localhost:5073/dashboard', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:9000/dashboard', { waitUntil: 'networkidle0' });
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Check localStorage before clicking

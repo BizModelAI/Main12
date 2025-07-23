@@ -3,7 +3,7 @@ import 'dotenv/config';
 async function testCompleteSystem() {
   console.log('🧪 Testing Complete System Flow...\n');
   
-  const baseUrl = 'http://localhost:5073';
+  const baseUrl = 'http://localhost:9000';
   const testEmail = `test-complete-${Date.now()}@example.com`;
   const testPassword = 'testpassword123';
   
@@ -104,9 +104,7 @@ async function testCompleteSystem() {
     console.log('✅ Payment created:', {
       success: paymentData.success,
       paymentId: paymentData.paymentId,
-      amount: paymentData.amount,
-      isFirstReport: paymentData.isFirstReport,
-      isTemporaryUser: paymentData.isTemporaryUser
+      amount: paymentData.amount
     });
     
     if (!paymentData.success) {
@@ -216,8 +214,7 @@ async function testCompleteSystem() {
     if (pricingResponse.ok) {
       const pricingData = await pricingResponse.json();
       console.log('✅ User pricing endpoint working:', {
-        amount: pricingData.amount,
-        isFirstReport: pricingData.isFirstReport
+        amount: pricingData.amount
       });
     } else {
       console.log('⚠️ User pricing endpoint not accessible (expected for unauthenticated)');

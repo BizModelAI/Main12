@@ -1027,13 +1027,6 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
     ? 100 
     : currentStep === 0 ? 0 : (currentStep / quizSteps.length) * 100;
 
-  // Move isDev and handleDevSkip to the top of the Quiz component so they are always in scope for JSX.
-  const isDev = import.meta.env.MODE === "development";
-  const handleDevSkip = () => {
-    onComplete(generateMockQuizData());
-    navigate("/quiz-loading");
-  };
-
   // Round Introduction Page
   if (showRoundIntro) {
     const RoundIcon = currentRoundInfo.icon;
@@ -1042,15 +1035,6 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
       <div
         className={`min-h-screen flex items-center justify-center px-2 py-4 md:p-4 bg-gradient-to-br ${currentRoundInfo.bgColor} relative`}
       >
-        {isDev && (
-          <button
-            onClick={handleDevSkip}
-            style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'block' }}
-            className="bg-yellow-400 text-black px-4 py-2 rounded shadow hover:bg-yellow-300 font-bold"
-          >
-            DEV: Skip to Results
-          </button>
-        )}
         {/* Back Arrow Button - Shows Exit Modal */}
         <motion.button
           onClick={handleBackButtonClick}
@@ -1207,15 +1191,6 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
   // Regular Quiz Question
   return (
     <div className="min-h-screen flex items-center justify-center px-2 py-4 md:p-4 bg-gradient-to-br from-slate-50 to-blue-50 relative">
-      {isDev && (
-        <button
-          onClick={handleDevSkip}
-          style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'block' }}
-          className="bg-yellow-400 text-black px-4 py-2 rounded shadow hover:bg-yellow-300 font-bold"
-        >
-          DEV: Skip to Results
-        </button>
-      )}
       {/* Back Arrow Button - Shows Exit Modal */}
       <motion.button
         onClick={handleBackButtonClick}
@@ -1516,8 +1491,6 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
         onClose={() => setShowExitModal(false)}
         onConfirmExit={handleExitQuiz}
       />
-
-      {/* Quiz retake modal removed - everyone can take unlimited quizzes */}
     </div>
   );
 };

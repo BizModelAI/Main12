@@ -64,34 +64,6 @@ export interface QuizData {
   publicSpeakingComfort?: number;
   salesComfort?: number;
 
-  // Legacy fields for backward compatibility
-  primaryMotivation?: string;
-  incomeGoal?: number;
-  timeToFirstIncome?: string;
-  startupBudget?: number;
-  timeCommitment?: number;
-  learningStyle?: string;
-  workPreference?: string;
-  riskTolerance?: number;
-  customerInteractionComfort?: number;
-  selfMotivation?: number;
-  existingSkills?: string[];
-  experienceLevel?: "beginner" | "intermediate" | "advanced";
-  lifestyle?: "freedom" | "stability" | "growth";
-  stressResponse?: string;
-  communicationStyle?: string;
-  perfectionismLevel?: number;
-  socialEnergy?: string;
-  changeAdaptability?: number;
-  attentionToDetail?: number;
-  competitionMotivation?: string;
-  failureResponse?: string;
-  routinePreference?: string;
-  feedbackReception?: string;
-  longTermThinking?: string;
-  authorityComfort?: number;
-  technologyComfort?: number;
-
   // New structure fields (for future compatibility) - with different names to avoid conflicts
   sellOrExitBusiness?: string;
   businessGrowthAmbition?: string;

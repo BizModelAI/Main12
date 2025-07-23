@@ -92,6 +92,21 @@ npm run build
 npm start
 ```
 
+## Development Ports
+
+- **Backend (API server):** Always runs on [http://localhost:9000](http://localhost:9000)
+- **Frontend (Vite dev server):** Always runs on [http://localhost:5173](http://localhost:5173)
+- **SSR/Root-level Vite (if used):** Runs on [http://localhost:9001](http://localhost:9001)
+
+If you see an error like `EADDRINUSE: address already in use`, another process is using that port. Kill it with:
+
+```
+lsof -i :9000 # or :5173 or :9001
+kill -9 <PID>
+```
+
+There is no fallback or auto-increment logic. The server will fail if the port is in use.
+
 ## 📋 Features
 
 - **AI-Powered Analysis**: Personalized business model recommendations
@@ -99,5 +114,4 @@ npm start
 - **Interactive Results**: Visual business model comparisons
 - **Payment Integration**: Stripe-powered premium features
 - **Email Reports**: Automated report delivery
-- **User Dashboard**: Quiz history and retake management
 - **Responsive Design**: Works on all devices

@@ -245,15 +245,6 @@ const Dashboard: React.FC = () => {
 
   const quickActions = [
     {
-      title: "Retake Quiz",
-      description: "Update your preferences and get new recommendations",
-      href: "/quiz",
-      icon: BookOpen,
-      color: "blue",
-      gradient: "from-blue-500 to-blue-600",
-      useLink: true,
-    },
-    {
       title: "View Full Report",
       description: "See your complete personalized business analysis",
       href: "/results?showFullReport=true",

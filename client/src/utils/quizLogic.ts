@@ -4,9 +4,7 @@ import { apiPost } from "./apiClient";
 import { businessModelService } from './businessModelService';
 
 const API_BASE =
-  typeof window !== "undefined" && window.location.port === "5073"
-    ? "http://localhost:5073"
-    : "";
+  "http://localhost:6000";
 
 // AI-powered business fit analysis
 export async function generateAIPersonalizedPaths(

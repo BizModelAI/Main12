@@ -71,7 +71,6 @@
 | ---------------------------------------- | ---------------- | -------------------------------------- |
 | `POST /api/create-quiz-payment`          | ❌ MISSING       | Called in QuizPaymentRequired.tsx      |
 | `POST /api/create-access-pass-payment`   | ❌ MISSING       | Called in StripePaymentForm.tsx        |
-| `POST /api/create-retake-bundle-payment` | ❌ MISSING       | Called in QuizRetakeModal.tsx          |
 | `GET /api/quiz-attempts/5`               | ❌ WRONG PATTERN | Should be `/api/quiz-attempts/:userId` |
 
 ### Backend routes that are NEVER called from frontend:
@@ -98,7 +97,6 @@
 
 1. **`POST /api/create-quiz-payment`** - Called in QuizPaymentRequired.tsx but doesn't exist
 2. **`POST /api/create-access-pass-payment`** - Called in StripePaymentForm.tsx but doesn't exist
-3. **`POST /api/create-retake-bundle-payment`** - Called in QuizRetakeModal.tsx but doesn't exist
 
 ### MEDIUM PRIORITY (Dead code cleanup):
 

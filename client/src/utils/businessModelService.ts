@@ -1,5 +1,5 @@
 import { QuizData } from "../types";
-import { calculateAdvancedBusinessModelMatches } from "./advancedScoringAlgorithm";
+import { calculateAllBusinessModelMatches } from "./advancedScoringAlgorithm";
 
 export interface BusinessModelMatch {
   id: string;
@@ -44,7 +44,6 @@ export class BusinessModelService {
       riskComfortLevel: quizData.riskComfortLevel,
       techSkillsRating: quizData.techSkillsRating,
       familiarTools: quizData.familiarTools?.sort(),
-      primaryMotivation: quizData.primaryMotivation || quizData.mainMotivation,
     });
   }
 
@@ -60,7 +59,7 @@ export class BusinessModelService {
       return cached.matches;
     }
 
-    const rawMatches = calculateAdvancedBusinessModelMatches(quizData);
+    const rawMatches = calculateAllBusinessModelMatches(quizData);
 
     // Transform to consistent format
     const matches: BusinessModelMatch[] = rawMatches.map((match) => ({
@@ -123,4 +122,4 @@ export class BusinessModelService {
 export const businessModelService = BusinessModelService.getInstance();
 
 // Backward compatibility exports
-export { calculateAdvancedBusinessModelMatches } from "./advancedScoringAlgorithm";
+export { calculateAllBusinessModelMatches } from "./advancedScoringAlgorithm";

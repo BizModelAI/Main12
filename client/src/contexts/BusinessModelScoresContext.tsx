@@ -48,7 +48,6 @@ const generateQuizDataHash = (quizData: QuizData): string => {
     riskComfortLevel: quizData.riskComfortLevel,
     weeklyTimeCommitment: quizData.weeklyTimeCommitment,
     selfMotivationLevel: quizData.selfMotivationLevel,
-    communicationStyle: quizData.communicationStyle,
     workStylePreference: quizData.workStylePreference,
     onlinePresenceComfort: quizData.onlinePresenceComfort,
     clientCallsComfort: quizData.clientCallsComfort,

@@ -64,7 +64,7 @@ yarn dev
 
 The application will be available at:
 
-- Frontend: http://localhost:5073
+- Frontend: http://localhost:9000
 - Backend API: http://localhost:5000
 
 ## Project Structure
@@ -102,7 +102,7 @@ The application will be available at:
 
 ## Testing the Setup
 
-1. Visit http://localhost:5073
+1. Visit http://localhost:9000
 2. Check the health endpoint: http://localhost:5000/api/health/detailed
 3. Try creating an account and taking the quiz
 

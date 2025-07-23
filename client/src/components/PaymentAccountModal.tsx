@@ -39,9 +39,7 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
 
   const [error, setError] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
-  const [isRetakePayment, setIsRetakePayment] = useState(false);
   const [amount, setAmount] = useState(user ? 4.99 : 9.99);
-  const [isFirstReport, setIsFirstReport] = useState(!user);
 
   // Account form data
   const [formData, setFormData] = useState({
@@ -73,12 +71,10 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
     if (isOpen && user) {
       setStep("payment");
       setAmount(4.99);
-      setIsFirstReport(false); // or fetch from API if needed
     }
     if (isOpen && !user) {
       setStep("account");
       setAmount(9.99);
-      setIsFirstReport(true);
     }
   }, [isOpen, user]);
 
@@ -146,15 +142,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
   if (!isOpen) return null;
 
   const getContent = () => {
-    // If this is a retake payment, show different messaging
-    if (isRetakePayment) {
-      return {
-        title: "Get 2 More Quiz Attempts",
-        subtitle:
-          "Continue exploring your personality with 2 additional attempts for $4.99",
-      };
-    }
-
     switch (type) {
       case "business-model":
         return {
@@ -439,7 +426,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
       }
 
       // In the new pay-per-report model, logged-in users proceed to payment for report unlock
-      setIsRetakePayment(false);
       await fetchReportPricing(); // Get the correct pricing for this user
       setStep("payment");
     } catch (err: any) {
@@ -521,7 +507,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
       if (isTemporaryUser) {
         // Anonymous users always pay $9.99
         setAmount(9.99);
-        setIsFirstReport(true);
       } else {
         // Logged users get dynamic pricing from the API
         const storedQuizAttemptId = localStorage.getItem(
@@ -536,7 +521,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
               quizAttemptId: parseInt(storedQuizAttemptId),
             });
             setAmount(parseFloat(data.amount) || 4.99);
-            setIsFirstReport(data.isFirstReport || false);
           } catch (error) {
             console.error("Failed to create payment intent:", error);
             // Fallback to pricing endpoint
@@ -564,7 +548,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
         try {
           const data = await response.json();
           setAmount(parseFloat(data.amount) || 4.99);
-          setIsFirstReport(data.isFirstReport || false);
         } catch (parseError) {
           console.error(
             "Failed to parse JSON response from user-pricing:",
@@ -572,18 +555,15 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
           );
           // Final fallback for logged users
           setAmount(4.99);
-          setIsFirstReport(false);
         }
       } else {
         // Final fallback for logged users
         setAmount(4.99);
-        setIsFirstReport(false);
       }
     } catch (error) {
       console.error("Error fetching user pricing:", error);
       // Fallback pricing for logged users should be $4.99 (returning user price)
       setAmount(4.99);
-      setIsFirstReport(false);
     }
   };
 
@@ -868,7 +848,6 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
                     onClick={handleDevBypass}
                     disabled={isProcessing}
                     className="w-full bg-gray-600 text-white py-2 rounded-xl font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                    style={{ display: "none" }}
                   >
                      DEV: Bypass Payment (Remove in Prod)
                   </button>
@@ -983,23 +962,10 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
                       isProcessing={isProcessing}
                       setIsProcessing={setIsProcessing}
                       amount={amount}
-                      isFirstReport={isFirstReport}
                       quizAttemptId={quizAttemptId}
                     />
                   );
                 })()}
-                {/* Dev Bypass Button for payment step too */}
-                {import.meta.env.MODE === 'development' && (
-                  <button
-                    type="button"
-                    onClick={handleDevBypass}
-                    disabled={isProcessing}
-                    className="w-full bg-gray-600 text-white py-2 rounded-xl font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                    style={{ display: "none" }}
-                  >
-                     DEV: Bypass Payment (Remove in Prod)
-                  </button>
-                )}
               </div>
             )}
           </div>

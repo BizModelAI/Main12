@@ -204,10 +204,12 @@ const BusinessModelDetail: React.FC<BusinessModelDetailProps> = ({
                 ? "possible"
                 : "poor";
 
+        const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
         const insights = await aiService.generateModelInsights(
           data,
           path.name,
           fitType,
+          quizAttemptId,
         );
 
         setModelInsights({

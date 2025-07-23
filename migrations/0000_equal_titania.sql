@@ -15,7 +15,6 @@ CREATE TABLE "payments" (
 	"type" varchar NOT NULL,
 	"stripe_payment_intent_id" varchar,
 	"status" varchar DEFAULT 'pending' NOT NULL,
-	"retakes_granted" integer DEFAULT 0 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"completed_at" timestamp
 );
@@ -59,8 +58,6 @@ CREATE TABLE "users" (
 	"name" text,
 	"email" text,
 	"has_access_pass" boolean DEFAULT false NOT NULL,
-	"quiz_retakes_remaining" integer DEFAULT 0 NOT NULL,
-	"total_quiz_retakes_used" integer DEFAULT 0 NOT NULL,
 	"is_unsubscribed" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),

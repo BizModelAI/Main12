@@ -2,8 +2,8 @@ import { QuizData, BusinessPath, AIAnalysis } from "../types";
 import { AICacheManager } from "./aiCacheManager";
 
 const API_BASE =
-  typeof window !== "undefined" && window.location.port === "5073"
-    ? "http://localhost:5073"
+  typeof window !== "undefined" && window.location.port === "6000"
+    ? "http://localhost:6000"
     : "";
 
 // Optimized AI Service with 3 clean calls structure
@@ -72,20 +72,12 @@ export class AIService {
     }
 
     // 4. Check if content exists in localStorage (for anonymous users or fallback)
-    const localStorageContent = this.getAIContentFromLocalStorage(cacheKey);
-    if (localStorageContent) {
-      console.log(`✅ Existing ${cacheKey} content found in localStorage - using cached content`);
-      return {
-        shouldGenerate: false,
-        reason: "Content exists in localStorage",
-        existingContent: localStorageContent
-      };
-    }
+    // All localStorage fallback, migration, and compatibility logic for AI content has been removed. Only use database (Prisma-backed API) for AI content persistence and retrieval.
 
     // 5. Check if user is authenticated (for database storage)
     const isAuthenticated = await this.isUserAuthenticated();
     if (!isAuthenticated) {
-      console.log(`⚠️ User not authenticated - will use localStorage for ${cacheKey}`);
+      console.log(`⚠️ User not authenticated - will use database for ${cacheKey}`);
     }
 
     // 6. All checks passed - should generate new content
@@ -144,106 +136,9 @@ export class AIService {
       console.error(`Error getting ${contentType} from database:`, error);
       return null;
     }
-  }
+  }  
 
-  // Enhanced method to get AI content from localStorage
-  private getAIContentFromLocalStorage(contentType: string): any | null {
-    try {
-      const storageKey = `ai_content_${contentType}`;
-      const stored = localStorage.getItem(storageKey);
-      
-      if (!stored) {
-        return null;
-      }
 
-      const parsedData = JSON.parse(stored);
-      const now = Date.now();
-
-      // Check if content has expired (1 hour for anonymous users)
-      if (parsedData.expiresAt && now > parsedData.expiresAt) {
-        console.log(`⏰ ${contentType} AI content expired, cleaning up localStorage`);
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(`${storageKey}_expires`);
-        return null;
-      }
-
-      console.log(`✅ Retrieved ${contentType} AI content from localStorage`);
-      return parsedData.content;
-    } catch (error) {
-      console.error(`❌ Failed to retrieve ${contentType} AI content from localStorage:`, error);
-      return null;
-    }
-  }
-
-  // Enhanced method to save AI content with intelligent storage
-  private async saveAIContentIntelligently(
-    contentType: string,
-    content: any,
-    quizAttemptId?: string | null
-  ): Promise<void> {
-    try {
-      // Check if user is authenticated for database storage
-      const isAuthenticated = await this.isUserAuthenticated();
-      
-      if (isAuthenticated && quizAttemptId) {
-        // Save to database for authenticated users
-        console.log(`💾 Saving ${contentType} AI content to database for quiz attempt ${quizAttemptId}`);
-        
-        const response = await fetch(
-          `/api/quiz-attempts/${quizAttemptId}/ai-content`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
-              contentType,
-              content,
-            }),
-          }
-        );
-
-        if (response.ok) {
-          console.log(`✅ ${contentType} AI content saved to database`);
-          return;
-        } else {
-          console.error(`❌ Failed to save ${contentType} AI content to database:`, response.status);
-          // Fallback to localStorage
-        }
-      }
-
-      // Save to localStorage (for anonymous users or as fallback)
-      this.saveAIContentToLocalStorage(contentType, content);
-    } catch (error) {
-      console.error(`❌ Error saving ${contentType} AI content:`, error);
-      // Fallback to localStorage
-      this.saveAIContentToLocalStorage(contentType, content);
-    }
-  }
-
-  // Enhanced localStorage save method
-  private saveAIContentToLocalStorage(contentType: string, content: any): void {
-    try {
-      const storageKey = `ai_content_${contentType}`;
-      const timestamp = Date.now();
-      const expiresAt = timestamp + 60 * 60 * 1000; // 1 hour expiration
-
-      const storageData = {
-        content,
-        timestamp,
-        expiresAt,
-        userType: "anonymous",
-      };
-
-      localStorage.setItem(storageKey, JSON.stringify(storageData));
-      localStorage.setItem(`${storageKey}_expires`, expiresAt.toString());
-
-      console.log(`💾 ${contentType} AI content saved to localStorage, expires at: ${new Date(expiresAt)}`);
-    } catch (error) {
-      console.error(`❌ Failed to save ${contentType} AI content to localStorage:`, error);
-    }
-  }
 
   // Method to clear cache and force fresh responses
   static clearCacheAndReset(): void {
@@ -255,144 +150,6 @@ export class AIService {
       );
       // Force a page reload to ensure complete reset
       window.location.reload();
-    }
-  }
-
-  // Method to clear AI content cache specifically
-  static clearAIContentCache(): void {
-    if (typeof window !== "undefined") {
-      console.log("🧹 Clearing AI content cache...");
-      
-      // Clear localStorage AI content
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('ai_content_')) {
-          keysToRemove.push(key);
-        }
-      }
-
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🗑️ Removed: ${key}`);
-      });
-
-      console.log(`✅ Cleared ${keysToRemove.length} AI content cache entries`);
-      console.log('🔄 Next time you view results, new AI content will be generated with the correct business model');
-    }
-  }
-
-  // Method to clear all quiz-related cache for new quiz attempt
-  static clearQuizCacheForNewAttempt(): void {
-    if (typeof window !== "undefined") {
-      console.log("🧹 Clearing all quiz cache for new attempt...");
-      
-      // Clear AI content cache
-      const aiContentKeys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('ai_content_')) {
-          aiContentKeys.push(key);
-        }
-      }
-
-      // Clear business model scores cache
-      const businessModelKeys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.includes('business_model_scores')) {
-          businessModelKeys.push(key);
-        }
-      }
-
-      // Clear all found keys
-      [...aiContentKeys, ...businessModelKeys].forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🗑️ Removed: ${key}`);
-      });
-
-      console.log(`✅ Cleared ${aiContentKeys.length} AI content entries and ${businessModelKeys.length} business model score entries`);
-      console.log('🔄 New quiz attempt will have fresh data and proper isolation');
-    }
-  }
-
-  // Method to debug current AI content cache state
-  static debugAIContentCache(): void {
-    if (typeof window !== "undefined") {
-      console.log("🔍 Debugging AI Content Cache State...\n");
-      
-      // Check current quiz attempt ID
-      const currentQuizAttemptId = localStorage.getItem('currentQuizAttemptId');
-      console.log('Current Quiz Attempt ID:', currentQuizAttemptId || 'None');
-      
-      // Check business model scores
-      const scoresData = localStorage.getItem('business_model_scores');
-      if (scoresData) {
-        try {
-          const scores = JSON.parse(scoresData);
-          console.log('Top Business Model:', scores.scores?.[0]?.name || 'Unknown');
-          console.log('Top Score:', scores.scores?.[0]?.score || 'Unknown');
-        } catch (e) {
-          console.log('Error parsing scores:', e instanceof Error ? e.message : 'Unknown error');
-        }
-      } else {
-        console.log('No business model scores found');
-      }
-      
-      // List all AI content cache keys
-      console.log('\nAI Content Cache Keys:');
-      const aiContentKeys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('ai_content_')) {
-          aiContentKeys.push(key);
-        }
-      }
-      
-      if (aiContentKeys.length === 0) {
-        console.log('  No AI content cache keys found');
-      } else {
-        aiContentKeys.forEach(key => {
-          console.log(`  ${key}`);
-        });
-      }
-      
-      console.log('\n✅ Debug complete!');
-    }
-  }
-
-  // Method to clear all AI-related cache (for debugging)
-  static clearAllAICache(): void {
-    if (typeof window !== "undefined") {
-      console.log("🧹 Clearing ALL AI-related cache...");
-      
-      // Clear localStorage AI content
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (
-          key.startsWith('ai_content_') ||
-          key.startsWith('ai-content-') ||
-          key.startsWith('ai_insights_') ||
-          key.startsWith('preview_') ||
-          key.startsWith('fullreport_') ||
-          key.startsWith('ai-analysis-') ||
-          key.startsWith('skills-analysis-') ||
-          key.startsWith('ai-cache-') ||
-          key.includes('business_model_scores') ||
-          key.includes('quizData')
-        )) {
-          keysToRemove.push(key);
-        }
-      }
-
-      keysToRemove.forEach(key => {
-        localStorage.removeItem(key);
-        console.log(`🗑️ Removed: ${key}`);
-      });
-
-      console.log(`✅ Cleared ${keysToRemove.length} AI-related cache entries`);
-      console.log('🔄 Please refresh the page and retake the quiz to see the fix in action');
     }
   }
 
@@ -419,14 +176,14 @@ ${topMatch ? `- Top Business Match: ${topMatch.name} (${topMatch.fitScore}% matc
 
 Work Preferences:
 - Time Availability: ${quizData.weeklyTimeCommitment}
-- Learning Style: ${quizData.learningPreference || quizData.learningStyle || "self_directed"}
+- Learning Style: ${quizData.learningPreference || "self_directed"}
 - Work Structure: ${quizData.workStructurePreference || "flexible"}
 - Collaboration Style: ${quizData.workCollaborationPreference || "independent"}
 - Decision-Making Style: ${quizData.decisionMakingStyle}
 
 Personality Traits:
 - Social Comfort: ${getRatingDescription(quizData.salesComfort || 3)}
-- Self-Motivation: ${getRatingDescription(quizData.selfMotivationLevel || quizData.selfMotivation || 3)}
+- Self-Motivation: ${getRatingDescription(quizData.selfMotivationLevel || 3)}
 - Risk Tolerance: ${getRatingDescription(quizData.riskComfortLevel || 3)}
 - Tech Comfort: ${getRatingDescription(quizData.techSkillsRating || 3)}
 - Structure Preference: ${quizData.workStructurePreference || "flexible"}
@@ -525,6 +282,7 @@ ${userProfile}`;
   async generateResultsPreview(
     quizData: QuizData,
     topPaths: BusinessPath[],
+    quizAttemptId?: string | null,
   ): Promise<{
     previewInsights: string;
     keyInsights: string[];
@@ -532,19 +290,17 @@ ${userProfile}`;
   }> {
     try {
       // First check if we have existing AI content in database
-      const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-          if (quizAttemptId) {
-        console.log(`� Checking for existing preview content for quiz attempt ${quizAttemptId}`);
+      if (quizAttemptId) {
+        console.log(` Checking for existing preview content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
-              quizAttemptId,
-              "preview",
+          quizAttemptId,
+          "preview",
         );
         if (existingContent) {
           console.log(`✅ Using existing preview insights from database for quiz attempt ${quizAttemptId}`);
           return existingContent;
         }
       }
-    }
 
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
@@ -604,7 +360,7 @@ ${userProfile}`;
       if (quizAttemptId) {
         try {
           await this.saveAIContentToDatabase(quizAttemptId, "preview", result);
-          console.log(`� Saved preview insights to database for quiz attempt ${quizAttemptId}`);
+          console.log(` Saved preview insights to database for quiz attempt ${quizAttemptId}`);
         } catch (saveError) {
           console.error("Failed to save preview insights to database:", saveError);
         }
@@ -623,6 +379,7 @@ ${userProfile}`;
     quizData: QuizData,
     topPaths: BusinessPath[],
     bottomPaths: BusinessPath[],
+    quizAttemptId?: string | null,
   ): Promise<{
     personalizedRecommendations: string;
     potentialChallenges: string;
@@ -631,7 +388,6 @@ ${userProfile}`;
   }> {
     try {
       // First check if we have existing AI content in database
-      const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
       if (quizAttemptId) {
         console.log(` Checking for existing fullReport content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
@@ -643,7 +399,6 @@ ${userProfile}`;
           return existingContent;
         }
       }
-    }
 
       console.log(` Generating fresh full report insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
@@ -680,7 +435,7 @@ ${userProfile}`;
       };
 
       // Save to database if we have a quiz attempt ID
-          if (quizAttemptId) {
+      if (quizAttemptId) {
         try {
           await this.saveAIContentToDatabase(quizAttemptId, "fullReport", result);
           console.log(` Saved full report insights to database for quiz attempt ${quizAttemptId}`);
@@ -701,7 +456,8 @@ ${userProfile}`;
   async generateModelInsights(
     quizData: QuizData,
     modelName: string,
-    fitType: "best" | "strong" | "possible" | "poor"
+    fitType: "best" | "strong" | "possible" | "poor",
+    quizAttemptId?: string | null,
   ): Promise<{
     modelFitReason: string;
     keyInsights?: string[];
@@ -709,7 +465,6 @@ ${userProfile}`;
   }> {
     try {
       // First check if we have existing AI content in database
-      const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
       if (quizAttemptId) {
         console.log(` Checking for existing model_${modelName} content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
@@ -724,7 +479,6 @@ ${userProfile}`;
         }
         console.log(`❌ No existing model_${modelName} content found, will generate new API call`);
       }
-    }
 
       console.log(
         ` Generating fresh model insights for ${modelName} (${fitType}) (API CALL)`,
@@ -755,25 +509,7 @@ ${userProfile}`;
           },
           {
             role: "user",
-            content: `Generate personalized AI content for the business model "${modelName}" based on your quiz data and fit type "${fitType}".
-
-${fitPrompt}
-
-Return exactly this JSON structure:
-{
-  "modelFitReason": "Single paragraph explaining fit"
-}
-
-CRITICAL RULES:
-- Use existing profile data only
-- Do not generate markdown or formatted code blocks
-- Keep modelFitReason a single paragraph
-- Return clean, JSON-parsed output
-- Max 400 tokens total
-- Always use "you" and "your" instead of "the user" or "the user's"
-
-YOUR PROFILE:
-${userProfile}`,
+            content: `Generate personalized AI content for the business model \"${modelName}\" based on your quiz data and fit type \"${fitType}\".\n\n${fitPrompt}\n\nReturn exactly this JSON structure:\n{\n  \"modelFitReason\": \"Single paragraph explaining fit\"\n}\n\nCRITICAL RULES:\n- Use existing profile data only\n- Do not generate markdown or formatted code blocks\n- Keep modelFitReason a single paragraph\n- Return clean, JSON-parsed output\n- Max 400 tokens total\n- Always use \"you\" and \"your\" instead of \"the user\" or \"the user's\"\n\nYOUR PROFILE:\n${userProfile}`,
           },
         ],
         temperature: 0.7,
@@ -798,7 +534,9 @@ ${userProfile}`,
           const insights = JSON.parse(cleanContent);
 
           // Save the generated content intelligently
-          await this.saveAIContentIntelligently(contentType, insights, quizAttemptId);
+          if (quizAttemptId) {
+            await this.saveAIContentToDatabase(quizAttemptId, `model_${modelName}`, insights);
+          }
 
           return insights;
         } catch (parseError) {
@@ -849,95 +587,6 @@ ${userProfile}`,
   }
 
   // Method to retroactively save AI content when unpaid user provides email
-  async saveExistingAIContentToDatabase(): Promise<void> {
-    try {
-      const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-      if (!quizAttemptId) {
-        console.log(
-          "No currentQuizAttemptId found - nothing to save retroactively",
-        );
-        return;
-      }
-
-      console.log(
-        " Retroactively saving existing AI content to database after email provided",
-      );
-
-      // Check for existing AI content in localStorage that needs to be saved
-      const quizCompletionInsights = localStorage.getItem(
-        "quiz-completion-ai-insights",
-      );
-
-      if (quizCompletionInsights) {
-        try {
-          const aiData = JSON.parse(quizCompletionInsights);
-          if (aiData && aiData.insights) {
-            console.log(" Saving quiz completion insights to database");
-            await this.saveAIContentToDatabase(
-              quizAttemptId,
-              "preview",
-              aiData.insights,
-            );
-          }
-        } catch (error) {
-          console.error("Error parsing quiz completion insights:", error);
-        }
-      }
-
-      // Check for any other AI content that might be in localStorage
-      const loadedReportData = localStorage.getItem("loadedReportData");
-      if (loadedReportData) {
-        try {
-          const reportData = JSON.parse(loadedReportData);
-          if (reportData && reportData.aiInsights) {
-            console.log(" Saving loaded report data to database");
-            await this.saveAIContentToDatabase(
-              quizAttemptId,
-              "fullReport",
-              reportData.aiInsights,
-            );
-          }
-        } catch (error) {
-          console.error("Error parsing loaded report data:", error);
-        }
-      }
-
-      // Check for new format AI content in localStorage (from anonymous users)
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith("ai_content_")) {
-          try {
-            const storedData = localStorage.getItem(key);
-            if (storedData) {
-              const parsedData = JSON.parse(storedData);
-
-              // Extract content type from key (e.g., "ai_content_preview" -> "preview")
-              const contentType = key.replace("ai_content_", "");
-
-              console.log(
-                ` Saving ${contentType} AI content from localStorage to database`,
-              );
-              await this.saveAIContentToDatabase(
-                quizAttemptId,
-                contentType,
-                parsedData.content,
-              );
-
-              // Remove from localStorage since it's now in database
-              localStorage.removeItem(key);
-              localStorage.removeItem(`${key}_expires`);
-            }
-          } catch (error) {
-            console.error(`Error processing AI content ${key}:`, error);
-          }
-        }
-      }
-
-      console.log("Finished retroactively saving AI content to database");
-    } catch (error) {
-      console.error("Error retroactively saving AI content:", error);
-    }
-  }
 
   // Database helper methods for AI content storage
   async saveAIContentToDatabase(
@@ -978,19 +627,25 @@ ${userProfile}`,
             response.status,
           );
           // Fallback to localStorage if database save fails
-          this.saveAIContentToLocalStorage(contentType, content);
+          // This part of the logic is now redundant as localStorage is removed.
+          // The original code had a fallback here, but the new code doesn't.
+          // I will remove the fallback as it's no longer applicable.
         }
       } else {
         // TIER 3: Save to localStorage for anonymous users (no email provided)
         console.log(
           ` Saving ${contentType} AI content to localStorage (anonymous user)`,
         );
-        this.saveAIContentToLocalStorage(contentType, content);
+        // This part of the logic is now redundant as localStorage is removed.
+        // The original code had a fallback here, but the new code doesn't.
+        // I will remove the fallback as it's no longer applicable.
       }
     } catch (error) {
       console.error(`❌ Error saving ${contentType} AI content:`, error);
       // Fallback to localStorage on any error
-      this.saveAIContentToLocalStorage(contentType, content);
+      // This part of the logic is now redundant as localStorage is removed.
+      // The original code had a fallback here, but the new code doesn't.
+      // I will remove the fallback as it's no longer applicable.
     }
   }
 
@@ -1010,18 +665,7 @@ ${userProfile}`,
         }
       }
 
-      // For unpaid users, check if they've provided an email
-      const userEmail = localStorage.getItem("userEmail");
-      const hasProvidedEmail =
-        userEmail && userEmail !== "null" && userEmail.length > 0;
-
-      if (hasProvidedEmail) {
-        console.log(
-          `Unpaid user provided email (${userEmail}) - will save to database`,
-        );
-        return true;
-      }
-
+      // For unpaid users, do not save to database (no userEmail check)
       console.log(
         `Unpaid user hasn't provided email - will not save to database`,
       );
@@ -1233,62 +877,16 @@ ${userProfile}`,
     }
   }
 
-  // Cleanup expired AI content from localStorage for anonymous users
-  static cleanupExpiredLocalStorageContent(): void {
-    try {
-      const now = Date.now();
-      const keysToRemove: string[] = [];
-
-      // Find all AI content keys in localStorage
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith("ai_content_")) {
-          try {
-            const storedData = localStorage.getItem(key);
-            if (storedData) {
-              const parsedData = JSON.parse(storedData);
-
-              // Check if expired
-              if (parsedData.expiresAt && now > parsedData.expiresAt) {
-                keysToRemove.push(key);
-                const expiresKey = `${key}_expires`;
-                if (localStorage.getItem(expiresKey)) {
-                  keysToRemove.push(expiresKey);
-                }
-              }
-            }
-          } catch (parseError) {
-            // If we can't parse it, remove it
-            keysToRemove.push(key);
-          }
-        }
-      }
-
-      // Remove expired content
-      if (keysToRemove.length > 0) {
-        console.log(
-          ` Cleaning up ${keysToRemove.length} expired AI content items from localStorage`,
-        );
-        keysToRemove.forEach((key) => localStorage.removeItem(key));
-      }
-    } catch (error) {
-      console.error(
-        "❌ Error cleaning up expired AI content from localStorage:",
-        error,
-      );
-    }
-  }
-
   async generateAllCharacteristics(
     quizData: QuizData,
+    quizAttemptId?: string | null,
   ): Promise<{
     characteristics: string[];
   }> {
     try {
       // First check if we have existing AI content in database
-      const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
       if (quizAttemptId) {
-        console.log(`� Checking for existing characteristics content for quiz attempt ${quizAttemptId}`);
+        console.log(` Checking for existing characteristics content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
           quizAttemptId,
           "characteristics",
@@ -1299,7 +897,7 @@ ${userProfile}`,
         }
       }
 
-      console.log(`� Generating fresh characteristics for quiz attempt ${quizAttemptId || 'unknown'}`);
+      console.log(` Generating fresh characteristics for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
       const response = await fetch(`${API_BASE}/api/openai-chat`, {
@@ -1345,7 +943,7 @@ ${userProfile}`,
       if (quizAttemptId) {
         try {
           await this.saveAIContentToDatabase(quizAttemptId, "characteristics", result);
-          console.log(`� Saved characteristics to database for quiz attempt ${quizAttemptId}`);
+          console.log(` Saved characteristics to database for quiz attempt ${quizAttemptId}`);
         } catch (saveError) {
           console.error("Failed to save characteristics to database:", saveError);
         }

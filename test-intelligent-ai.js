@@ -6,7 +6,7 @@ async function testIntelligentAI() {
   try {
     // Test 1: Check if we can get quiz data (prerequisite for AI generation)
     console.log('\n📊 Test 1: Checking quiz data availability...');
-    const quizResponse = await fetch('http://localhost:5073/api/auth/latest-quiz-data', {
+    const quizResponse = await fetch('http://localhost:9000/api/auth/latest-quiz-data', {
       credentials: 'include',
       headers: {
         'Cookie': 'sessionId=r9jr2EiBEneGuSCrjov7YxXc1VeLAkRM'
@@ -24,7 +24,7 @@ async function testIntelligentAI() {
     // Test 2: Check if AI content exists for a specific quiz attempt
     console.log('\n🔍 Test 2: Checking existing AI content...');
     const attemptId = 200; // Use the attempt ID from the logs
-    const aiContentResponse = await fetch(`http://localhost:5073/api/quiz-attempts/${attemptId}/ai-content?type=preview`, {
+    const aiContentResponse = await fetch(`http://localhost:9000/api/quiz-attempts/${attemptId}/ai-content?type=preview`, {
       credentials: 'include',
       headers: {
         'Cookie': 'sessionId=r9jr2EiBEneGuSCrjov7YxXc1VeLAkRM'
@@ -43,7 +43,7 @@ async function testIntelligentAI() {
     
     // Test 3: Check all AI content for the quiz attempt
     console.log('\n📚 Test 3: Checking all AI content types...');
-    const allContentResponse = await fetch(`http://localhost:5073/api/quiz-attempts/${attemptId}/ai-content`, {
+    const allContentResponse = await fetch(`http://localhost:9000/api/quiz-attempts/${attemptId}/ai-content`, {
       credentials: 'include',
       headers: {
         'Cookie': 'sessionId=r9jr2EiBEneGuSCrjov7YxXc1VeLAkRM'
@@ -69,7 +69,7 @@ async function testIntelligentAI() {
     console.log(`📝 Quiz attempt ID: ${quizAttemptId}`);
     
     // Check if content exists in database
-    const existingContentResponse = await fetch(`http://localhost:5073/api/quiz-attempts/${attemptId}/ai-content?type=${contentType}`, {
+    const existingContentResponse = await fetch(`http://localhost:9000/api/quiz-attempts/${attemptId}/ai-content?type=${contentType}`, {
       credentials: 'include',
       headers: {
         'Cookie': 'sessionId=r9jr2EiBEneGuSCrjov7YxXc1VeLAkRM'

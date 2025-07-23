@@ -2,15 +2,34 @@ import fetch from 'node-fetch';
 
 // Provide your test credentials here
 const EMAIL = 'caseyedunham@gmail.com';
-const PASSWORD = 'YOUR_PASSWORD_HERE'; // <-- Replace with your real password or a test account password
+const PASSWORD = 'TestPassword123!'; // <-- Set a valid test password for this user
 
 async function loginAndGetSessionCookie() {
-  const res = await fetch('http://localhost:5073/api/auth/login', {
+  const res = await fetch('http://localhost:9000/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: EMAIL, password: PASSWORD }),
     redirect: 'manual',
   });
+  if (res.status === 401) {
+    // Try to create the user
+    const signupRes = await fetch('http://localhost:9000/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: EMAIL, password: PASSWORD, firstName: 'Test', lastName: 'User' }),
+    });
+    if (!signupRes.ok) {
+      throw new Error(`Signup failed: ${signupRes.status} ${await signupRes.text()}`);
+    }
+    // Mark user as paid (test-only endpoint)
+    await fetch('http://localhost:9000/api/admin/mark-user-paid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: EMAIL }),
+    });
+    // Try login again
+    return loginAndGetSessionCookie();
+  }
   if (!res.ok && res.status !== 302) {
     throw new Error(`Login failed: ${res.status} ${await res.text()}`);
   }
@@ -18,9 +37,9 @@ async function loginAndGetSessionCookie() {
   const setCookie = res.headers.get('set-cookie');
   if (!setCookie) throw new Error('No set-cookie header received');
   // Extract sessionId cookie
-  const match = setCookie.match(/sessionId=([^;]+);/);
-  if (!match) throw new Error('No sessionId found in set-cookie');
-  return `sessionId=${match[1]}`;
+  const match = setCookie.match(/connect\.sid=([^;]+);/);
+  if (!match) throw new Error('No connect.sid found in set-cookie');
+  return `connect.sid=${match[1]}`;
 }
 
 async function runE2EAIStorageTest() {
@@ -39,7 +58,7 @@ async function runE2EAIStorageTest() {
 
   // 1. Fetch latest quiz data
   console.log('\n📊 Step 1: Fetching latest quiz data...');
-  const quizRes = await fetch('http://localhost:5073/api/auth/latest-quiz-data', {
+  const quizRes = await fetch('http://localhost:9000/api/auth/latest-quiz-data', {
     credentials: 'include',
     headers: { 'Cookie': SESSION_COOKIE },
   });
@@ -51,16 +70,25 @@ async function runE2EAIStorageTest() {
   console.log('✅ Quiz data:', quizData);
 
   // 2. Get quizAttemptId
-  const quizAttemptId = quizData?.quizData?.id || quizData?.id;
+  let quizAttemptId = null;
+  if (quizData?.quizAttemptId) {
+    quizAttemptId = quizData.quizAttemptId;
+  } else if (quizData?.quizData?.quizAttemptId) {
+    quizAttemptId = quizData.quizData.quizAttemptId;
+  } else if (quizData?.quizData?.id) {
+    quizAttemptId = quizData.quizData.id;
+  } else if (quizData?.id) {
+    quizAttemptId = quizData.id;
+  }
   if (!quizAttemptId) {
-    console.error('❌ No quizAttemptId found in quiz data!');
+    console.error('❌ No quizAttemptId found in quiz data! Full response:', quizData);
     return;
   }
   console.log('✅ quizAttemptId:', quizAttemptId);
 
   // 3. Fetch AI content for this attempt (preview type)
   console.log('\n🤖 Step 2: Fetching AI content for quiz attempt...');
-  const aiRes = await fetch(`http://localhost:5073/api/quiz-attempts/${quizAttemptId}/ai-content?type=preview`, {
+  const aiRes = await fetch(`http://localhost:9000/api/quiz-attempts/${quizAttemptId}/ai-content?type=preview`, {
     credentials: 'include',
     headers: { 'Cookie': SESSION_COOKIE },
   });

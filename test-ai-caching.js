@@ -3,6 +3,19 @@
 
 console.log('🧪 Testing AI Content Caching System...\n');
 
+// Polyfill localStorage for Node.js
+global.localStorage = global.localStorage || (function() {
+  let store = {};
+  return {
+    getItem: function(key) { return store[key] || null; },
+    setItem: function(key, value) { store[key] = value.toString(); },
+    removeItem: function(key) { delete store[key]; },
+    clear: function() { store = {}; },
+    key: function(i) { return Object.keys(store)[i] || null; },
+    get length() { return Object.keys(store).length; }
+  };
+})();
+
 // Test 1: Check AI content cache keys
 console.log('1️⃣ Testing AI content cache key generation...');
 

@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const BASE_URL = 'http://localhost:5073';
+const BASE_URL = 'http://localhost:9000';
 
 async function testPaymentSimple() {
   console.log('🔍 Comprehensive Payment System Test\n');
@@ -59,7 +59,6 @@ async function testPaymentSimple() {
       success: paymentData1.success,
       paymentId: paymentData1.paymentId,
       amount: paymentData1.amount,
-      isFirstReport: paymentData1.isFirstReport,
       hasClientSecret: !!paymentData1.clientSecret
     });
 
@@ -110,7 +109,6 @@ async function testPaymentSimple() {
       success: paymentData2.success,
       paymentId: paymentData2.paymentId,
       amount: paymentData2.amount,
-      isFirstReport: paymentData2.isFirstReport,
       hasClientSecret: !!paymentData2.clientSecret
     });
 

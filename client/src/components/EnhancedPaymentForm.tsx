@@ -18,7 +18,6 @@ interface EnhancedPaymentFormProps {
   isProcessing: boolean;
   setIsProcessing: (processing: boolean) => void;
   amount?: number;
-  isFirstReport?: boolean;
   quizAttemptId?: number; // Required for report unlock payments
 }
 
@@ -359,7 +358,6 @@ const PaymentForm: React.FC<EnhancedPaymentFormProps> = ({
   isProcessing,
   setIsProcessing,
   amount = 9.99,
-  isFirstReport = true,
   quizAttemptId,
 }) => {
   const stripe = useStripe();
@@ -555,7 +553,6 @@ interface EnhancedPaymentWrapperProps {
   isProcessing: boolean;
   setIsProcessing: (processing: boolean) => void;
   amount?: number;
-  isFirstReport?: boolean;
   quizAttemptId?: number;
 }
 

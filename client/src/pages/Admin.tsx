@@ -27,7 +27,6 @@ interface Payment {
   type: string;
   stripePaymentIntentId: string;
   status: string;
-  retakesGranted: number;
   createdAt: string;
   completedAt?: string;
   user?: {

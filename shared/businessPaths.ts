@@ -37,7 +37,7 @@ export const businessPaths: BusinessPath[] = [
       "Trend awareness",
     ],
     icon: "TrendingUp",
-    emoji: "�",
+    emoji: "🚀",
     marketSize: "Creator economy valued at over $104B",
     averageIncome: {
       beginner: "$0-500/month",
@@ -1009,6 +1009,7 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "digital-services",
     name: "Digital Services",
+    emoji: "💻",
     description:
       "Provide specialized digital services like web development, design, or consulting",
     detailedDescription:
@@ -1102,6 +1103,7 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "investing-trading",
     name: "Investing & Trading",
+    emoji: "💹",
     description:
       "Generate returns through strategic investment in various financial instruments",
     detailedDescription:
@@ -1204,8 +1206,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "copywriting",
     name: "Copywriting",
+    emoji: "✍️",
     description:
-      "Create persuasive written content that drives sales and engagement",
+      "Write persuasive marketing and sales copy for businesses and brands",
     detailedDescription:
       "Copywriting involves creating persuasive written content for businesses, including sales pages, email campaigns, advertisements, website copy, and marketing materials designed to drive specific actions from readers.",
     fitScore: 0,
@@ -1391,8 +1394,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "online-reselling",
     name: "Online Reselling",
+    emoji: "📦",
     description:
-      "Buy and resell products online for profit through arbitrage opportunities",
+      "Buy and resell products online through platforms like eBay, Amazon, or Poshmark",
     detailedDescription:
       "Online reselling involves purchasing products at low prices and reselling them at higher prices through online marketplaces. This can include retail arbitrage, wholesale purchasing, thrift store finds, clearance items, or sourcing from manufacturers.",
     fitScore: 0,
@@ -1484,8 +1488,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "handmade-goods",
     name: "Handmade Goods",
+    emoji: "🧶",
     description:
-      "Create and sell handcrafted products through online marketplaces",
+      "Create and sell handmade products such as crafts, jewelry, or art",
     detailedDescription:
       "Handmade goods businesses involve creating unique, handcrafted products and selling them through online platforms. This can include jewelry, clothing, home decor, art, crafts, or any custom-made items that showcase personal creativity and skill.",
     fitScore: 0,
@@ -1582,8 +1587,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "amazon-fba",
     name: "Amazon FBA",
+    emoji: "🏷️",
     description:
-      "Sell products on Amazon using Fulfillment by Amazon for storage, shipping, and customer service",
+      "Sell products using Amazon's Fulfillment by Amazon (FBA) service",
     detailedDescription:
       "Amazon FBA (Fulfillment by Amazon) allows sellers to send products to Amazon's warehouses, where they handle storage, shipping, and customer service. Sellers focus on product research, sourcing, and marketing while Amazon manages the logistics. This model requires upfront investment in inventory but offers scalability and passive income potential.",
     fitScore: 0,
@@ -1675,8 +1681,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "podcasting",
     name: "Podcasting",
+    emoji: "🎙️",
     description:
-      "Create and monetize audio content through sponsorships, advertising, and audience building",
+      "Create and monetize audio content through podcasts",
     detailedDescription:
       "Podcasting involves creating audio content on specific topics or niches, building an audience, and monetizing through sponsorships, advertising, affiliate marketing, or premium content. Successful podcasters focus on consistent content creation, audience engagement, and strategic monetization partnerships.",
     fitScore: 0,
@@ -1768,8 +1775,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "blogging",
     name: "Blogging",
+    emoji: "📝",
     description:
-      "Create written content on specific topics to build an audience and monetize through advertising and affiliate marketing",
+      "Write and monetize blog content on various topics",
     detailedDescription:
       "Blogging involves creating written content on specific topics or niches, building an engaged audience, and monetizing through advertising, affiliate marketing, sponsored posts, or selling digital products. Successful bloggers focus on SEO, consistent content creation, and audience engagement.",
     fitScore: 0,
@@ -1861,8 +1869,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "consulting",
     name: "Consulting",
+    emoji: "💼",
     description:
-      "Provide expert advice and strategic guidance to businesses in your area of expertise",
+      "Provide expert advice and solutions to businesses or individuals",
     detailedDescription:
       "Consulting involves providing expert advice and strategic guidance to businesses in your area of expertise. Consultants help clients solve problems, improve processes, and achieve goals through specialized knowledge and experience. This can include business strategy, operations, marketing, technology, or industry-specific consulting.",
     fitScore: 0,
@@ -1954,8 +1963,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "real-estate-investing",
     name: "Real Estate Investing",
+    emoji: "🏠",
     description:
-      "Generate income through property investments including rental properties, house flipping, and real estate crowdfunding",
+      "Invest in and manage real estate properties for profit",
     detailedDescription:
       "Real estate investing involves purchasing properties to generate income through rentals, appreciation, or flipping. This can include residential rentals, commercial properties, house flipping, or real estate crowdfunding. Success requires market knowledge, financial analysis, and property management skills.",
     fitScore: 0,
@@ -2047,8 +2057,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "online-course-creation",
     name: "Online Course Creation",
+    emoji: "🎓",
     description:
-      "Create and sell educational courses on platforms like Udemy, Teachable, or your own website",
+      "Create and sell online courses on platforms like Udemy or Teachable",
     detailedDescription:
       "Online course creation involves developing educational content on specific topics and selling it through platforms like Udemy, Teachable, or your own website. Successful course creators focus on solving specific problems, creating engaging content, and building a marketing system to reach their target audience.",
     fitScore: 0,
@@ -2140,8 +2151,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "ghostwriting",
     name: "Ghostwriting",
+    emoji: "👻",
     description:
-      "Write content for others who publish under their own name, including books, articles, and speeches",
+      "Write content for others who are credited as the author",
     detailedDescription:
       "Ghostwriting involves writing content for others who publish under their own name. This can include books, articles, speeches, blog posts, and other content. Ghostwriters must adapt their writing style to match their client's voice while maintaining high quality and meeting deadlines.",
     fitScore: 0,
@@ -2232,9 +2244,10 @@ export const businessPaths: BusinessPath[] = [
   },
   {
     id: "e-commerce",
-    name: "E-commerce",
+    name: "E-Commerce",
+    emoji: "🛒",
     description:
-      "Build and sell products through your own online store with full control over branding and customer experience",
+      "Sell products through online stores or marketplaces",
     detailedDescription:
       "E-commerce involves building and selling products through your own online store. This gives you full control over branding, customer experience, and business operations. E-commerce businesses can sell physical products, digital products, or services through platforms like Shopify, WooCommerce, or custom websites.",
     fitScore: 0,
@@ -2326,8 +2339,9 @@ export const businessPaths: BusinessPath[] = [
   {
     id: "dropshipping",
     name: "Dropshipping",
+    emoji: "🚚",
     description:
-      "Sell products online without holding inventory by partnering with suppliers who ship directly to customers",
+      "Sell products online without holding inventory, using suppliers to fulfill orders",
     detailedDescription:
       "Dropshipping involves selling products online without holding inventory. You partner with suppliers who ship products directly to your customers when orders are placed. This model requires strong marketing skills, product research, and customer service, but eliminates inventory management and upfront costs.",
     fitScore: 0,

@@ -118,7 +118,7 @@ export function setupAuthRoutes(app: Express) {
   // Add this middleware at the top of setupAuthRoutes
   app.use((req: Request, res: Response, next: express.NextFunction) => {
     if (req.path.startsWith("/api/auth/")) {
-      res.header("Access-Control-Allow-Origin", "http://localhost:3005");
+      res.header("Access-Control-Allow-Origin", "http://localhost:9000");
       res.header("Access-Control-Allow-Credentials", "true");
       res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
       res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
@@ -169,6 +169,22 @@ export function setupAuthRoutes(app: Express) {
       sessionExists: !!req.session,
       cookieHeader: req.headers.cookie?.substring(0, 100) + "..." || "none",
       userAgent: req.headers["user-agent"]?.substring(0, 50) + "..." || "none",
+    });
+  });
+
+  // Debug endpoint to dump session and cookies for troubleshooting
+  app.get("/api/auth/debug", async (req: Request, res: Response) => {
+    console.log("/api/auth/debug called", {
+      sessionId: req.sessionID,
+      session: req.session,
+      cookies: req.headers.cookie,
+      userAgent: req.headers["user-agent"]?.substring(0, 100) || "none",
+    });
+    res.json({
+      sessionId: req.sessionID,
+      session: req.session,
+      cookies: req.headers.cookie,
+      userAgent: req.headers["user-agent"]?.substring(0, 100) || "none",
     });
   });
 
@@ -302,6 +318,7 @@ export function setupAuthRoutes(app: Express) {
           hasPassword: !!user.password,
           passwordLength: user.password?.length || 0
         });
+        console.warn(`[AUTH] Denied login for temporary/unpaid user: ${email}`);
         return res.status(403).json({ 
           error: "You need to pay to access your dashboard. Please purchase a report to unlock login access.",
           userType: "temporary",
@@ -318,6 +335,16 @@ export function setupAuthRoutes(app: Express) {
 
       // Set session using helper (sets both session and cache)
       setUserIdInRequest(req, user.id);
+      console.info(`[AUTH] Session set for paid user: ${user.email}, userId: ${user.id}`);
+      console.log("[DEBUG] setUserIdInRequest called for user:", {
+        id: user.id,
+        email: user.email,
+        isTemporary: user.isTemporary,
+        isPaid: user.isPaid,
+        sessionId: req.sessionID,
+        sessionUserId: req.session?.userId,
+        sessionData: req.session
+      });
 
       // TEMPORARY FIX: Force save with explicit session management
       // This ensures the userId is saved and available for subsequent requests
@@ -345,6 +372,8 @@ export function setupAuthRoutes(app: Express) {
           sessionData: req.session,
           setCookieHeader: res.getHeaders()["set-cookie"],
         });
+        // Print all response headers for debugging
+        console.log("Login: Response headers after session save:", res.getHeaders());
 
         // Don't send password
         const { password: _, ...userWithoutPassword } = user;

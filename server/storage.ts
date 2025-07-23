@@ -90,15 +90,10 @@ class Storage {
     });
   }
 
-  async getAllAIContentForQuizAttempt(quizAttemptId: number) {
-    return await this.prisma.aiContent.findMany({
-      where: { quizAttemptId },
-      orderBy: { generatedAt: 'desc' },
-    });
-  }
-
   async createPayment(data: any) {
-    return await this.prisma.payment.create({ data });
+    const created = await this.prisma.payment.create({ data });
+    // Always fetch the full payment record by ID to ensure all fields are present
+    return await this.prisma.payment.findUnique({ where: { id: created.id } });
   }
 
   async completePayment(paymentId: number) {
@@ -163,18 +158,29 @@ class Storage {
   }
 
   async storeTemporaryUser(sessionId: string, email: string, data: any) {
-    return await this.prisma.user.create({
-      data: {
-        email,
-        password: data.password || '',
-        isTemporary: true,
-        sessionId,
-        tempQuizData: data.quizData || null,
-        expiresAt: data.expiresAt || null,
-        firstName: data.firstName || null,
-        lastName: data.lastName || null,
-      },
-    });
+    // Always attempt to create the user, handle race condition with try/catch
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email,
+          password: data.password || '',
+          isTemporary: true,
+          sessionId,
+          tempQuizData: data.quizData || null,
+          expiresAt: data.expiresAt || null,
+          firstName: data.firstName || null,
+          lastName: data.lastName || null,
+        },
+      });
+    } catch (err: any) {
+      // Handle unique constraint error (race condition)
+      if (err.code === 'P2002') {
+        console.info(`[INFO] storeTemporaryUser: User with email ${email} already exists, reusing existing user (non-fatal)`);
+        const user = await this.prisma.user.findUnique({ where: { email } });
+        if (user) return user;
+      }
+      throw err;
+    }
   }
 
   async getTemporaryUser(sessionId: string) {

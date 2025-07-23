@@ -12,7 +12,7 @@ import {
 import type { QuizData } from "../types";
 import { getSessionId } from "../../../shared/utils";
 import { useNavigate } from "react-router-dom";
-import { Modal } from "./ui/modal"; // If you have a modal component, otherwise use a simple div
+// import { Modal } from "./ui/modal"; // If you have a modal component, otherwise use a simple div
 // import { v4 as uuidv4 } from 'uuid';
 const uuidv4 = () => crypto.randomUUID();
 

@@ -118,13 +118,6 @@
           "notNull": true,
           "default": "'pending'"
         },
-        "retakes_granted": {
-          "name": "retakes_granted",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -413,20 +406,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
-        },
-        "quiz_retakes_remaining": {
-          "name": "quiz_retakes_remaining",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "total_quiz_retakes_used": {
-          "name": "total_quiz_retakes_used",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
         },
         "is_unsubscribed": {
           "name": "is_unsubscribed",

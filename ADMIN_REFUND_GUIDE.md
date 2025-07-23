@@ -2,7 +2,7 @@
 
 ## 🚀 How to Access the Admin Interface
 
-1. **Open your browser** and go to: `http://localhost:5073/admin`
+1. **Open your browser** and go to: `http://localhost:9000/admin`
 2. **Enter the admin API key**: `bma_admin_2024_kJ8mN3pQ7vX2zA9bC5fE1wR4tY6uI0oP`
 3. **Click "Access Admin Panel"**
 4. **Start managing payments and refunds!**

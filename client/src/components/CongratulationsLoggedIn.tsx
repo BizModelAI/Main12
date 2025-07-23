@@ -4,7 +4,6 @@ import { Mail, ArrowRight, CheckCircle, Clock, Star, User } from "lucide-react";
 import type { QuizData } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "./ui/button";
-import { Modal } from "./ui/modal"; // If you have a modal component, otherwise use a simple div
 const uuidv4 = () => crypto.randomUUID();
 
 interface LoggedInCongratulationsProps {
