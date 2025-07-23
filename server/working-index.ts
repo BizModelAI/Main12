@@ -3,11 +3,9 @@ import { createServer } from "http";
 import session from "express-session";
 import { setupVite } from "./vite.js";
 import { storage } from "./storage.js";
+import { registerRoutes } from "./routes.js";
 
 const MemoryStore = require('memorystore')(session);
-
-// Import the routes setup function (assuming it exists)
-import "./routes.js";
 
 const app = express();
 const server = createServer(app);
