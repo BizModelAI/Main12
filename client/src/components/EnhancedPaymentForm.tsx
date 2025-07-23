@@ -292,6 +292,17 @@ const PayPalForm: React.FC<{
 
   const onApprove = async (data: any) => {
     try {
+      // NOTE: /api/capture-paypal-payment, /api/paypal-config are not implemented in the new backend.
+      // TODO: Implement these endpoints or update this logic if payment integration is required.
+      // Example (commented out):
+      /*
+      const response = await fetch('/api/capture-paypal-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(requestBody),
+      });
+      */
       const response = await fetch("/api/capture-paypal-payment", {
         method: "POST",
         headers: {
@@ -427,10 +438,19 @@ const PaymentForm: React.FC<EnhancedPaymentFormProps> = ({
           }
         }
 
-        // Use report unlock payment endpoint
-        const endpoint = "/api/create-report-unlock-payment";
-
-        const response = await fetch(endpoint, {
+        // NOTE: /api/create-report-unlock-payment, /api/capture-paypal-payment, /api/paypal-config are not implemented in the new backend.
+        // TODO: Implement these endpoints or update this logic if payment integration is required.
+        // All requests to protected endpoints should use credentials: 'include'.
+        // Example (commented out):
+        /*
+        const response = await fetch('/api/create-report-unlock-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(requestBody),
+        });
+        */
+        const response = await fetch("/api/create-report-unlock-payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

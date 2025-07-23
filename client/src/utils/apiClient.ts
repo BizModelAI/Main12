@@ -9,63 +9,26 @@ export const API_ROUTES = {
   AUTH_ME: "/api/auth/me",
   AUTH_LOGIN: "/api/auth/login",
   AUTH_SIGNUP: "/api/auth/signup",
-  AUTH_LOGOUT: "/api/auth/logout",
-  AUTH_PROFILE: "/api/auth/profile",
-  AUTH_ACCOUNT: "/api/auth/account",
-  AUTH_FORGOT_PASSWORD: "/api/auth/forgot-password",
-  AUTH_RESET_PASSWORD: "/api/auth/reset-password",
-  AUTH_CHANGE_PASSWORD: "/api/auth/change-password",
-  AUTH_UNSUBSCRIBE: "/api/auth/unsubscribe",
-  AUTH_VERIFY_RESET_TOKEN: "/api/auth/verify-reset-token",
   AUTH_LATEST_QUIZ_DATA: "/api/auth/latest-quiz-data",
-  AUTH_SAVE_QUIZ_DATA: "/api/auth/save-quiz-data",
-  
+  // Deprecated/removed: AUTH_LOGOUT, AUTH_PROFILE, AUTH_ACCOUNT, AUTH_FORGOT_PASSWORD, AUTH_RESET_PASSWORD, AUTH_CHANGE_PASSWORD, AUTH_UNSUBSCRIBE, AUTH_VERIFY_RESET_TOKEN, AUTH_SAVE_QUIZ_DATA
   // Quiz and data routes
-  SAVE_QUIZ_DATA: "/api/save-quiz-data",
-  QUIZ_ATTEMPT: "/api/quiz-attempt",
+  // Deprecated/removed: SAVE_QUIZ_DATA, CHECK_EXISTING_ATTEMPTS
   QUIZ_ATTEMPTS: "/api/quiz-attempts",
-  CHECK_EXISTING_ATTEMPTS: "/api/check-existing-attempts",
-  
+  QUIZ_ATTEMPT: "/api/quiz-attempts", // Use /api/quiz-attempts/[id] for specific attempt
   // AI and analysis routes
   OPENAI_CHAT: "/api/openai-chat",
   OPENAI_STATUS: "/api/openai-status",
   AI_BUSINESS_FIT_ANALYSIS: "/api/ai-business-fit-analysis",
-  AI_PERSONALITY_ANALYSIS: "/api/ai-personality-analysis",
-  AI_INSIGHTS: "/api/ai-insights",
-  ANALYZE_SKILLS: "/api/analyze-skills",
   GENERATE_INCOME_PROJECTIONS: "/api/generate-income-projections",
-  GENERATE_FULL_REPORT: "/api/generate-full-report",
-  
+  GENERATE_BUSINESS_FIT_DESCRIPTIONS: "/api/generate-business-fit-descriptions",
+  // Deprecated/removed: AI_PERSONALITY_ANALYSIS, AI_INSIGHTS, ANALYZE_SKILLS, GENERATE_FULL_REPORT
   // Payment routes
-  CREATE_REPORT_UNLOCK_PAYMENT: "/api/create-report-unlock-payment",
-  CAPTURE_PAYPAL_PAYMENT: "/api/capture-paypal-payment",
   STRIPE_CONFIG: "/api/stripe-config",
-  PAYPAL_CONFIG: "/api/paypal-config",
-  USER_PRICING: "/api/user-pricing",
   STRIPE_WEBHOOK: "/api/stripe/webhook",
-  
-  // Business and resources
-  BUSINESS_RESOURCES: "/api/business-resources",
-  
-  // PDF and email routes
-  GENERATE_PDF: "/api/generate-pdf",
-  SEND_QUIZ_RESULTS: "/api/send-quiz-results",
-  SEND_WELCOME_EMAIL: "/api/send-welcome-email",
-  SEND_FULL_REPORT: "/api/send-full-report",
-  EMAIL_RESULTS: "/api/email-results",
-  EMAIL_LINK: "/api/email-link",
-  
-  // Admin routes
-  ADMIN_PAYMENTS: "/api/admin/payments",
-  ADMIN_REFUNDS: "/api/admin/refunds",
-  ADMIN_REFUND: "/api/admin/refund",
-  ADMIN_ALL_EMAILS: "/api/admin/all-emails",
-  ADMIN_EMAILS_CSV: "/api/admin/emails-csv",
-  
-  // Contact and other
-  CONTACT: "/api/contact",
-  HEALTH: "/api/health",
-} as const;
+  USER_PRICING: "/api/user-pricing",
+  // Deprecated/removed: CREATE_REPORT_UNLOCK_PAYMENT, CAPTURE_PAYPAL_PAYMENT, PAYPAL_CONFIG
+  // Deprecated/removed: BUSINESS_RESOURCES, GENERATE_PDF, SEND_QUIZ_RESULTS, SEND_WELCOME_EMAIL
+};
 
 export type ApiRoute = typeof API_ROUTES[keyof typeof API_ROUTES];
 
@@ -91,8 +54,10 @@ class ApiError extends Error {
 /**
  * Base request configuration
  */
+// NOTE: This project now uses JWT cookie authentication for all protected endpoints.
+// Ensure all requests to protected endpoints use credentials: 'include'.
 const baseRequestConfig: RequestInit = {
-  credentials: 'include', // Include cookies for session management
+  credentials: 'include',
   headers: {
     'Content-Type': 'application/json',
   },

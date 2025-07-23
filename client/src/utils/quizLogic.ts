@@ -3,8 +3,8 @@ import { businessPaths } from "../data/businessPaths";
 import { apiPost } from "./apiClient";
 import { businessModelService } from './businessModelService';
 
-const API_BASE =
-  "http://localhost:6000";
+// Use relative path for API_BASE
+const API_BASE = "";
 
 // AI-powered business fit analysis
 export async function generateAIPersonalizedPaths(
@@ -13,70 +13,20 @@ export async function generateAIPersonalizedPaths(
   try {
     console.log("generateAIPersonalizedPaths: Making AI analysis request");
 
-    // Use XMLHttpRequest to avoid FullStory interference with fetch
-    const response = await new Promise<any>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${API_BASE}/api/ai-business-fit-analysis`, true);
-      xhr.withCredentials = true;
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.timeout = 40000; // 40 second timeout (server has 35s)
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const data = JSON.parse(xhr.responseText);
-            resolve(data);
-          } catch (e) {
-            console.error(
-              "generateAIPersonalizedPaths: Invalid JSON response",
-              e,
-            );
-            reject(new Error("Invalid JSON response"));
-          }
-        } else if (xhr.status === 429) {
-          console.error("generateAIPersonalizedPaths: Rate limited");
-          reject(new Error("Rate limited - too many requests"));
-        } else {
-          console.error(
-            `generateAIPersonalizedPaths: API error ${xhr.status}:`,
-            xhr.responseText,
-          );
-          reject(new Error(`API error: ${xhr.status}`));
-        }
-      };
-
-      xhr.onerror = () => {
-        console.error("generateAIPersonalizedPaths: Network error");
-        reject(new Error("Network error"));
-      };
-      xhr.ontimeout = () => {
-        console.error(
-          "generateAIPersonalizedPaths: Request timeout after 40 seconds",
-        );
-        reject(new Error("Request timeout"));
-      };
-
-      xhr.send(JSON.stringify({ quizData: data }));
+    // Use fetch with credentials: 'include' for JWT auth
+    const response = await fetch(`${API_BASE}/api/ai-business-fit-analysis`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
-
-    const analysis = response;
-
-    // Convert the AI analysis to BusinessPath format
-    return analysis.topMatches.map((match: any) => ({
-      ...match.businessPath,
-      aiAnalysis: match.analysis,
-      fitScore: match.analysis.fitScore,
-    }));
-  } catch (error) {
-    console.error(
-      "AI analysis failed, using BusinessModelService fallback:",
-      error,
-    );
-    const matches = businessModelService.getBusinessModelMatches(data);
-    return matches.map((match) => {
-      const businessPath = businessPaths.find((path) => path.id === match.id);
-      return { ...businessPath!, fitScore: match.score };
-    });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (e) {
+    console.error("generateAIPersonalizedPaths: Error", e);
+    throw e;
   }
 }
 

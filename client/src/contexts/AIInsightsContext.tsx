@@ -98,9 +98,14 @@ export const AIInsightsProvider: React.FC<AIInsightsProviderProps> = ({ children
       console.error('Error storing AI insights in localStorage:', error);
     }
     // Background sync to database based on user type
+    // NOTE: /api/ai-insights endpoint is not implemented in the new backend. Uncomment and implement if needed.
+    /*
     syncToDatabase(data);
+    */
   };
 
+  // NOTE: /api/ai-insights endpoint is not implemented in the new backend. Uncomment and implement if needed.
+  /*
   const syncToDatabase = async (data: AIInsightsData) => {
     if (!user) {
       // Anonymous user - only localStorage (1 hour)
@@ -136,6 +141,7 @@ export const AIInsightsProvider: React.FC<AIInsightsProviderProps> = ({ children
       console.error('Error syncing AI insights to database:', error);
     }
   };
+  */
 
   const clearAIInsights = () => {
     setAIInsightsState(null);

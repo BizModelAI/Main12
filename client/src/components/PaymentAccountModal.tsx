@@ -381,6 +381,9 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
       localStorage.setItem("userEmail", loginEmail);
 
       // Always save quiz data after login to ensure we have a fresh quiz attempt ID
+      // NOTE: /api/save-quiz-data is not implemented in the new backend.
+      // TODO: Implement this endpoint or update this logic if saving quiz data is required.
+      /*
       const savedQuizData = localStorage.getItem("quizData");
       
       if (savedQuizData) {
@@ -396,34 +399,11 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
             credentials: "include",
             body: JSON.stringify({ quizData }),
           });
-
-          if (saveResponse.ok) {
-            const saveData = await saveResponse.json();
-            console.log("PaymentAccountModal: Quiz data saved successfully after login:", saveData);
-            
-            // Store the quiz attempt ID for potential report unlock
-            if (saveData.quizAttemptId) {
-              localStorage.setItem(
-                "currentQuizAttemptId",
-                saveData.quizAttemptId.toString(),
-              );
-              console.log("PaymentAccountModal: Stored new quiz attempt ID:", saveData.quizAttemptId);
-            }
-
-            // Set quiz completion flag
-            setHasCompletedQuiz(true);
-            localStorage.setItem("hasCompletedQuiz", "true");
-          } else {
-            console.error("PaymentAccountModal: Failed to save quiz data after login:", saveResponse.status);
-            const errorData = await saveResponse.json();
-            console.error("PaymentAccountModal: Error details:", errorData);
-          }
         } catch (error) {
-          console.error("PaymentAccountModal: Error saving quiz data after login:", error);
+          console.error("Error saving quiz data after login:", error);
         }
-      } else {
-        console.log("PaymentAccountModal: No quiz data found in localStorage after login");
       }
+      */
 
       // In the new pay-per-report model, logged-in users proceed to payment for report unlock
       await fetchReportPricing(); // Get the correct pricing for this user

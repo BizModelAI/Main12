@@ -244,7 +244,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async (): Promise<void> => {
     try {
-      await apiPost(API_ROUTES.AUTH_LOGOUT, {});
+      // NOTE: /api/auth/logout is not implemented in the new backend.
+      // TODO: Implement this endpoint or update this logic if server-side logout is required.
+      // await apiPost(API_ROUTES.AUTH_LOGOUT, {});
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -258,8 +260,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.removeItem("congratulationsShown");
       setUser(null);
       setIsAuthenticated(false);
+      // Optionally clear JWT cookie by setting it to expired (if needed)
+      document.cookie = "auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     }
   };
+
+  // NOTE: The following endpoints are not implemented in the new backend:
+  // /api/auth/profile, /api/auth/account, /api/auth/forgot-password, /api/auth/reset-password, /api/auth/change-password, /api/auth/unsubscribe, /api/auth/verify-reset-token, /api/auth/save-quiz-data
+  // TODO: Implement these endpoints or update this logic if needed.
 
   const forceLogout = () => {
     console.log("ForceLogout: Clearing user state due to session mismatch");

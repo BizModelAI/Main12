@@ -1,10 +1,7 @@
 import { QuizData, BusinessPath, AIAnalysis } from "../types";
 import { AICacheManager } from "./aiCacheManager";
 
-const API_BASE =
-  typeof window !== "undefined" && window.location.port === "6000"
-    ? "http://localhost:6000"
-    : "";
+const API_BASE = "";
 
 // Optimized AI Service with 3 clean calls structure
 export class AIService {
@@ -95,7 +92,6 @@ export class AIService {
         method: "GET",
         credentials: "include",
       });
-      
       if (response.ok) {
         const data = await response.json();
         return data.authenticated || !!data.id;
