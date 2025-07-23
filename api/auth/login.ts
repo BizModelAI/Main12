@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
-import { signToken, setAuthCookie, AuthPayload } from '../../server/utils/jwtUtils';
-import { storage } from '../../server/storage';
+import { signToken, setAuthCookie, AuthPayload } from '../_lib/jwtUtils';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
