@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { NextApiRequest } from 'next';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme-in-prod';
 const JWT_EXPIRES_IN = '7d';

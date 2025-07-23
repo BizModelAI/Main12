@@ -56,8 +56,8 @@ async function setupApp() {
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  await setupApp();
+export default function handler(req: any, res: any, next: any, ...args: any[]) {
+  setupApp();
 
   // Handle the request with Express
   return new Promise((resolve, reject) => {

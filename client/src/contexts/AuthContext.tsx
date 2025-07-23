@@ -275,7 +275,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteAccount = async (): Promise<{ success: boolean; error?: string }> => {
     try {
-      await apiDelete(API_ROUTES.AUTH_ACCOUNT);
+      await apiDelete(API_ROUTES.AUTH_ME);
       setUser(null);
       setIsAuthenticated(false);
       return { success: true };
@@ -287,7 +287,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateProfile = async (updates: { firstName?: string; lastName?: string; email?: string }): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await apiPut(API_ROUTES.AUTH_PROFILE, updates);
+      const response = await apiPut(API_ROUTES.AUTH_ME, updates);
       // The backend returns user data directly, not wrapped in a user object
       setUser(response);
       return { success: true };

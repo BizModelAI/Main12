@@ -54,7 +54,7 @@ const ReportPaymentForm: React.FC<ReportPaymentFormProps> = ({
     if (!user) return;
 
     try {
-      const data = await apiPost(API_ROUTES.CREATE_REPORT_UNLOCK_PAYMENT, {
+      const data = await apiPost(API_ROUTES.USER_PRICING, {
         userId: user.id,
         quizAttemptId: quizAttemptId,
       });

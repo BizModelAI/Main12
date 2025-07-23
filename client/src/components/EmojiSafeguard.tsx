@@ -23,7 +23,7 @@ export const EmojiSafeguard: React.FC<EmojiSafeguardProps> = ({
   const safeguardedChildren = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, {
-        ...child.props,
+        ...(typeof child.props === 'object' && child.props ? child.props : {}),
         business: safeBusinessData,
         businessData: safeBusinessData,
         businesses: safeBusinessDataArray,
