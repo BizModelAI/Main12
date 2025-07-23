@@ -105,7 +105,7 @@ export class SkillsAnalysisService {
     return result;
   }
 
-  private getFallbackSkillsAnalysis(requiredSkills: string[]): SkillsAnalysis {
+  public getFallbackSkillsAnalysis(requiredSkills: string[]): SkillsAnalysis {
     // Distribute skills across categories for fallback
     const third = Math.ceil(requiredSkills.length / 3);
 
