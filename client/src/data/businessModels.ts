@@ -50,13 +50,8 @@ export const businessModels: BusinessModel[] = [
       "Self-discipline",
       "Personal branding",
     ],
-<<<<<<< HEAD
     tools: ["Upwork", "Fiverr", "LinkedIn", "Slack", "Notion", "Canva"],
     emoji: "🧑‍💻",
-=======
-    tools: ["Upwork", "Fiverr", "LinkedIn", "Slack", "Zoom"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     resources: [
       {
         type: "Free",
@@ -128,13 +123,8 @@ export const businessModels: BusinessModel[] = [
       "Brand collaboration readiness",
       "Analytics and platform adaptation",
     ],
-<<<<<<< HEAD
-    tools: ["CapCut", "Canva", "TikTok", "Instagram", "Notion", "Descript", "Adobe Express"],
-    emoji: "📸",
-=======
     tools: ["CapCut", "Canva", "TikTok", "Instagram", "Notion"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "📸",
     resources: [
       {
         type: "Free",
@@ -207,13 +197,8 @@ export const businessModels: BusinessModel[] = [
       "Compliance and copyright management",
       "Multi-channel repurposing",
     ],
-<<<<<<< HEAD
-    tools: ["VidIQ", "Pictory", "Fiverr", "Google Docs", "Canva", "Upwork", "Descript"],
-    emoji: "📺",
-=======
     tools: ["VidIQ", "Pictory", "Fiverr", "Google Docs"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "📺",
     resources: [
       {
         type: "Free",
@@ -277,13 +262,8 @@ export const businessModels: BusinessModel[] = [
       "Sales communication",
       "Online reputation management",
     ],
-<<<<<<< HEAD
-    tools: ["Google Ads", "Jobber", "Thumbtack", "Yelp", "Nextdoor", "Stripe"],
-    emoji: "🛠️",
-=======
     tools: ["Google Ads", "Jobber", "Stripe", "Thumbtack"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🛠️",
     resources: [
       {
         type: "Free",
@@ -343,13 +323,8 @@ export const businessModels: BusinessModel[] = [
       "Self-management",
       "Offer understanding",
     ],
-<<<<<<< HEAD
-    tools: ["Zoom", "Close.io", "Slack", "Calendly", "Gong", "HubSpot"],
-    emoji: "🤝",
-=======
     tools: ["Zoom", "Close.io", "Slack", "Calendly"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🤝",
     resources: [
       {
         type: "Free",
@@ -407,13 +382,8 @@ export const businessModels: BusinessModel[] = [
       "Critical thinking",
       "Planning and scoping",
     ],
-<<<<<<< HEAD
-    tools: ["React", "Vercel", "Supabase", "Stripe", "Figma", "Bubble", "Zapier"],
-    emoji: "💻",
-=======
     tools: ["React", "Vercel", "Supabase", "Stripe", "Figma"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "💻",
     resources: [
       {
         type: "Free",
@@ -478,13 +448,8 @@ export const businessModels: BusinessModel[] = [
       "Automation and analytics (AI tools)",
       "Specialization (platform, industry, or service)",
     ],
-<<<<<<< HEAD
-    tools: ["Meta Ads Manager", "GoHighLevel", "Canva", "Loom", "Zapier", "Hootsuite", "Sprout Social"],
-    emoji: "📣",
-=======
     tools: ["Meta Ads Manager", "GoHighLevel", "Canva", "Loom"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "📣",
     resources: [
       {
         type: "Paid",
@@ -544,13 +509,8 @@ export const businessModels: BusinessModel[] = [
       "Client education",
       "ROI measurement",
     ],
-<<<<<<< HEAD
-    tools: ["ChatGPT", "Claude", "Zapier", "Make", "Notion", "Airtable", "HubSpot"],
-    emoji: "🤖",
-=======
     tools: ["ChatGPT", "Make", "Zapier", "Claude", "Notion"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🤖",
     resources: [
       {
         type: "Free",
@@ -608,13 +568,8 @@ export const businessModels: BusinessModel[] = [
       "Specialization (industry or service)",
       "Client retention",
     ],
-<<<<<<< HEAD
-    tools: ["Trello", "Slack", "Canva", "Webflow", "Notion", "Zapier", "Airtable"],
-    emoji: "🖥️",
-=======
     tools: ["Trello", "Slack", "Canva", "Webflow", "Notion"],
-    emoji: "�️",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🖥️",
     resources: [
       {
         type: "Free",
@@ -673,13 +628,8 @@ export const businessModels: BusinessModel[] = [
       "Regulatory compliance",
       "Tech adoption (AI bots, analytics)",
     ],
-<<<<<<< HEAD
-    tools: ["TradingView", "Thinkorswim", "Binance", "Robinhood", "Coinbase", "Alpaca", "QuantConnect"],
-    emoji: "📈",
-=======
     tools: ["TradingView", "Thinkorswim", "Binance", "Robinhood"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "📈",
     resources: [
       {
         type: "Free",
@@ -739,13 +689,8 @@ export const businessModels: BusinessModel[] = [
       "Multi-platform selling",
       "Sustainability and authenticity",
     ],
-<<<<<<< HEAD
-    tools: ["eBay", "Mercari", "Facebook Marketplace", "Pirate Ship", "Amazon", "Poshmark", "List Perfectly"],
-    emoji: "🛍️",
-=======
     tools: ["eBay", "Mercari", "Facebook Marketplace", "Pirate Ship"],
-    emoji: "�️",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🛍️",
     resources: [
       {
         type: "Free",
@@ -805,13 +750,8 @@ export const businessModels: BusinessModel[] = [
       "Pricing strategy",
       "Storytelling and content creation",
     ],
-<<<<<<< HEAD
-    tools: ["Etsy", "Shopify", "Canva", "Instagram", "Printful", "TikTok Shop"],
-    emoji: "🎨",
-=======
     tools: ["Etsy", "Shopify", "Canva", "Instagram", "Printful"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🎨",
     resources: [
       {
         type: "Free",
@@ -1107,13 +1047,8 @@ export const businessModels: BusinessModel[] = [
       "Platform compliance",
       "Audience trust-building",
     ],
-<<<<<<< HEAD
-    tools: ["ClickFunnels", "ConvertKit", "WordPress", "Canva", "Ahrefs", "SurferSEO"],
-    emoji: "🔗",
-=======
     tools: ["ClickFunnels", "ConvertKit", "WordPress", "Canva", "Ahrefs"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🔗",
     resources: [
       {
         type: "Free",
@@ -1172,13 +1107,8 @@ export const businessModels: BusinessModel[] = [
       "Customer support",
       "Proactive client management",
     ],
-<<<<<<< HEAD
-    tools: ["Google Workspace", "Notion", "Trello", "Slack", "Zoom", "Zapier", "Airtable"],
-    emoji: "🧑‍💼",
-=======
     tools: ["Google Workspace", "Notion", "Trello", "Slack", "Zoom"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🧑‍💼",
     resources: [
       {
         type: "Free",
@@ -1238,13 +1168,8 @@ export const businessModels: BusinessModel[] = [
       "Customer service",
       "Analytics understanding",
     ],
-<<<<<<< HEAD
     tools: ["Teachable", "Camtasia", "Loom", "Canva", "Mailchimp"],
     emoji: "🎓",
-=======
-    tools: ["Shopify", "Oberlo", "Facebook Ads", "Google Ads", "AliExpress"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     resources: [
       {
         type: "Free",
@@ -1543,13 +1468,8 @@ export const businessModels: BusinessModel[] = [
       "Data analysis",
       "Risk management",
     ],
-<<<<<<< HEAD
     tools: ["Helium 10", "Jungle Scout", "AMZScout", "Seller Central", "Keepa", "Canva"],
     emoji: "🏭",
-=======
-    tools: ["Zoom", "Calendly", "Teachable", "Stripe", "Notion"],
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     resources: [
       {
         type: "Free",
@@ -1605,13 +1525,8 @@ export const businessModels: BusinessModel[] = [
       "Copy protection awareness",
       "Multi-platform selling",
     ],
-<<<<<<< HEAD
-    tools: ["Canva", "Photoshop", "Printful", "Printify", "Etsy", "Amazon Merch", "Redbubble"],
-    emoji: "🖼️",
-=======
     tools: ["Canva", "Photoshop", "Printful", "Etsy", "Amazon Merch"],
-    emoji: "�️",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    emoji: "🖼️",
     resources: [
       {
         type: "Free",

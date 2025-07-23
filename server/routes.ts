@@ -770,7 +770,6 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Get a specific quiz attempt by ID
   app.get("/api/quiz-attempts/:quizAttemptId", async (req: Request, res: Response) => {
     try {
-<<<<<<< HEAD
       const { userId, quizData } = req.body;
 
       if (!userId || !quizData) {
@@ -823,10 +822,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const userId = parseInt(req.params.userId);
       const currentUserId = getUserIdFromRequest(req);
-=======
-      const quizAttemptId = parseInt(req.params.quizAttemptId);
-      const currentUserId = await getUserIdFromRequest(req);
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
       // Check if user is authenticated
       if (!currentUserId) {
@@ -838,7 +833,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
-      const attempt = await storage.getQuizAttempt(quizAttemptId);
+      const attempt = await storage.getQuizAttempt(userId);
 
       if (!attempt) {
         return res.status(404).json({ error: "Quiz attempt not found" });
@@ -849,7 +844,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(403).json({ error: "Access denied" });
       }
 
-      console.log(`Quiz attempt ${quizAttemptId} retrieved for user ${currentUserId}`);
+      console.log(`Quiz attempt ${userId} retrieved for user ${currentUserId}`);
       res.json(attempt);
     } catch (error) {
       console.error("Error getting quiz attempt:", error);
@@ -894,73 +889,16 @@ export async function registerRoutes(app: Express): Promise<void> {
     async (req: Request, res: Response) => {
       try {
         const quizAttemptId = parseInt(req.params.quizAttemptId);
-<<<<<<< HEAD
-        const currentUserId = getUserIdFromRequest(req);
-        const contentType = req.query.type as string;
-=======
         const { contentType } = req.query;
         const currentUserId = await getUserIdFromRequest(req);
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
         // Require authentication for AI content
         if (!currentUserId) {
           return res.status(401).json({ error: "Not authenticated" });
         }
 
-<<<<<<< HEAD
-        // Verify the quiz attempt belongs to the current user
-        const attempts = await storage.getQuizAttempts(currentUserId);
-        const attempt = attempts.find((a) => a.id === quizAttemptId);
-
-        if (!attempt) {
-          return res
-            .status(404)
-            .json({ error: "Quiz attempt not found or unauthorized" });
-        }
-
-        console.log(
-          `AI content request for quiz attempt ${quizAttemptId}, content type: ${contentType || 'all'}`,
-        );
-
-        // If specific content type requested, use new table method
-        if (contentType) {
-          try {
-            const specificContent = await storage.getAIContent(quizAttemptId, contentType);
-            if (specificContent) {
-              console.log(`✅ Found ${contentType} content for quiz attempt ${quizAttemptId}`);
-              res.json({ content: specificContent.content });
-            } else {
-              console.log(`❌ No ${contentType} content found for quiz attempt ${quizAttemptId}`);
-              res.status(404).json({ error: `Content type '${contentType}' not found` });
-            }
-          } catch (error) {
-            console.error(`Error getting ${contentType} content:`, error);
-            res.status(500).json({ error: "Internal server error" });
-          }
-        } else {
-          // Return all AI content for backward compatibility
-          try {
-            const allContent = await storage.getAllAIContentForQuizAttempt(quizAttemptId);
-            console.log(`✅ Retrieved ${allContent.length} AI content items for quiz attempt ${quizAttemptId}`);
-            
-            // Convert to legacy format for backward compatibility
-            const legacyFormat: any = {};
-            allContent.forEach(item => {
-              legacyFormat[item.contentType] = item.content;
-            });
-            
-            res.json({ aiContent: legacyFormat });
-          } catch (error) {
-            console.error("Error getting all AI content:", error);
-            // Fallback to old method
-            const aiContent = await storage.getAIContentForQuizAttempt(quizAttemptId);
-            res.json({ aiContent });
-          }
-        }
-=======
         const aiContent = await storage.getAIContent(quizAttemptId, contentType as string || "results-preview");
         res.json({ success: true, aiContent });
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
       } catch (error) {
         console.error("Error getting AI content:", error);
         res.status(500).json({ error: "Failed to get AI content" });
@@ -1243,7 +1181,6 @@ export async function registerRoutes(app: Express): Promise<void> {
         const existingUser = await storage.getUserByEmail(email);
         
         if (existingUser && !existingUser.isTemporary) {
-<<<<<<< HEAD
           // Found a paid user with this email - store under their account
           console.log(`Save quiz data: Found existing paid user for email: ${email}, storing under their account`);
           
@@ -1254,10 +1191,6 @@ export async function registerRoutes(app: Express): Promise<void> {
           });
 
           // Note: Session establishment removed - frontend will handle user ID locally during quiz flow
-=======
-          attempt = await storage.recordQuizAttempt({ quizData, userId: existingUser.id });
-          await storage.updateQuizAttempt(attempt.id, { userId: existingUser.id });
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
           console.log(
             `Save quiz data: New quiz attempt recorded with ID ${attempt.id} for existing paid user ${existingUser.id} (${email})`,
@@ -1286,11 +1219,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           // No user exists with this email - create new temporary user
           tempUser = await storage.storeTemporaryUser(sessionKey, email, {
             quizData,
-<<<<<<< HEAD
-            // Don't set password for temporary users - they can't log in anyway
-=======
             password: "temp-" + Math.random().toString(36).substring(2), // Always set a non-null password
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
           });
           console.log(`Save quiz data: Created new temporary user for email: ${email}`);
         }
@@ -1404,7 +1333,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-<<<<<<< HEAD
   // Legacy endpoint for backward compatibility
   app.post("/api/auth/save-quiz-data", async (req: Request, res: Response) => {
     console.log(
@@ -1513,8 +1441,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-=======
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
   // Create Stripe payment intent for report unlock
   app.post(
     "/api/create-report-unlock-payment",
@@ -1523,7 +1449,6 @@ export async function registerRoutes(app: Express): Promise<void> {
         let { userId, quizAttemptId, email, quizData } = req.body;
 
         console.log("Payment endpoint called with:", { userId, quizAttemptId, email, hasQuizData: !!quizData });
-<<<<<<< HEAD
 
         // Handle anonymous users (no userId, no quizAttemptId, but has email and quizData)
         if (!userId && !quizAttemptId && email && quizData) {
@@ -1561,8 +1486,6 @@ export async function registerRoutes(app: Express): Promise<void> {
             });
           }
         }
-=======
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
         // Handle anonymous users (no userId, but has email and quizData)
         if (!userId && email && quizData) {
@@ -1789,14 +1712,9 @@ export async function registerRoutes(app: Express): Promise<void> {
             clientSecret: paymentIntent.client_secret,
             paymentId: payment.id,
             amount: amountDollar,
-<<<<<<< HEAD
             isFirstReport,
             quizAttemptId: quizAttemptId, // Return the quiz attempt ID for frontend
             isTemporaryUser: user.isTemporary,
-=======
-            isTemporaryUser: user.isTemporary,
-            quizAttemptId: quizAttemptId, // Always include quizAttemptId in response
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
           });
         } catch (paymentError: any) {
           console.error("Error creating payment record:", paymentError);

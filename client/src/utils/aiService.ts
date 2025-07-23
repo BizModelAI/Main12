@@ -530,21 +530,6 @@ ${userProfile}`;
     keyInsights: string[];
     successPredictors: string[];
   }> {
-<<<<<<< HEAD
-    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-    const topBusinessModelName = topPaths[0]?.name;
-    
-    // Check if we should generate new content
-    const shouldGenerate = await this.shouldGenerateAIContent("preview", quizData, quizAttemptId, topBusinessModelName);
-    
-    if (!shouldGenerate.shouldGenerate) {
-      if (shouldGenerate.existingContent) {
-        console.log(`✅ Using existing preview content for ${topBusinessModelName}`);
-        return shouldGenerate.existingContent;
-      } else {
-        console.log(`⚠️ No existing content found, using fallback for preview`);
-        return this.getFallbackPreviewContent(quizData, topPaths);
-=======
     try {
       // First check if we have existing AI content in database
       const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
@@ -558,22 +543,13 @@ ${userProfile}`;
           console.log(`✅ Using existing preview insights from database for quiz attempt ${quizAttemptId}`);
           return existingContent;
         }
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
       }
     }
 
-<<<<<<< HEAD
-    // Generate new content only when necessary
-    console.log(`🔄 Generating fresh preview insights for ${topBusinessModelName} (quiz attempt ${quizAttemptId || 'unknown'})`);
-    
-    try {
-      const response = await fetch("/api/openai-chat", {
-=======
-      console.log(`� Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
+      console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
       const response = await fetch(`${API_BASE}/api/openai-chat`, {
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -624,11 +600,6 @@ ${userProfile}`;
         successPredictors,
       };
 
-<<<<<<< HEAD
-      // Save the generated content intelligently with business model-specific cache key
-      const cacheKey = topBusinessModelName ? `preview_${topBusinessModelName.replace(/\s+/g, '_')}` : "preview";
-      await this.saveAIContentIntelligently(cacheKey, result, quizAttemptId);
-=======
       // Save to database if we have a quiz attempt ID
       if (quizAttemptId) {
         try {
@@ -638,7 +609,6 @@ ${userProfile}`;
           console.error("Failed to save preview insights to database:", saveError);
         }
       }
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
       return result;
     } catch (error) {
@@ -659,25 +629,11 @@ ${userProfile}`;
     topFitExplanation: string;
     bottomFitExplanation: string;
   }> {
-<<<<<<< HEAD
-    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-    
-    // Check if we should generate new content
-    const shouldGenerate = await this.shouldGenerateAIContent("fullReport", quizData, quizAttemptId);
-    
-    if (!shouldGenerate.shouldGenerate) {
-      if (shouldGenerate.existingContent) {
-        console.log(`✅ Using existing full report content`);
-        return shouldGenerate.existingContent;
-      } else {
-        console.log(`⚠️ No existing content found, using fallback for full report`);
-        return this.getFallbackFullReportContent(quizData, topPaths, bottomPaths);
-=======
     try {
       // First check if we have existing AI content in database
       const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
       if (quizAttemptId) {
-        console.log(`� Checking for existing fullReport content for quiz attempt ${quizAttemptId}`);
+        console.log(` Checking for existing fullReport content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
           quizAttemptId,
           "fullReport",
@@ -686,22 +642,13 @@ ${userProfile}`;
           console.log(`✅ Using existing full report insights from database for quiz attempt ${quizAttemptId}`);
           return existingContent;
         }
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
       }
     }
 
-<<<<<<< HEAD
-    // Generate new content only when necessary
-    console.log(`🔄 Generating fresh full report insights for quiz attempt ${quizAttemptId || 'unknown'}`);
-    
-    try {
-      const response = await fetch("/api/openai-chat", {
-=======
-      console.log(`� Generating fresh full report insights for quiz attempt ${quizAttemptId || 'unknown'}`);
+      console.log(` Generating fresh full report insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
       const response = await fetch(`${API_BASE}/api/openai-chat`, {
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -732,20 +679,15 @@ ${userProfile}`;
         bottomFitExplanation: bottomFitMatch ? bottomFitMatch[1].trim() : "",
       };
 
-<<<<<<< HEAD
-      // Save the generated content intelligently
-      await this.saveAIContentIntelligently("fullReport", result, quizAttemptId);
-=======
       // Save to database if we have a quiz attempt ID
           if (quizAttemptId) {
         try {
           await this.saveAIContentToDatabase(quizAttemptId, "fullReport", result);
-          console.log(`� Saved full report insights to database for quiz attempt ${quizAttemptId}`);
+          console.log(` Saved full report insights to database for quiz attempt ${quizAttemptId}`);
         } catch (saveError) {
           console.error("Failed to save full report insights to database:", saveError);
         }
       }
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 
       return result;
     } catch (error) {
@@ -765,26 +707,11 @@ ${userProfile}`;
     keyInsights?: string[];
     successPredictors?: string[];
   }> {
-<<<<<<< HEAD
-    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-    const contentType = `model_${modelName}`;
-    
-    // Check if we should generate new content
-    const shouldGenerate = await this.shouldGenerateAIContent(contentType, quizData, quizAttemptId);
-    
-    if (!shouldGenerate.shouldGenerate) {
-      if (shouldGenerate.existingContent) {
-        console.log(`✅ Using existing model insights for ${modelName}`);
-        return shouldGenerate.existingContent;
-      } else {
-        console.log(`⚠️ No existing content found, using fallback for ${modelName}`);
-        return this.getFallbackModelInsights(modelName, fitType);
-=======
     try {
       // First check if we have existing AI content in database
       const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
       if (quizAttemptId) {
-        console.log(`� Checking for existing model_${modelName} content for quiz attempt ${quizAttemptId}`);
+        console.log(` Checking for existing model_${modelName} content for quiz attempt ${quizAttemptId}`);
         const existingContent = await this.getAIContentFromDatabase(
           quizAttemptId,
           `model_${modelName}`,
@@ -800,14 +727,8 @@ ${userProfile}`;
       }
     }
 
-<<<<<<< HEAD
-    // Generate new content only when necessary
-    console.log(`🔄 Generating fresh model insights for ${modelName} (${fitType} fit)`);
-    
-    try {
-=======
       console.log(
-        `� Generating fresh model insights for ${modelName} (${fitType}) (API CALL)`,
+        ` Generating fresh model insights for ${modelName} (${fitType}) (API CALL)`,
       );
 >>>>>>> 02c75d7 (Automated commit: apply latest changes)
       const userProfile = this.createUserProfile(quizData);
@@ -1113,7 +1034,6 @@ ${userProfile}`,
     }
   }
 
-<<<<<<< HEAD
   // Fallback content methods
   private getFallbackPreviewContent(quizData: QuizData, topPaths: BusinessPath[]) {
     const topPath = topPaths[0];
@@ -1129,110 +1049,6 @@ ${userProfile}`,
         "Appropriate risk tolerance for this business type",
         "Realistic expectations about time and investment requirements"
       ]
-=======
-  private async getAIContentFromDatabase(
-    quizAttemptId: string,
-    contentType: string,
-  ): Promise<any | null> {
-    try {
-      console.log(`� Checking database for ${contentType} content for quiz attempt ${quizAttemptId}`);
-
-      // ALWAYS check database first for existing content
-        const response = await fetch(
-          `${API_BASE}/api/quiz-attempts/${quizAttemptId}/ai-content?type=${contentType}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          },
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.content) {
-          console.log(`✅ Found existing ${contentType} AI content in database for quiz attempt ${quizAttemptId}`);
-            return data.content;
-          }
-      }
-
-      console.log(`❌ No existing ${contentType} AI content found in database for quiz attempt ${quizAttemptId}`);
-      return null;
-    } catch (error) {
-      console.error(`Error checking database for ${contentType} content:`, error);
-    return null;
-    }
-  }
-
-  private getAIContentFromLocalStorage(contentType: string): any | null {
-    try {
-      const storageKey = `ai_content_${contentType}`;
-      const storedData = localStorage.getItem(storageKey);
-
-      if (!storedData) {
-        return null;
-      }
-
-      const parsedData = JSON.parse(storedData);
-      const now = Date.now();
-
-      // Check if content has expired (1 hour for anonymous users)
-      if (parsedData.expiresAt && now > parsedData.expiresAt) {
-        console.log(
-          `⏰ ${contentType} AI content expired, cleaning up localStorage`,
-        );
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(`${storageKey}_expires`);
-        return null;
-      }
-
-      console.log(` Retrieved ${contentType} AI content from localStorage`);
-      return parsedData.content;
-    } catch (error) {
-      console.error(
-        `❌ Failed to retrieve ${contentType} AI content from localStorage:`,
-        error,
-      );
-      return null;
-    }
-  }
-
-  // BACKWARD COMPATIBILITY WRAPPER METHODS
-  // Legacy methods removed - use generateModelInsights instead
-
-  async generateDetailedAnalysis(
-    quizData: QuizData,
-    topPath: BusinessPath,
-  ): Promise<any> {
-    console.warn(
-      "generateDetailedAnalysis is deprecated. Use generatePersonalizedInsights instead.",
-    );
-    // Create a mock bottom path for backward compatibility
-    const mockBottomPath = {
-      id: "mock-bottom",
-      name: "Mock Business Model",
-      fitScore: 25,
-      description: "Mock business model for backward compatibility",
-      detailedDescription: "Mock business model for backward compatibility",
-      difficulty: "Hard",
-      timeToProfit: "6+ months",
-      startupCost: "$2000+",
-      potentialIncome: "$500-2K/month",
-      pros: ["Mock compatibility"],
-      cons: ["Low compatibility score"],
-      tools: ["Mock tools"],
-      skills: ["Mock skills"],
-      icon: "",
-      emoji: "�",
-      marketSize: "Small",
-      averageIncome: { beginner: "$1K-3K", intermediate: "$3K-8K", advanced: "$8K-20K+" },
-      userStruggles: ["Mock struggles"],
-      solutions: ["Mock solutions"],
-      bestFitPersonality: ["Mock personality"],
-      resources: { platforms: ["Mock"], learning: ["Mock"], tools: ["Mock"] },
-      actionPlan: { phase1: ["Mock"], phase2: ["Mock"], phase3: ["Mock"] }
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     };
   }
 

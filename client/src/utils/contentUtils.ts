@@ -8,7 +8,6 @@ interface EmojiMapping {
 // Comprehensive emoji mappings for business models
 const BUSINESS_MODEL_EMOJIS: EmojiMapping = {
   // Content & Media
-<<<<<<< HEAD
   "content-creation": "📸",
   "youtube-automation": "📺",
   "copywriting": "✒️",
@@ -46,50 +45,6 @@ const BUSINESS_MODEL_EMOJIS: EmojiMapping = {
   "ghostwriting": "👻",
   // Amazon FBA
   "amazon-fba": "🏭",
-=======
-  "content-creation": "�",
-  "youtube-automation": "�",
-  "blogging": "✍️",
-  "podcasting": "�️",
-  "copywriting": "✍️",
-  
-  // Services
-  "freelancing": "�",
-  "virtual-assistant": "�",
-  "online-coaching": "�",
-  "consulting": "�",
-  
-  // Marketing & Sales
-  "affiliate-marketing": "�",
-  "high-ticket-sales": "�",
-  "smma": "�",
-  "social-media-agency": "�",
-  "ai-marketing-agency": "�",
-  "digital-services-agency": "�️",
-  
-  // E-commerce
-  "e-commerce": "�️",
-  "e-commerce-dropshipping": "�",
-  "print-on-demand": "�️",
-  "online-reselling": "�️",
-  "handmade-goods": "�",
-  
-  // Tech
-  "app-saas-development": "�",
-  "app-development": "�",
-  "saas-development": "�",
-  
-  // Local Services
-  "local-service-arbitrage": "�",
-  
-  // Finance
-  "investing-trading": "�",
-  
-  // Problem section emojis
-  "analysis-paralysis": "�",
-  "time-wasted": "⏰",
-  "fear-of-wrong-choice": "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
 };
 
 // Emoji validation patterns

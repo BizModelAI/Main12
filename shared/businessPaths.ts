@@ -124,11 +124,7 @@ export const businessPaths: BusinessPath[] = [
       "Networking",
     ],
     icon: "Briefcase",
-<<<<<<< HEAD
     emoji: "🧑‍💻",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "Freelance economy worth $400B+ globally",
     averageIncome: {
       beginner: "$500-2K/month",
@@ -179,7 +175,6 @@ export const businessPaths: BusinessPath[] = [
       ],
     },
   },
-  // Add more business paths as needed
   {
     id: "affiliate-marketing",
     name: "Affiliate Marketing",
@@ -222,11 +217,7 @@ export const businessPaths: BusinessPath[] = [
       "Analytics",
     ],
     icon: "TrendingUp",
-<<<<<<< HEAD
     emoji: "🔗",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "Affiliate marketing industry worth $17B+ globally",
     averageIncome: {
       beginner: "$0-500/month",
@@ -318,7 +309,7 @@ export const businessPaths: BusinessPath[] = [
       "Technology",
     ],
     icon: "BookOpen",
-    emoji: "�",
+    emoji: "🧑‍💼",
     marketSize: "Online tutoring market worth $15B+ globally",
     averageIncome: {
       beginner: "$500-2K/month",
@@ -369,9 +360,6 @@ export const businessPaths: BusinessPath[] = [
       ],
     },
   },
-<<<<<<< HEAD
-
-=======
   {
     id: "e-commerce",
     name: "E-commerce Store",
@@ -415,7 +403,7 @@ export const businessPaths: BusinessPath[] = [
       "Design",
     ],
     icon: "Star",
-    emoji: "�️",
+    emoji: "🛒",
     marketSize: "Global e-commerce worth $6.2T+ annually",
     averageIncome: {
       beginner: "$0-2K/month",
@@ -466,7 +454,6 @@ export const businessPaths: BusinessPath[] = [
       ],
     },
   },
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
   {
     id: "youtube-automation",
     name: "YouTube Automation",
@@ -504,11 +491,7 @@ export const businessPaths: BusinessPath[] = [
       "Outsourcing",
     ],
     icon: "Play",
-<<<<<<< HEAD
     emoji: "📺",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "YouTube ad revenue over $28B+ annually",
     averageIncome: {
       beginner: "$0-500/month",
@@ -602,11 +585,7 @@ export const businessPaths: BusinessPath[] = [
       "Reliability",
     ],
     icon: "Target",
-<<<<<<< HEAD
     emoji: "🛠️",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "Local services market worth $500B+ in US",
     averageIncome: {
       beginner: "$1K-3K/month",
@@ -700,11 +679,7 @@ export const businessPaths: BusinessPath[] = [
       "Persistence",
     ],
     icon: "TrendingUp",
-<<<<<<< HEAD
     emoji: "🤝",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "B2B sales market worth $6T+ globally",
     averageIncome: {
       beginner: "$2K-8K/month",
@@ -792,7 +767,7 @@ export const businessPaths: BusinessPath[] = [
       "Customer support",
     ],
     icon: "Monitor",
-    emoji: "�",
+    emoji: "💻",
     marketSize: "Global SaaS market worth $300B+ annually",
     averageIncome: {
       beginner: "$0-2K/month",
@@ -886,11 +861,7 @@ export const businessPaths: BusinessPath[] = [
       "Design",
     ],
     icon: "Users",
-<<<<<<< HEAD
     emoji: "📣",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "Social media marketing worth $150B+ globally",
     averageIncome: {
       beginner: "$2K-5K/month",
@@ -984,11 +955,7 @@ export const businessPaths: BusinessPath[] = [
       "Client education",
     ],
     icon: "Brain",
-<<<<<<< HEAD
     emoji: "🤖",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     marketSize: "AI marketing market projected $100B+ by 2030",
     averageIncome: {
       beginner: "$3K-8K/month",
@@ -1081,12 +1048,7 @@ export const businessPaths: BusinessPath[] = [
       "Project management",
       "Marketing",
     ],
-    icon: "Monitor",
-<<<<<<< HEAD
-    emoji: "🖥️",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    icon: "🖥️",
     marketSize: "Digital services market worth $500B+ globally",
     averageIncome: {
       beginner: "$1K-3K/month",
@@ -1179,12 +1141,7 @@ export const businessPaths: BusinessPath[] = [
       "Research",
       "Mathematical thinking",
     ],
-    icon: "TrendingUp",
-<<<<<<< HEAD
-    emoji: "📈",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    icon: "📈",
     marketSize: "Global trading volume $6T+ daily",
     averageIncome: {
       beginner: "$0-1K/month (high variance)",
@@ -1286,12 +1243,7 @@ export const businessPaths: BusinessPath[] = [
       "A/B testing",
       "Client communication",
     ],
-    icon: "FileText",
-<<<<<<< HEAD
-    emoji: "✒️",
-=======
-    emoji: "�",
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
+    icon: "✒️",
     marketSize: "Content marketing industry worth $400B+ globally",
     averageIncome: {
       beginner: "$1K-3K/month",
@@ -1385,7 +1337,7 @@ export const businessPaths: BusinessPath[] = [
       "Reliability",
     ],
     icon: "Users",
-    emoji: "�",
+    emoji: "👥",
     marketSize: "Virtual assistant market worth $25B+ globally",
     averageIncome: {
       beginner: "$800-2K/month",
@@ -1478,8 +1430,7 @@ export const businessPaths: BusinessPath[] = [
       "Customer service",
       "Inventory management",
     ],
-    icon: "Star",
-    emoji: "�️",
+    icon: "🛒",
     marketSize: "Online resale market worth $200B+ globally",
     averageIncome: {
       beginner: "$500-2K/month",
@@ -1572,8 +1523,7 @@ export const businessPaths: BusinessPath[] = [
       "Customer service",
       "Social media marketing",
     ],
-    icon: "Star",
-    emoji: "�",
+    icon: "🎨",
     marketSize: "Handmade goods market worth $44B+ globally",
     averageIncome: {
       beginner: "$200-1K/month",
@@ -1671,8 +1621,7 @@ export const businessPaths: BusinessPath[] = [
       "Amazon SEO",
       "Inventory management",
     ],
-    icon: "Package",
-    emoji: "🏭",
+    icon: "🏭",
     marketSize: "Amazon marketplace worth $400B+ globally",
     averageIncome: {
       beginner: "$1K-5K/month",
@@ -1765,8 +1714,7 @@ export const businessPaths: BusinessPath[] = [
       "Marketing and promotion",
       "Audience building",
     ],
-    icon: "Mic",
-    emoji: "🎙️",
+    icon: "🎙️",
     marketSize: "Podcast industry worth $4B+ and growing rapidly",
     averageIncome: {
       beginner: "$0-500/month",
@@ -1859,8 +1807,7 @@ export const businessPaths: BusinessPath[] = [
       "Social media marketing",
       "Email marketing",
     ],
-    icon: "PenTool",
-    emoji: "💡",
+    icon: "💡",
     marketSize: "Blogging industry worth $500M+ with growing opportunities",
     averageIncome: {
       beginner: "$0-500/month",
@@ -1953,8 +1900,7 @@ export const businessPaths: BusinessPath[] = [
       "Project management",
       "Client relationship management",
     ],
-    icon: "Lightbulb",
-    emoji: "🧑‍💼",
+    icon: "🧑‍💼",
     marketSize: "Consulting industry worth $250B+ globally",
     averageIncome: {
       beginner: "$2K-8K/month",
@@ -2047,8 +1993,7 @@ export const businessPaths: BusinessPath[] = [
       "Negotiation",
       "Property management",
     ],
-    icon: "Home",
-    emoji: "🏠",
+    icon: "🏠",
     marketSize: "Real estate market worth $3.7T+ in the US alone",
     averageIncome: {
       beginner: "$1K-5K/month",
@@ -2141,8 +2086,7 @@ export const businessPaths: BusinessPath[] = [
       "Instructional design",
       "Marketing and sales",
     ],
-    icon: "GraduationCap",
-    emoji: "🎓",
+    icon: "🎓",
     marketSize: "Online education market worth $350B+ globally",
     averageIncome: {
       beginner: "$500-3K/month",
@@ -2235,8 +2179,7 @@ export const businessPaths: BusinessPath[] = [
       "Project management",
       "Client collaboration",
     ],
-    icon: "Ghost",
-    emoji: "👻",
+    icon: "👻",
     marketSize: "Ghostwriting industry worth $500M+ with growing demand",
     averageIncome: {
       beginner: "$1K-5K/month",
@@ -2329,8 +2272,7 @@ export const businessPaths: BusinessPath[] = [
       "Digital marketing",
       "Customer service",
     ],
-    icon: "ShoppingCart",
-    emoji: "🛒",
+    icon: "🛒",
     marketSize: "E-commerce market worth $5T+ globally",
     averageIncome: {
       beginner: "$1K-5K/month",
@@ -2423,8 +2365,7 @@ export const businessPaths: BusinessPath[] = [
       "Website management",
       "Analytics understanding",
     ],
-    icon: "Package",
-    emoji: "📦",
+    icon: "📦",
     marketSize: "Dropshipping market worth $200B+ globally",
     averageIncome: {
       beginner: "$500-3K/month",

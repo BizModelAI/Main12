@@ -995,13 +995,8 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
 
   if (showAILoading) {
     return (
-<<<<<<< HEAD
       <QuizCompletionLoading
-        quizData={quizData}
-=======
-      <AIReportLoading
         quizData={quizDataState || quizData}
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
         userEmail={userEmail}
         onComplete={handleAILoadingComplete}
         onExit={() => setShowAILoading(false)}
@@ -1011,13 +1006,8 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
 
   if (showFullReportLoading) {
     return (
-<<<<<<< HEAD
       <FullReportLoadingPage
-        quizData={quizData}
-=======
-      <FullReportLoading
         quizData={quizDataState || quizData}
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
         userEmail={userEmail}
         onComplete={(data: any) => {
           setLoadedReportData(data);
@@ -1668,21 +1658,21 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                       </div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                      <div className="text-2xl mb-2 emoji">�</div>
+                      <div className="text-2xl mb-2 emoji">💰</div>
                       <div className="text-xs text-blue-200 mb-1 font-bold">Initial Investment</div>
                       <div className="text-sm font-normal">
                         {personalizedPaths[0]?.startupCost || "$0-500"}
                       </div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                      <div className="text-2xl mb-2">�</div>
+                      <div className="text-2xl mb-2">📈</div>
                       <div className="text-xs text-blue-200 mb-1 font-bold">Potential Income</div>
                       <div className="text-sm font-normal">
                         {personalizedPaths[0]?.potentialIncome || "$2K-10K/mo"}
                       </div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                      <div className="text-2xl mb-2">�</div>
+                      <div className="text-2xl mb-2">🕒</div>
                       <div className="text-xs text-blue-200 mb-1 font-bold">Time Commitment</div>
                       <div className="text-sm font-normal">
                         {quizData.weeklyTimeCommitment ? `${quizData.weeklyTimeCommitment} hours/week` : "10-40 hours/week"}
@@ -1794,7 +1784,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                       {/* Column 1 */}
                       <div className="space-y-6">
                         <div className="flex items-start space-x-4 mb-6">
-                          <div className="text-3xl mt-1 emoji">�</div>
+                          <div className="text-3xl mt-1 emoji">💰</div>
                           <div>
                             <h4 className="font-bold text-white text-lg mb-2">
                               Your Business Blueprint
@@ -1822,7 +1812,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                         </div>
 
                         <div className="flex items-start space-x-4 mb-6">
-                          <div className="text-3xl mt-1 emoji">�</div>
+                          <div className="text-3xl mt-1 emoji">🚀</div>
                           <div>
                             <h4 className="font-bold text-white text-lg mb-2">
                               Step-by-Step Launch Guidance
@@ -1839,7 +1829,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                       {/* Column 2 */}
                       <div className="space-y-6">
                         <div className="flex items-start space-x-4 mb-6">
-                          <div className="text-3xl mt-1 emoji">�</div>
+                          <div className="text-3xl mt-1 emoji">💪</div>
                           <div>
                             <h4 className="font-bold text-white text-lg mb-2">
                               Your Strengths & Blind Spots
@@ -1853,7 +1843,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                         </div>
 
                         <div className="flex items-start space-x-4 mb-6">
-                          <div className="text-3xl mt-1 emoji">�</div>
+                          <div className="text-3xl mt-1 emoji">📊</div>
                           <div>
                             <h4 className="font-bold text-white text-lg mb-2">
                               Income Potential & Market Fit
@@ -1865,7 +1855,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                         </div>
 
                         <div className="flex items-start space-x-4 mb-6">
-                          <div className="text-3xl mt-1 emoji">�</div>
+                          <div className="text-3xl mt-1 emoji">🔧</div>
                           <div>
                             <h4 className="font-bold text-white text-lg mb-2">
                               Skills You Need to Succeed

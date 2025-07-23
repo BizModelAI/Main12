@@ -281,11 +281,7 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
             const saveData = await saveResponse.json();
             if (saveData.quizAttemptId != null) {
               quizAttemptId = saveData.quizAttemptId;
-<<<<<<< HEAD
-              localStorage.setItem("currentQuizAttemptId", quizAttemptId?.toString() || "");
-=======
               localStorage.setItem("currentQuizAttemptId", String(quizAttemptId));
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
             }
           }
         } catch (saveErr) {

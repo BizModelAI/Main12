@@ -590,7 +590,6 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
           // AI-generated content from the API call
           personalizedRecommendations: insights.personalizedRecommendations,
           potentialChallenges: insights.potentialChallenges,
-<<<<<<< HEAD
           top3Fits: [
             { model: paths[0]?.name || "Business Model", reason: insights.topFitExplanation || "Strong alignment with your profile" },
             { model: paths[1]?.name || "Business Model", reason: "Good secondary option based on your skills" },
@@ -601,9 +600,6 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
             { model: "Business Model", reason: "Misaligned with your goals and preferences" },
             { model: "Business Model", reason: "Requires skills you haven't developed yet" },
           ],
-=======
-          // Do not include top3Fits or bottom3Avoid here
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
           
           // Use 3-paragraph insights from Results page
           personalizedSummary: resultsPageInsights?.analysis?.fullAnalysis || "Analysis will be pulled from Results page cache",

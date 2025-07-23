@@ -91,11 +91,7 @@ export function getNextAdaptiveQuestion(
     return true; // Show inventory comfort question
   }
 
-<<<<<<< HEAD
-  if (currentStep === 12 && (data.familiarTools?.includes("canva") || (data.creativeWorkEnjoyment && data.creativeWorkEnjoyment >= 4))) {
-=======
   if (currentStep === 12 && (data.familiarTools?.includes("canva") || (data.creativeWorkEnjoyment ?? 0) >= 4)) {
->>>>>>> 02c75d7 (Automated commit: apply latest changes)
     return true; // Show digital content comfort question
   }
 
