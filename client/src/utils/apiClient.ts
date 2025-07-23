@@ -27,6 +27,7 @@ export const API_ROUTES = {
   STRIPE_CONFIG: "/api/stripe-config",
   STRIPE_WEBHOOK: "/api/stripe/webhook",
   USER_PRICING: "/api/user-pricing",
+  GENERATE_PDF: "/api/generate-pdf",
   // Deprecated/removed: CREATE_REPORT_UNLOCK_PAYMENT, CAPTURE_PAYPAL_PAYMENT, PAYPAL_CONFIG
   // Deprecated/removed: BUSINESS_RESOURCES, GENERATE_PDF, SEND_QUIZ_RESULTS, SEND_WELCOME_EMAIL
 };
