@@ -17,9 +17,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/', (_req, res) => {
-  res.send('Server is running - debug mode!');
-});
+// Remove debug route to let Vite handle the root route
 
 console.log('🔄 Basic routes configured...');
 
