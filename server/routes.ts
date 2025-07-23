@@ -768,7 +768,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
 
   // Get a specific quiz attempt by ID
-  app.get("/api/quiz-attempts/:quizAttemptId", async (req: Request, res: Response) => {
+  app.get("/api/quiz-attempts/attempt/:quizAttemptId", async (req: Request, res: Response) => {
     try {
       const { userId, quizData } = req.body;
 
@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   // Get quiz attempts history for a user
-  app.get("/api/quiz-attempts/:userId", async (req: Request, res: Response) => {
+  app.get("/api/quiz-attempts/user/:userId", async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.userId);
       const currentUserId = getUserIdFromRequest(req);
@@ -854,7 +854,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Save AI content for a specific quiz attempt
   app.post(
-    "/api/quiz-attempts/:quizAttemptId/ai-content",
+    "/api/quiz-attempts/attempt/:quizAttemptId/ai-content",
     async (req: Request, res: Response) => {
       try {
         const quizAttemptId = parseInt(req.params.quizAttemptId);
@@ -885,7 +885,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Get AI content for a specific quiz attempt
   app.get(
-    "/api/quiz-attempts/:quizAttemptId/ai-content",
+    "/api/quiz-attempts/attempt/:quizAttemptId/ai-content",
     async (req: Request, res: Response) => {
       try {
         const quizAttemptId = parseInt(req.params.quizAttemptId);
@@ -908,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Save email for quiz attempt and create user account
   app.post(
-    "/api/quiz-attempts/:quizAttemptId/email",
+    "/api/quiz-attempts/attempt/:quizAttemptId/email",
     async (req: Request, res: Response) => {
       try {
         const quizAttemptId = parseInt(req.params.quizAttemptId);

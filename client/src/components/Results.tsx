@@ -193,7 +193,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     if (idFromUrl) {
       const attemptId = parseInt(idFromUrl);
       if (!isNaN(attemptId)) {
-        fetch(`/api/quiz-attempts/${attemptId}`)
+        fetch(`/api/quiz-attempts/attempt/${attemptId}`)
           .then((res) => res.json())
           .then((data) => {
             if (data && data.quizData) {

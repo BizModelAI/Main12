@@ -14,7 +14,8 @@ export const API_ROUTES = {
   // Quiz and data routes
   // Deprecated/removed: SAVE_QUIZ_DATA, CHECK_EXISTING_ATTEMPTS
   QUIZ_ATTEMPTS: "/api/quiz-attempts",
-  QUIZ_ATTEMPT: "/api/quiz-attempts", // Use /api/quiz-attempts/[id] for specific attempt
+  QUIZ_ATTEMPT: "/api/quiz-attempts/attempt", // Use /api/quiz-attempts/attempt/[quizAttemptId] for specific attempt
+  QUIZ_ATTEMPT_USER: "/api/quiz-attempts/user", // Use /api/quiz-attempts/user/[userId] for user attempts
   // AI and analysis routes
   OPENAI_CHAT: "/api/openai-chat",
   OPENAI_STATUS: "/api/openai-status",
