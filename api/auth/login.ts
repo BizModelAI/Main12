@@ -26,6 +26,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const payload: AuthPayload = { userId: user.id, email: user.email, isPaid: user.isPaid };
   const token = signToken(payload);
   setAuthCookie(res, token);
-  const { password, ...userInfo } = user;
+  const { password: userPassword, ...userInfo } = user;
   res.status(200).json({ user: userInfo });
 } 
