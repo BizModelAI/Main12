@@ -120,7 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Store user data
     // TODO: Confirm if this should be createUser or another method
-    await storage.createUser({ sessionId, email, ...otherData });
+    await storage.createUser({ sessionId, email, firstName, lastName });
 
     // Return success response
     return res.status(200).json({

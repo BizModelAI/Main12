@@ -5,7 +5,6 @@ import { QuizData } from "../types";
 interface User {
   id: string;
   email: string;
-  username: string;
   firstName?: string;
   lastName?: string;
   isTemporary?: boolean;
@@ -139,7 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             ...userData,
             name: userData.firstName || userData.lastName
               ? `${userData.firstName || ''} ${userData.lastName || ''}`.trim()
-              : userData.username || userData.email,
+              : userData.email,
           });
         } else if (response.status === 401) {
           // Not authenticated - this is expected, not an error
