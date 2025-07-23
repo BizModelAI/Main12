@@ -15,8 +15,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@shared": path.resolve(__dirname, "..", "shared"),
-      'react': require.resolve('react'),
-      'react-dom': require.resolve('react-dom'),
+      'react': path.resolve(__dirname, '../node_modules/react'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
     },
   },
   build: {
