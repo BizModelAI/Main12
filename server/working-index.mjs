@@ -63,7 +63,7 @@ async function startServer() {
     
     // Try to import and register routes
     try {
-      const { registerRoutes } = await import("./routes.js");
+      const { registerRoutes } = await import("./routes.ts");
       await registerRoutes(app);
       console.log('✅ Routes registered successfully');
     } catch (error) {
