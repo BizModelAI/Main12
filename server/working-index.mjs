@@ -75,7 +75,7 @@ async function startServer() {
     
     // Try to setup Vite
     try {
-      const { setupVite } = await import("./vite.js");
+      const { setupVite } = await import("./vite.ts");
       await setupVite(app, server);
       console.log('✅ Vite setup successfully');
     } catch (error) {
