@@ -498,7 +498,7 @@ const FullReport: React.FC<FullReportProps> = ({
           tools: ["Standard business tools"],
           skills: ["Basic business skills"],
           icon: "",
-          emoji: "�",
+          emoji: "💼",
           marketSize: "Large",
           averageIncome: { beginner: "$1K-3K", intermediate: "$3K-8K", advanced: "$8K-20K+" },
           userStruggles: ["Getting started"],
