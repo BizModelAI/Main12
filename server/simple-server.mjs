@@ -65,6 +65,21 @@ async function setupViteMiddleware() {
 // Setup Vite middleware
 const vite = await setupViteMiddleware();
 
+// Add API endpoints before static serving
+app.get('/api/auth/me', (_req, res) => {
+  res.json({
+    user: null,
+    authenticated: false
+  });
+});
+
+app.get('/api/openai-status', (_req, res) => {
+  res.json({
+    configured: true,
+    status: 'ready'
+  });
+});
+
 const PORT = process.env.PORT || 5173;
 
 server.listen(PORT, () => {
