@@ -14,7 +14,8 @@ export const API_ROUTES = {
   // Quiz and data routes
   // Deprecated/removed: SAVE_QUIZ_DATA, CHECK_EXISTING_ATTEMPTS
   QUIZ_ATTEMPTS: "/api/quiz-attempts",
-  QUIZ_ATTEMPT: "/api/quiz-attempts", // Use /api/quiz-attempts/[id] for specific attempt
+  QUIZ_ATTEMPT: "/api/quiz-attempts/attempt", // Use /api/quiz-attempts/attempt/[quizAttemptId] for specific attempt
+  QUIZ_ATTEMPT_USER: "/api/quiz-attempts/user", // Use /api/quiz-attempts/user/[userId] for user attempts
   // AI and analysis routes
   OPENAI_CHAT: "/api/openai-chat",
   OPENAI_STATUS: "/api/openai-status",
@@ -26,6 +27,7 @@ export const API_ROUTES = {
   STRIPE_CONFIG: "/api/stripe-config",
   STRIPE_WEBHOOK: "/api/stripe/webhook",
   USER_PRICING: "/api/user-pricing",
+  GENERATE_PDF: "/api/generate-pdf",
   // Deprecated/removed: CREATE_REPORT_UNLOCK_PAYMENT, CAPTURE_PAYPAL_PAYMENT, PAYPAL_CONFIG
   // Deprecated/removed: BUSINESS_RESOURCES, GENERATE_PDF, SEND_QUIZ_RESULTS, SEND_WELCOME_EMAIL
 };

@@ -5,7 +5,6 @@ import { QuizData } from "../types";
 interface User {
   id: string;
   email: string;
-  username: string;
   firstName?: string;
   lastName?: string;
   isTemporary?: boolean;
@@ -139,7 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             ...userData,
             name: userData.firstName || userData.lastName
               ? `${userData.firstName || ''} ${userData.lastName || ''}`.trim()
-              : userData.username || userData.email,
+              : userData.email,
           });
         } else if (response.status === 401) {
           // Not authenticated - this is expected, not an error
@@ -276,7 +275,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteAccount = async (): Promise<{ success: boolean; error?: string }> => {
     try {
-      await apiDelete(API_ROUTES.AUTH_ACCOUNT);
+      await apiDelete(API_ROUTES.AUTH_ME);
       setUser(null);
       setIsAuthenticated(false);
       return { success: true };
@@ -288,7 +287,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateProfile = async (updates: { firstName?: string; lastName?: string; email?: string }): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await apiPut(API_ROUTES.AUTH_PROFILE, updates);
+      const response = await apiPut(API_ROUTES.AUTH_ME, updates);
       // The backend returns user data directly, not wrapped in a user object
       setUser(response);
       return { success: true };

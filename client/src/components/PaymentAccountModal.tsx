@@ -496,7 +496,7 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
         if (storedQuizAttemptId) {
           // User has a valid quiz attempt, create payment intent
           try {
-            const data = await apiPost(API_ROUTES.CREATE_REPORT_UNLOCK_PAYMENT, {
+            const data = await apiPost(API_ROUTES.USER_PRICING, {
               userId: user.id,
               quizAttemptId: parseInt(storedQuizAttemptId),
             });

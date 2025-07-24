@@ -55,7 +55,7 @@ export const QuizAttemptHistory: React.FC<QuizAttemptHistoryProps> = ({
     isLoading,
     error,
   } = useQuery<QuizAttempt[]>({
-    queryKey: [`/api/quiz-attempts/${userId}`],
+    queryKey: [`/api/quiz-attempts/user/${userId}`],
     enabled: !!userId,
   });
 
@@ -123,7 +123,7 @@ export const QuizAttemptHistory: React.FC<QuizAttemptHistoryProps> = ({
     try {
       // Fetch AI content for this attempt
       const response = await fetch(
-        `${API_BASE}/api/quiz-attempts/${attempt.id}/ai-content`,
+        `${API_BASE}/api/quiz-attempts/attempt/${attempt.id}/ai-content`,
         {
           credentials: "include",
         },

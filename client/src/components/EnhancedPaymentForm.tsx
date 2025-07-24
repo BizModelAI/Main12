@@ -506,7 +506,7 @@ const PaymentForm: React.FC<EnhancedPaymentFormProps> = ({
         payment_method: {
           card: card,
           billing_details: {
-            name: user?.username || user?.email || "Customer",
+            name: user?.email || "Customer",
             email: user?.email,
           },
         },

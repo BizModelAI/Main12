@@ -113,7 +113,7 @@ export class AIService {
     }
     try {
       const response = await fetch(
-        `/api/quiz-attempts/${quizAttemptId}/ai-content?type=${contentType}`,
+        `/api/quiz-attempts/attempt/${quizAttemptId}/ai-content?type=${contentType}`,
         {
           method: "GET",
           credentials: "include",
@@ -301,7 +301,7 @@ ${userProfile}`;
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
-      const response = await fetch(`${API_BASE}/api/openai-chat`, {
+      const response = await fetch(`${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -601,7 +601,7 @@ ${userProfile}`;
         );
 
         const response = await fetch(
-          `${API_BASE}/api/quiz-attempts/${quizAttemptId}/ai-content`,
+          `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
           {
             method: "POST",
             headers: {

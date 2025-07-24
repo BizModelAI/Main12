@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcrypt';
-import { signToken, setAuthCookie, AuthPayload } from '../../server/utils/jwtUtils';
-import { storage } from '../../server/storage';
+import { signToken, setAuthCookie, AuthPayload } from 'api/_lib/jwtUtils';
+import { storage } from 'api/_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
   }
-  const valid = await bcrypt.compare(password, user.passwordHash);
+  const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
@@ -26,6 +26,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const payload: AuthPayload = { userId: user.id, email: user.email, isPaid: user.isPaid };
   const token = signToken(payload);
   setAuthCookie(res, token);
-  const { passwordHash, ...userInfo } = user;
+  const { password: userPassword, ...userInfo } = user;
   res.status(200).json({ user: userInfo });
 } 

@@ -107,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Check if user already exists
-    const existingUser = await storage.getUserByUsername(email);
+    const existingUser = await storage.getUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: "User already exists" });
     }
@@ -119,13 +119,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Store user data
-    await storage.storeUnpaidUserEmail(sessionId, email, {
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      quizData: req.body.quizData || {},
-    });
+    // TODO: Confirm if this should be createUser or another method
+    await storage.createUser({ sessionId, email, firstName, lastName });
 
     // Return success response
     return res.status(200).json({

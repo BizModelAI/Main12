@@ -11,7 +11,7 @@ export const debugAIContent = {
       // Test getting AI content
       console.log("1. Testing GET endpoint...");
       const getResponse = await fetch(
-        `${API_BASE}/api/quiz-attempts/${quizAttemptId}/ai-content`,
+        `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
         {
           credentials: "include",
         },
@@ -34,7 +34,7 @@ export const debugAIContent = {
       };
 
       const postResponse = await fetch(
-        `${API_BASE}/api/quiz-attempts/${quizAttemptId}/ai-content`,
+        `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
         {
           method: "POST",
           credentials: "include",
@@ -54,7 +54,7 @@ export const debugAIContent = {
         // Verify by getting again
         console.log("3. Verifying saved data...");
         const verifyResponse = await fetch(
-          `${API_BASE}/api/quiz-attempts/${quizAttemptId}/ai-content`,
+          `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
           {
             credentials: "include",
           },
@@ -77,7 +77,7 @@ export const debugAIContent = {
 
     // Get quiz attempts
     try {
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/5`, {
+      const response = await fetch(`${API_BASE}/api/quiz-attempts/user/5`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -106,7 +106,7 @@ export const debugAIContent = {
     // This mimics what happens when user clicks on a quiz attempt
     try {
       // Get quiz attempts to find the one we want
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/5`, {
+      const response = await fetch(`${API_BASE}/api/quiz-attempts/user/5`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -122,7 +122,7 @@ export const debugAIContent = {
 
           // Fetch AI content
           const aiResponse = await fetch(
-            `${API_BASE}/api/quiz-attempts/${attempt.id}/ai-content`,
+            `${API_BASE}/api/quiz-attempts/attempt/${attempt.id}/ai-content`,
             {
               credentials: "include",
             },

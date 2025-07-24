@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTokenFromRequest, verifyToken } from '../../../../server/utils/jwtUtils';
-import { storage } from '../../../../server/storage';
+import { getTokenFromRequest, verifyToken } from 'api/_lib/jwtUtils';
+import { storage } from 'api/_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
@@ -22,12 +22,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(400).json({ error: 'Missing or invalid quizAttemptId' });
     return;
   }
-  const { email } = req.body;
-  if (!email) {
-    res.status(400).json({ error: 'Missing email' });
+  const attempt = await storage.getQuizAttempt(quizAttemptId);
+  if (!attempt) {
+    res.status(404).json({ error: 'Quiz attempt not found' });
     return;
   }
-  // Example: update quiz attempt with email
-  await storage.updateQuizAttempt(quizAttemptId, { email });
-  res.status(200).json({ success: true });
+  if (attempt.userId !== payload.userId) {
+    res.status(403).json({ error: 'Access denied' });
+    return;
+  }
+  res.status(200).json(attempt);
 } 

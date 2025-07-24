@@ -262,10 +262,8 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
       setIsLoadingSkills(true);
       try {
         const skillsService = SkillsAnalysisService.getInstance();
-        const skills = await skillsService.analyzeSkills(
-          data,
-          model.requiredSkills || [],
-          model.title || businessId,
+        const skills = skillsService.getFallbackSkillsAnalysis(
+          model.requiredSkills || []
         );
 
         const aiCacheManager = AICacheManager.getInstance();
