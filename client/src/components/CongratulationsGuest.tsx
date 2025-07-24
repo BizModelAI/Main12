@@ -310,7 +310,7 @@ const CongratulationsGuest: React.FC<EmailCaptureProps> = ({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-center mb-6"
             >
-              <div className="text-5xl mb-4 emoji">�</div>
+              <div className="text-5xl mb-4 emoji">🎉</div>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -462,7 +462,7 @@ const CongratulationsGuest: React.FC<EmailCaptureProps> = ({
                 className="text-center space-y-3"
               >
                 <p className="text-xs text-gray-500">
-                  <span className="emoji">�</span> We respect your privacy. By entering your email, your results will be securely saved for 3 months.
+                  <span className="emoji">🔒</span> We respect your privacy. By entering your email, your results will be securely saved for 3 months.
                 </p>
 
                 <button

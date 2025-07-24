@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import BizModelAILogo from "../components/BizModelAILogo";
 import { CheckCircle, Mail } from "lucide-react";
 

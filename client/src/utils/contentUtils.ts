@@ -145,7 +145,7 @@ export function safeguardBusinessDataArray(data: any[]): any[] {
  * Gets safe emoji for business model by ID
  */
 export function getSafeEmoji(businessId: string): string {
-  return BUSINESS_MODEL_EMOJIS[businessId] || '�';
+  return BUSINESS_MODEL_EMOJIS[businessId] || '💼';
 }
 
 /**
