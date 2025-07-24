@@ -37,6 +37,14 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    fs: {
+      allow: [
+        // Allow serving files from the client directory
+        './',
+        // Allow serving files from node_modules (for fonts, etc.)
+        '../node_modules',
+      ],
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:9000',
