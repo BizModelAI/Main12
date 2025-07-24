@@ -84,7 +84,7 @@ const PORT = process.env.PORT || 5173;
 
 server.listen(PORT, () => {
   console.log(`🚀 Combined server running on port ${PORT}`);
-  console.log(`📁 Serving static files from: ${clientPath}`);
+  console.log(`📁 Serving static files from client directory`);
   console.log(`🔗 API endpoints available at /api/*`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
