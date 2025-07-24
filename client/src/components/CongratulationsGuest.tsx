@@ -462,7 +462,7 @@ const CongratulationsGuest: React.FC<EmailCaptureProps> = ({
                 className="text-center space-y-3"
               >
                 <p className="text-xs text-gray-500">
-                  <span className="emoji">�</span> We respect your privacy. By entering your email, your results will be securely saved for 3 months.
+                  <span className="emoji">🔒</span> We respect your privacy. By entering your email, your results will be securely saved for 3 months.
                 </p>
 
                 <button
