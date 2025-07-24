@@ -55,13 +55,33 @@ app.get('/api/openai-status', (_req, res) => {
   });
 });
 
+// Serve static files from client directory
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const clientPath = path.resolve(__dirname, '..', 'client');
+app.use(express.static(clientPath));
+
 // Catch-all for API routes
 app.use('/api/*', (req, res) => {
   console.log(`🔍 API request to: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'API endpoint not found',
-    path: req.originalUrl 
+    path: req.originalUrl
   });
+});
+
+// Handle client-side routing - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+
+  const indexPath = path.join(clientPath, 'index.html');
+  res.sendFile(indexPath);
 });
 
 const PORT = 9000;
