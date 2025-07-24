@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = createServer(app);
 
-console.log('🔄 Starting combined server...');
+console.log('🔄 Starting React development server...');
 
 // Basic middleware
 app.use(express.json({ limit: '10mb' }));
@@ -17,26 +18,52 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // API endpoints
 app.get('/api/health', (_req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
-    server: 'integrated'
+    server: 'react-dev'
   });
 });
 
-// Serve static files from client directory
-const clientPath = path.resolve(__dirname, '..', 'client');
-app.use(express.static(clientPath));
+async function setupViteMiddleware() {
+  try {
+    // Import Vite dynamically
+    const { createServer: createViteServer } = await import('vite');
 
-// Handle client-side routing - serve index.html for all non-API routes
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'custom',
+      root: path.resolve(__dirname, '..', 'client'),
+    });
+
+    // Use vite's connect instance as middleware
+    app.use(vite.middlewares);
+
+    console.log('✅ Vite middleware loaded successfully');
+    return vite;
+  } catch (error) {
+    console.log('⚠️ Vite not available, serving static files:', error.message);
+
+    // Fallback to static serving
+    const clientPath = path.resolve(__dirname, '..', 'client');
+    app.use(express.static(clientPath));
+
+    // Handle client-side routing - serve index.html for all non-API routes
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+      }
+
+      const indexPath = path.join(clientPath, 'index.html');
+      res.sendFile(indexPath);
+    });
+
+    return null;
   }
-  
-  const indexPath = path.join(clientPath, 'index.html');
-  res.sendFile(indexPath);
-});
+}
+
+// Setup Vite middleware
+const vite = await setupViteMiddleware();
 
 const PORT = process.env.PORT || 5173;
 
