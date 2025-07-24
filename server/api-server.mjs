@@ -84,7 +84,7 @@ app.get('*', (req, res) => {
   res.sendFile(indexPath);
 });
 
-const PORT = 9000;
+const PORT = 5173;
 
 server.listen(PORT, () => {
   console.log(`🚀 API server running on port ${PORT}`);
