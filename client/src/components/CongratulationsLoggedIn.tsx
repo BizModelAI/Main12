@@ -181,7 +181,7 @@ const CongratulationsLoggedIn: React.FC<LoggedInCongratulationsProps> = ({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-center mb-6"
             >
-              <div className="text-5xl mb-4 emoji">�</div>
+              <div className="text-5xl mb-4 emoji">🎉</div>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
