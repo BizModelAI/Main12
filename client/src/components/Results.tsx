@@ -1020,13 +1020,23 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
 
       const attemptId = quizAttemptId || localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
-        fetch(`/api/quiz-attempts/by-id/${attemptId}`)
+        // Simplified database retrieval with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        fetch(`/api/quiz-attempts/by-id/${attemptId}`, {
+          signal: controller.signal
+        })
           .then(async (res) => {
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+              throw new Error(`Database API returned status: ${res.status}`);
+            }
+
             const contentType = res.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
-              const text = await res.text();
-              console.log('Database retrieval received non-JSON response:', text.substring(0, 200));
-              throw new Error('API returned HTML instead of JSON');
+              throw new Error('Database API returned non-JSON content');
             }
             return res.json();
           })
@@ -1041,12 +1051,19 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
               localStorage.setItem("currentQuizAttemptId", data.quizAttemptId || attemptId);
               localStorage.setItem("quizData", JSON.stringify(data.quizData));
             } else {
-              console.warn('Database response does not contain valid quiz data:', data);
+              console.warn('Database response does not contain valid quiz data');
             }
           })
           .catch((err) => {
-            console.error("Failed to retrieve quiz data from database:", err);
+            if (err.name === 'AbortError') {
+              console.log("Database retrieval timed out");
+            } else {
+              console.log("Database retrieval failed:", err.message);
+            }
+            console.log("Proceeding without database retrieval");
           });
+      } else {
+        console.log("No attempt ID available for database retrieval");
       }
     }
   }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing, hasTriedDatabaseRetrieval, quizAttemptId]);
