@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { aiScoringService } from '../server/services/aiScoringService';
+// Note: aiScoringService functionality needs to be moved to _lib or inlined
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -17,4 +17,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     res.status(500).json({ error: 'Failed to analyze business fit', details: error instanceof Error ? error.message : String(error) });
   }
-} 
+}
