@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from "express";
-import { registerRoutes } from "../server/routes";
+// Note: registerRoutes import removed for Vercel compatibility
 
 const app = express();
 
