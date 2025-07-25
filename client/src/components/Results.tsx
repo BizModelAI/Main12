@@ -974,10 +974,10 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
   };
 
   // Check for required data with more lenient scoring check
-  const missingQuizData = !quizData;
+  const missingQuizData = !quizData && !quizDataState;
   const missingQuizAttemptId = !quizAttemptId;
   // Only consider scores missing if we have quiz data but no scores calculated
-  const missingScores = quizData && (!businessModelScores || businessModelScores.length === 0);
+  const missingScores = (quizData || quizDataState) && (!businessModelScores || businessModelScores.length === 0);
 
   // Add delay before showing Session Expired to allow data loading
   const [showSessionExpired, setShowSessionExpired] = useState(false);
