@@ -455,11 +455,20 @@ ${userProfile}`;
         }),
       });
 
+      const responseText = await response.text();
+
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        console.error('Personalized insights API error:', responseText);
+        throw new Error(`OpenAI API error: ${response.status} - ${responseText}`);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse personalized insights response:', responseText);
+        throw new Error('Invalid JSON response from API');
+      }
       const content = data.content;
 
       // Parse the response
