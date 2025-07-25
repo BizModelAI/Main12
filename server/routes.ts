@@ -238,7 +238,8 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Stripe configuration endpoint (secure - only exposes publishable key)
   app.get("/api/stripe-config", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
