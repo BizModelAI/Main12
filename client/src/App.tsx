@@ -232,13 +232,16 @@ function MainAppContent() {
       }
     };
 
-    // Run cleanup immediately
-    cleanupExpiredData();
+    // Delay initial cleanup to prevent race conditions during navigation
+    const initialCleanupTimeout = setTimeout(cleanupExpiredData, 5000); // 5 second delay
 
     // Run cleanup every 5 minutes to catch expiration during session
     const interval = setInterval(cleanupExpiredData, 5 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialCleanupTimeout);
+    };
   }, [quizData]);
 
   // Handler for AI loading completion
