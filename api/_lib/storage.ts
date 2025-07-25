@@ -20,6 +20,13 @@ function getPrismaClient(): PrismaClient {
       prismaInstance.$on('beforeExit', async () => {
         await prismaInstance?.$disconnect();
       });
+
+      // Auto-disconnect after inactivity in serverless environment
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        setTimeout(() => {
+          prismaInstance?.$disconnect().catch(console.error);
+        }, 60000); // Disconnect after 1 minute of inactivity
+      }
     } catch (error) {
       console.error('Failed to initialize Prisma client:', error);
       throw new Error('Database connection failed');
