@@ -956,6 +956,20 @@ const ResultsWrapperWithReset: React.FC<{
             setIsFetchingFallback(false);
           });
       } else {
+        console.log("No attempt ID available for fallback data fetch");
+
+        // Final fallback: Check if we have any quiz data in localStorage
+        const savedQuizData = localStorage.getItem("quizData");
+        if (savedQuizData) {
+          try {
+            const parsed = JSON.parse(savedQuizData);
+            console.log("Found existing quiz data in localStorage as ultimate fallback");
+            setFallbackQuizData(parsed);
+          } catch (error) {
+            console.error("Failed to parse existing localStorage quiz data:", error);
+          }
+        }
+
         setIsFetchingFallback(false);
       }
     }
