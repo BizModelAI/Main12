@@ -121,11 +121,26 @@ export class AIService {
       );
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.content) {
-          console.log(`✅ Retrieved ${contentType} from database for attempt ${quizAttemptId}`);
-          return data.content;
+        const responseText = await response.text();
+
+        // Check if we got HTML instead of JSON (API endpoint not found)
+        if (responseText.includes('<!doctype') || responseText.includes('<html')) {
+          console.warn(`API returned HTML instead of JSON for ${contentType}. Endpoint may not exist.`);
+          return null;
         }
+
+        try {
+          const data = JSON.parse(responseText);
+          if (data.content || data.aiContent) {
+            console.log(`✅ Retrieved ${contentType} from database for attempt ${quizAttemptId}`);
+            return data.content || data.aiContent;
+          }
+        } catch (parseError) {
+          console.error(`Failed to parse response for ${contentType}:`, responseText);
+          return null;
+        }
+      } else {
+        console.log(`No existing ${contentType} found in database (${response.status})`);
       }
       return null;
     } catch (error) {
