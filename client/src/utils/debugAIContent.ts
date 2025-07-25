@@ -1,6 +1,6 @@
 // Debugging utilities for AI content system
 const API_BASE = process.env.NODE_ENV === 'production'
-  ? window.location.origin
+  ? "https://bizmodelai.com"
   : "http://localhost:6000";
 
 export const debugAIContent = {
