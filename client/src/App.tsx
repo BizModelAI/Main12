@@ -521,6 +521,12 @@ const QuizCompletionLoadingWrapper: React.FC<{
       "Quiz completion loading complete, checking congratulations tracking",
     );
 
+    // Store quiz data immediately when loading completes
+    if (quizData) {
+      console.log("Storing quiz data to localStorage after loading completion");
+      localStorage.setItem("quizData", JSON.stringify(quizData));
+    }
+
     // Check if congratulations was already shown
     const congratulationsShown = localStorage.getItem("congratulationsShown");
     if (!congratulationsShown || congratulationsShown === "false") {
@@ -528,7 +534,11 @@ const QuizCompletionLoadingWrapper: React.FC<{
       setShowCongratulations(true);
       localStorage.setItem("congratulationsShown", "true");
     } else {
-      console.log("Congratulations already shown, skipping");
+      console.log("Congratulations already shown, navigating directly to results");
+      // If congratulations was already shown, go directly to results
+      setTimeout(() => {
+        navigate("/results");
+      }, 100);
     }
   };
 
