@@ -1118,10 +1118,11 @@ Success in ${topPath.name} will ultimately depend on systematically developing t
       ],
 
       successPredictors: [
-        "Strong motivation and goal-oriented mindset based on your responses",
-        "Appropriate risk tolerance for business ownership and investment",
-        "Compatible working style preferences for entrepreneurial activities",
-        "Realistic expectations about the challenges and rewards of business ownership"
+        "Your clearly defined goals and high motivation levels create a solid foundation for sustained business development",
+        "Your measured approach to risk-taking and financial investment aligns with proven success patterns in this field",
+        "Your preferred working style and time management approach match the operational demands of successful ${topPath.name} ventures",
+        "Your realistic understanding of both challenges and rewards indicates mature expectations essential for long-term business success",
+        "Your learning preferences and skill development approach position you well for mastering the expertise this business model requires"
       ]
     };
   }
