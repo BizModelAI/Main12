@@ -376,11 +376,25 @@ ${userProfile}`;
       }
 
       const content = data.choices?.[0]?.message?.content || data.content || data.text || '';
+      console.log("🎯 Extracted content length:", content.length);
+      console.log("🎯 Content preview:", content.substring(0, 300) + "...");
+
+      if (!content || content.length < 50) {
+        console.warn('⚠️ OpenAI response content too short or empty, using fallback');
+        console.log("🔍 Full data object:", JSON.stringify(data, null, 2));
+        return this.getFallbackResultsPreview(quizData, topPaths);
+      }
 
       // Parse the response
       const insightsMatch = content.match(/### Preview Insights\n([\s\S]*?)(?=\n###|$)/);
       const keyInsightsMatch = content.match(/### Key Insights\n([\s\S]*?)(?=\n###|$)/);
       const predictorsMatch = content.match(/### Success Predictors\n([\s\S]*?)(?=\n###|$)/);
+
+      console.log("📋 Parsing results:", {
+        insightsFound: !!insightsMatch,
+        keyInsightsFound: !!keyInsightsMatch,
+        predictorsFound: !!predictorsMatch
+      });
 
       const keyInsights = keyInsightsMatch
         ? keyInsightsMatch[1]
