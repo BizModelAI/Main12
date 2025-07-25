@@ -978,7 +978,8 @@ const ResultsWrapperWithReset: React.FC<{
 
 function App() {
   return (
-    <AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
       <AIInsightsProvider>
         <PaywallProvider>
           <BusinessModelScoresProvider>
@@ -1137,6 +1138,7 @@ function App() {
         </PaywallProvider>
       </AIInsightsProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
