@@ -1022,6 +1022,37 @@ ${userProfile}`,
       console.error("Error clearing business model AI content:", error);
     }
   }
+
+  // Fallback method when OpenAI is not available
+  private getFallbackResultsPreview(quizData: QuizData, topPaths: BusinessPath[]): {
+    previewInsights: string;
+    keyInsights: string[];
+    successPredictors: string[];
+  } {
+    const topPath = topPaths[0] || { name: "Entrepreneurship", fitScore: 75 };
+
+    return {
+      previewInsights: `Based on your quiz responses, ${topPath.name} appears to be a strong match for your goals and personality traits. Your responses indicate you have the right mindset and preferences for this type of business model.
+
+Your risk tolerance and working style preferences align well with the requirements of ${topPath.name}. This suggests you would be comfortable with the typical challenges and opportunities this business model presents.
+
+While you show promise in this area, success will depend on developing the specific skills and knowledge required for ${topPath.name}. Consider focusing on building expertise in the core competencies this business model demands.`,
+
+      keyInsights: [
+        `Your top business model match is ${topPath.name} with a ${topPath.fitScore}% compatibility score`,
+        "Your risk tolerance and working preferences align with entrepreneurial ventures",
+        "You show potential for business ownership based on your personality traits",
+        "Success will require focused skill development in your chosen business area"
+      ],
+
+      successPredictors: [
+        "Strong motivation and goal-oriented mindset based on your responses",
+        "Appropriate risk tolerance for business ownership and investment",
+        "Compatible working style preferences for entrepreneurial activities",
+        "Realistic expectations about the challenges and rewards of business ownership"
+      ]
+    };
+  }
 }
 
 // Export singleton instance
