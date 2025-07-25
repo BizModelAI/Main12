@@ -337,23 +337,26 @@ ${userProfile}`;
       console.log("📡 OpenAI API response status:", response.status, response.statusText);
 
       const responseText = await response.text();
+      console.log("📥 OpenAI API response text length:", responseText.length);
+      console.log("📥 OpenAI API response preview:", responseText.substring(0, 200) + "...");
 
       if (!response.ok) {
-        console.error('AI API Error Response:', responseText);
+        console.error('❌ AI API Error Response:', responseText);
 
         // Check if response is HTML (indicates API endpoint not found or server error)
         if (responseText.includes('<!doctype') || responseText.includes('<html')) {
-          console.warn('OpenAI API endpoint not available, using fallback content');
+          console.warn('⚠️ OpenAI API endpoint returned HTML, using fallback content');
           return this.getFallbackResultsPreview(quizData, topPaths);
         }
 
         // If OpenAI API key is not configured, use fallback
         if (response.status === 500 && responseText.includes('not configured')) {
-          console.warn('OpenAI API key not configured, using fallback content');
+          console.warn('⚠️ OpenAI API key not configured, using fallback content');
           return this.getFallbackResultsPreview(quizData, topPaths);
         }
 
-        throw new Error(`OpenAI API error: ${response.status} - ${responseText}`);
+        console.error(`💥 OpenAI API error, using fallback: ${response.status} - ${responseText}`);
+        return this.getFallbackResultsPreview(quizData, topPaths);
       }
 
       // Validate JSON response
