@@ -3293,7 +3293,7 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         if (!user) {
           return res.status(404).json({ error: 'User not found' });
         }
-        await storage.updateUser(user.id, { isPaid: true, isTemporary: false });
+        await storage.makeUserPaidAndRemoveQuizExpiration(user.id);
         res.json({ success: true, userId: user.id });
       } catch (error) {
         res.status(500).json({ error: 'Failed to mark user as paid', details: error?.message });
