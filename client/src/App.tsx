@@ -16,6 +16,7 @@ import {
   useBusinessModelScores,
 } from "./contexts/BusinessModelScoresContext";
 import { AIInsightsProvider } from './contexts/AIInsightsContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Import debug utilities (available as window.debugOpenAI and window.debugAIContent)
 import "./utils/debugOpenAI";
