@@ -93,10 +93,13 @@ function MainAppContent() {
     if (savedQuizData) {
       try {
         const parsed = JSON.parse(savedQuizData);
+        console.log("Loading quiz data from localStorage on app startup:", parsed);
         setQuizData(parsed);
       } catch (error) {
         console.error("Error parsing saved quiz data:", error);
       }
+    } else {
+      console.log("No saved quiz data found in localStorage");
     }
 
     if (savedUserEmail) {
