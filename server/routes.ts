@@ -256,7 +256,8 @@ export async function registerRoutes(app: Express): Promise<void> {
   // General OpenAI chat endpoint
   app.post("/api/openai-chat", async (req: Request, res: Response) => {
     // Add CORS headers
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
