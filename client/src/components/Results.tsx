@@ -1017,7 +1017,15 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
       const attemptId = quizAttemptId || localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
         fetch(`/api/quiz-attempts/by-id/${attemptId}`)
-          .then((res) => res.json())
+          .then(async (res) => {
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              const text = await res.text();
+              console.log('Database retrieval received non-JSON response:', text.substring(0, 200));
+              throw new Error('API returned HTML instead of JSON');
+            }
+            return res.json();
+          })
           .then((data) => {
             if (data && data.success && data.quizData) {
               console.log('Retrieved quiz data from database:', data);
@@ -1027,6 +1035,9 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
               }
               // Also update localStorage with the correct ID
               localStorage.setItem("currentQuizAttemptId", data.quizAttemptId || attemptId);
+              localStorage.setItem("quizData", JSON.stringify(data.quizData));
+            } else {
+              console.warn('Database response does not contain valid quiz data:', data);
             }
           })
           .catch((err) => {
