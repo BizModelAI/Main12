@@ -881,7 +881,18 @@ const ResultsWrapperWithReset: React.FC<{
       const attemptId = localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
         fetch(`/api/quiz-attempts/by-id/${attemptId}`)
-          .then((res) => res.json())
+          .then(async (res) => {
+            const contentType = res.headers.get('content-type');
+            console.log('API response content-type:', contentType);
+
+            if (!contentType || !contentType.includes('application/json')) {
+              const text = await res.text();
+              console.log('Received non-JSON response:', text.substring(0, 200));
+              throw new Error('API returned HTML instead of JSON');
+            }
+
+            return res.json();
+          })
           .then((data) => {
             if (data && data.success && data.quizData) {
               console.log('Retrieved fallback quiz data from API:', data);
@@ -891,6 +902,8 @@ const ResultsWrapperWithReset: React.FC<{
               if (data.quizAttemptId) {
                 localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
               }
+            } else {
+              console.warn('API response does not contain valid quiz data:', data);
             }
           })
           .catch((err) => {
