@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme-in-prod';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = '7d';
 const COOKIE_NAME = 'auth_token';
 
@@ -44,4 +48,4 @@ export function getTokenFromRequest(req: any): string | null {
     return auth.slice(7);
   }
   return null;
-} 
+}
