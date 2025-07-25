@@ -213,7 +213,8 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // CORS preflight handler for OpenAI chat endpoint
   app.options("/api/openai-chat", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
@@ -222,7 +223,8 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // OpenAI configuration status (secure - no sensitive info exposed)
   app.get("/api/openai-status", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
