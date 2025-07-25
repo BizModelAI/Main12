@@ -1078,8 +1078,8 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
             <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Unable to Load Results</h1>
-            <p className="text-lg text-gray-600 mb-6">We're having trouble loading your quiz results. This might be due to a temporary service issue. Please try refreshing the page or retaking the quiz.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Connection Issue</h1>
+            <p className="text-lg text-gray-600 mb-6">We're unable to load your quiz results due to a network connectivity issue. Please check your internet connection and try refreshing the page. If the problem persists, you can retake the quiz.</p>
           </div>
           <div className="space-y-4">
             <button
