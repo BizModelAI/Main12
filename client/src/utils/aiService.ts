@@ -314,9 +314,13 @@ ${userProfile}`;
       }
 
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
-      
+
       // Generate fresh content using OpenAI chat endpoint directly
       const { APIClient } = await import('./apiClient');
+      const promptText = this.buildResultsPreviewPrompt(quizData, topPaths);
+      console.log("🤖 Making OpenAI API call with prompt length:", promptText.length);
+      console.log("🔗 API endpoint:", `${API_BASE}/api/openai-chat`);
+
       const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/openai-chat`, {
         method: "POST",
         headers: {
@@ -324,11 +328,13 @@ ${userProfile}`;
         },
         credentials: "include",
         body: JSON.stringify({
-          prompt: this.buildResultsPreviewPrompt(quizData, topPaths),
+          prompt: promptText,
           maxTokens: 1200,
           temperature: 0.7
         }),
       }, 45000); // 45 second timeout for AI requests
+
+      console.log("📡 OpenAI API response status:", response.status, response.statusText);
 
       const responseText = await response.text();
 
