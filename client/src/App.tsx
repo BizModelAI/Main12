@@ -538,6 +538,11 @@ const QuizCompletionLoadingWrapper: React.FC<{
       localStorage.setItem("congratulationsShown", "true");
     } else {
       console.log("Congratulations already shown, navigating directly to results");
+      // Store quiz data before navigating
+      if (quizData) {
+        console.log("Storing quiz data before direct navigation to results");
+        localStorage.setItem("quizData", JSON.stringify(quizData));
+      }
       // If congratulations was already shown, go directly to results
       setTimeout(() => {
         navigate("/results");
