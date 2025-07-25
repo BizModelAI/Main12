@@ -1,6 +1,7 @@
 // Debugging utilities for AI content system
-const API_BASE =
-  "http://localhost:6000";
+const API_BASE = process.env.NODE_ENV === 'production'
+  ? window.location.origin
+  : "http://localhost:6000";
 
 export const debugAIContent = {
   // Test AI content endpoints
