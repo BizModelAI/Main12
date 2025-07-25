@@ -1,4 +1,11 @@
-import * as puppeteer from "puppeteer";
+// Optional puppeteer import to prevent deployment errors
+let puppeteer: any = null;
+try {
+  puppeteer = require("puppeteer");
+} catch (error) {
+  console.warn("Puppeteer not available - PDF generation will be disabled");
+}
+
 import { QuizData } from "../../shared/types.js";
 import * as fs from "fs";
 
