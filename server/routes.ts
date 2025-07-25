@@ -209,7 +209,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // prefix all routes with /api
 
   // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // e.g. storage.insertUser(user) or storage.getUserByEmail(email)
 
   // CORS preflight handler for OpenAI chat endpoint
   app.options("/api/openai-chat", (req: Request, res: Response) => {
