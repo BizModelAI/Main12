@@ -53,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     let isMounted = true;
+    let activeXhr: XMLHttpRequest | null = null;
 
     const checkExistingSession = async () => {
       try {
@@ -65,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           );
 
           const xhr = new XMLHttpRequest();
+          activeXhr = xhr; // Track active request
           console.log("Making XMLHttpRequest to /api/auth/me");
           xhr.open("GET", "/api/auth/me?t=" + Date.now(), true);
           xhr.withCredentials = true;
@@ -163,6 +165,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       isMounted = false; // Cleanup function to prevent state updates after unmount
+      if (activeXhr) {
+        activeXhr.abort(); // Abort any pending requests
+        activeXhr = null;
+      }
     };
   }, []);
 

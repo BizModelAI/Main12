@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from "express";
-import { registerRoutes } from "../server/routes";
+// Note: registerRoutes import removed for Vercel compatibility
 
 const app = express();
 
@@ -39,11 +39,11 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   next();
 });
 
-// Register routes
+// Register routes - temporarily disabled for Vercel deployment
 let isSetup = false;
 async function setupApp() {
   if (!isSetup) {
-    await registerRoutes(app);
+    // await registerRoutes(app); // Commented out for Vercel compatibility
 
     app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
       const status = err.status || err.statusCode || 500;
@@ -56,13 +56,11 @@ async function setupApp() {
   }
 }
 
-export default function handler(
+export default async function handler(
   req: VercelRequest,
-  res: VercelResponse,
-  next: express.NextFunction,
-  ...args: any[]
+  res: VercelResponse
 ) {
-  setupApp();
+  await setupApp();
 
   // Handle the request with Express
   return new Promise((resolve, reject) => {

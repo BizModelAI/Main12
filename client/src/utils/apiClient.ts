@@ -1,178 +1,139 @@
-// Centralized API client for all backend calls with type safety
-
-/**
- * API endpoint constants
- * NOTE: All routes must match backend implementation in server/routes.ts and server/auth.ts
- */
+// API Routes constants
 export const API_ROUTES = {
-  // Auth routes
-  AUTH_ME: "/api/auth/me",
-  AUTH_LOGIN: "/api/auth/login",
-  AUTH_SIGNUP: "/api/auth/signup",
-  AUTH_LATEST_QUIZ_DATA: "/api/auth/latest-quiz-data",
-  // Deprecated/removed: AUTH_LOGOUT, AUTH_PROFILE, AUTH_ACCOUNT, AUTH_FORGOT_PASSWORD, AUTH_RESET_PASSWORD, AUTH_CHANGE_PASSWORD, AUTH_UNSUBSCRIBE, AUTH_VERIFY_RESET_TOKEN, AUTH_SAVE_QUIZ_DATA
-  // Quiz and data routes
-  // Deprecated/removed: SAVE_QUIZ_DATA, CHECK_EXISTING_ATTEMPTS
-  QUIZ_ATTEMPTS: "/api/quiz-attempts",
-  QUIZ_ATTEMPT: "/api/quiz-attempts/attempt", // Use /api/quiz-attempts/attempt/[quizAttemptId] for specific attempt
-  QUIZ_ATTEMPT_USER: "/api/quiz-attempts/user", // Use /api/quiz-attempts/user/[userId] for user attempts
-  // AI and analysis routes
-  OPENAI_CHAT: "/api/openai-chat",
-  OPENAI_STATUS: "/api/openai-status",
-  AI_BUSINESS_FIT_ANALYSIS: "/api/ai-business-fit-analysis",
-  GENERATE_INCOME_PROJECTIONS: "/api/generate-income-projections",
-  GENERATE_BUSINESS_FIT_DESCRIPTIONS: "/api/generate-business-fit-descriptions",
-  // Deprecated/removed: AI_PERSONALITY_ANALYSIS, AI_INSIGHTS, ANALYZE_SKILLS, GENERATE_FULL_REPORT
-  // Payment routes
-  STRIPE_CONFIG: "/api/stripe-config",
-  STRIPE_WEBHOOK: "/api/stripe/webhook",
-  USER_PRICING: "/api/user-pricing",
-  GENERATE_PDF: "/api/generate-pdf",
-  // Deprecated/removed: CREATE_REPORT_UNLOCK_PAYMENT, CAPTURE_PAYPAL_PAYMENT, PAYPAL_CONFIG
-  // Deprecated/removed: BUSINESS_RESOURCES, GENERATE_PDF, SEND_QUIZ_RESULTS, SEND_WELCOME_EMAIL
-};
+  AUTH_ME: '/api/auth/me',
+  AUTH_LOGIN: '/api/auth/login', 
+  AUTH_SIGNUP: '/api/auth/signup',
+  AUTH_LOGOUT: '/api/auth/logout',
+  AUTH_LATEST_QUIZ_DATA: '/api/auth/latest-quiz-data',
+} as const;
 
-export type ApiRoute = typeof API_ROUTES[keyof typeof API_ROUTES];
-
-/**
- * Generic API response type
- */
-export type ApiResponse<T = any> = Promise<T>;
-
-/**
- * Enhanced error handling for API requests
- */
-class ApiError extends Error {
+// Custom API Error class
+export class ApiError extends Error {
   constructor(
     message: string,
-    public status: number,
-    public details?: any
+    public status?: number,
+    public statusText?: string,
   ) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-/**
- * Base request configuration
- */
-// NOTE: This project now uses JWT cookie authentication for all protected endpoints.
-// Ensure all requests to protected endpoints use credentials: 'include'.
-const baseRequestConfig: RequestInit = {
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-};
+// Base API request function
+async function apiRequest(
+  url: string,
+  options: RequestInit = {},
+): Promise<any> {
+  const response = await fetch(url, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
 
-/**
- * Enhanced error handler
- */
-async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    let errorData: any = {};
+    let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
     try {
-      errorData = await response.json();
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
     } catch {
-      // If JSON parsing fails, use status text
-      errorData = { error: response.statusText };
+      // If response isn't JSON, use status text
     }
-    
-    throw new ApiError(
-      errorData.error || `Request failed: ${response.status}`,
-      response.status,
-      errorData
-    );
+    throw new ApiError(errorMessage, response.status, response.statusText);
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await response.json();
   }
   
-  return response.json();
+  return await response.text();
 }
 
-/**
- * POST request with type safety and enhanced error handling
- */
-export async function apiPost<T = any, B = any>(
-  url: ApiRoute, 
-  data: B, 
-  options: RequestInit = {}
-): ApiResponse<T> {
-  const response = await fetch(url, {
-    ...baseRequestConfig,
+// HTTP method wrappers
+export async function apiGet(url: string): Promise<any> {
+  return apiRequest(url, { method: 'GET' });
+}
+
+export async function apiPost(url: string, data?: any): Promise<any> {
+  return apiRequest(url, {
     method: 'POST',
-    body: JSON.stringify(data),
-    ...options,
+    body: data ? JSON.stringify(data) : undefined,
   });
-  
-  return handleResponse<T>(response);
 }
 
-/**
- * GET request with type safety and enhanced error handling
- */
-export async function apiGet<T = any>(
-  url: ApiRoute, 
-  options: RequestInit = {}
-): ApiResponse<T> {
-  const response = await fetch(url, {
-    ...baseRequestConfig,
-    method: 'GET',
-    ...options,
+export async function apiPut(url: string, data?: any): Promise<any> {
+  return apiRequest(url, {
+    method: 'PUT', 
+    body: data ? JSON.stringify(data) : undefined,
   });
-  
-  return handleResponse<T>(response);
 }
 
-/**
- * PUT request with type safety and enhanced error handling
- */
-export async function apiPut<T = any, B = any>(
-  url: ApiRoute, 
-  data: B, 
-  options: RequestInit = {}
-): ApiResponse<T> {
-  const response = await fetch(url, {
-    ...baseRequestConfig,
-    method: 'PUT',
-    body: JSON.stringify(data),
-    ...options,
-  });
-  
-  return handleResponse<T>(response);
+export async function apiDelete(url: string): Promise<any> {
+  return apiRequest(url, { method: 'DELETE' });
 }
 
-/**
- * DELETE request with type safety and enhanced error handling
- */
-export async function apiDelete<T = any>(
-  url: ApiRoute, 
-  options: RequestInit = {}
-): ApiResponse<T> {
-  const response = await fetch(url, {
-    ...baseRequestConfig,
-    method: 'DELETE',
-    ...options,
-  });
-  
-  return handleResponse<T>(response);
-}
+// Enhanced API client with timeout and retry logic
+export class APIClient {
+  private static readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
+  private static readonly MAX_RETRIES = 3;
+  private static readonly RETRY_DELAY = 1000; // 1 second
 
-/**
- * PATCH request with type safety and enhanced error handling
- */
-export async function apiPatch<T = any, B = any>(
-  url: ApiRoute, 
-  data: B, 
-  options: RequestInit = {}
-): ApiResponse<T> {
-  const response = await fetch(url, {
-    ...baseRequestConfig,
-    method: 'PATCH',
-    body: JSON.stringify(data),
-    ...options,
-  });
-  
-  return handleResponse<T>(response);
-}
+  static async fetchWithTimeout(url: string, options: RequestInit = {}, timeout = APIClient.DEFAULT_TIMEOUT): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-// Export the error class for use in components
-export { ApiError };
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+      throw error;
+    }
+  }
+
+  static async fetchWithRetry(url: string, options: RequestInit = {}, maxRetries = APIClient.MAX_RETRIES): Promise<Response> {
+    let lastError: Error;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await APIClient.fetchWithTimeout(url, options);
+        
+        // Don't retry on client errors (4xx), only server errors (5xx)
+        if (response.ok || (response.status >= 400 && response.status < 500)) {
+          return response;
+        }
+        
+        // Server error - retry if we have attempts left
+        if (attempt < maxRetries) {
+          await APIClient.delay(APIClient.RETRY_DELAY * Math.pow(2, attempt)); // Exponential backoff
+          continue;
+        }
+        
+        return response;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        
+        if (attempt < maxRetries) {
+          await APIClient.delay(APIClient.RETRY_DELAY * Math.pow(2, attempt));
+          continue;
+        }
+      }
+    }
+
+    throw lastError!;
+  }
+
+  private static delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}

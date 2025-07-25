@@ -32,7 +32,6 @@ interface Payment {
   user?: {
     id: number;
     email: string;
-    username: string;
   };
 }
 

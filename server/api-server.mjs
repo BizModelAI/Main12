@@ -8,7 +8,8 @@ const server = createServer(app);
 
 // Enable CORS for development
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  const origin = process.env.FRONTEND_URL || req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -88,7 +89,7 @@ const PORT = 5173;
 
 server.listen(PORT, () => {
   console.log(`🚀 API server running on port ${PORT}`);
-  console.log(`🔗 CORS enabled for http://localhost:5173`);
+  console.log(`🔗 CORS enabled for ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 

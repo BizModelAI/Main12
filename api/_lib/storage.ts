@@ -1,33 +1,144 @@
 import { PrismaClient } from '@prisma/client';
 
+// Singleton database connection for serverless environments
+let prismaInstance: PrismaClient | null = null;
+
+function getPrismaClient(): PrismaClient {
+  if (!prismaInstance) {
+    try {
+      prismaInstance = new PrismaClient({
+        errorFormat: 'minimal',
+        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+        datasources: {
+          db: {
+            url: process.env.DATABASE_URL
+          }
+        }
+      });
+
+      // Configure connection pool for serverless
+      prismaInstance.$on('beforeExit', async () => {
+        await prismaInstance?.$disconnect();
+      });
+
+      // Auto-disconnect after inactivity in serverless environment
+      if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        setTimeout(() => {
+          prismaInstance?.$disconnect().catch(console.error);
+        }, 60000); // Disconnect after 1 minute of inactivity
+      }
+    } catch (error) {
+      console.error('Failed to initialize Prisma client:', error);
+      throw new Error('Database connection failed');
+    }
+  }
+  return prismaInstance;
+}
+
 class Storage {
   private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = getPrismaClient();
   }
 
   async getUser(id: number) {
-    return await this.prisma.user.findUnique({ where: { id } });
+    try {
+      return await this.prisma.user.findUnique({ where: { id } });
+    } catch (error) {
+      console.error('Database error in getUser:', error);
+      throw new Error('Failed to fetch user');
+    }
   }
 
   async getUserByEmail(email: string) {
-    return await this.prisma.user.findUnique({ where: { email } });
+    try {
+      return await this.prisma.user.findUnique({ where: { email } });
+    } catch (error) {
+      console.error('Database error in getUserByEmail:', error);
+      throw new Error('Failed to fetch user by email');
+    }
   }
 
   async createUser(data: any) {
-    return await this.prisma.user.create({ data });
+    try {
+      // Check if user already exists with this email
+      const existingUser = await this.getUserByEmail(data.email);
+      if (existingUser) {
+        throw new Error('User with this email already exists');
+      }
+      return await this.prisma.user.create({ data });
+    } catch (error) {
+      console.error('Database error in createUser:', error);
+      if (error instanceof Error && error.message.includes('already exists')) {
+        throw error; // Re-throw our custom error message
+      }
+      throw new Error('Failed to create user');
+    }
+  }
+
+  async createTemporaryUser(data: { email: string; sessionId: string; quizAttemptId: string }) {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email: data.email,
+          password: 'temp', // Temporary password
+          firstName: 'Guest',
+          lastName: 'User',
+          isTemporary: true,
+          sessionId: data.sessionId,
+          quizAttemptId: data.quizAttemptId,
+          createdAt: new Date(),
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
+        }
+      });
+    } catch (error) {
+      console.error('Database error in createTemporaryUser:', error);
+      throw new Error('Failed to create temporary user');
+    }
   }
 
   async updateUser(id: number, data: any) {
-    return await this.prisma.user.update({ where: { id }, data });
+    try {
+      return await this.prisma.user.update({ where: { id }, data });
+    } catch (error) {
+      console.error('Database error in updateUser:', error);
+      throw new Error('Failed to update user');
+    }
   }
 
   async deleteUser(id: number) {
-    return await this.prisma.user.delete({ where: { id } });
+    try {
+      return await this.prisma.user.delete({ where: { id } });
+    } catch (error) {
+      console.error('Database error in deleteUser:', error);
+      throw new Error('Failed to delete user');
+    }
   }
 
   async recordQuizAttempt(data: any) {
+    // Set expiration based on user type if not already provided
+    if (!data.expiresAt) {
+      if (data.userId) {
+        // Check if user is paid or temporary
+        const user = await this.prisma.user.findUnique({ where: { id: data.userId } });
+        if (user) {
+          if (user.isPaid) {
+            // Paid users: no expiration (permanent storage)
+            data.expiresAt = null;
+          } else if (user.isTemporary) {
+            // Temporary users: 90 days
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          } else {
+            // Regular users (shouldn't happen but default to 90 days)
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          }
+        }
+      } else {
+        // Anonymous users (no userId): 24 hours
+        data.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      }
+    }
     return await this.prisma.quizAttempt.create({ data });
   }
 
@@ -45,6 +156,17 @@ class Storage {
 
   async getQuizAttempt(id: number) {
     return await this.prisma.quizAttempt.findUnique({ where: { id } });
+  }
+
+  async getQuizAttemptByUUID(quizAttemptId: string) {
+    try {
+      return await this.prisma.quizAttempt.findFirst({
+        where: { quizAttemptId: quizAttemptId }
+      });
+    } catch (error) {
+      console.error('Database error in getQuizAttemptByUUID:', error);
+      throw new Error('Failed to fetch quiz attempt by UUID');
+    }
   }
 
   async updateQuizAttempt(id: number, data: any) {
@@ -199,10 +321,46 @@ class Storage {
     await this.prisma.user.deleteMany({ where: { isTemporary: true, expiresAt: { lt: now } } });
   }
 
+  async cleanupExpiredQuizAttempts() {
+    const now = new Date();
+    const deletedAttempts = await this.prisma.quizAttempt.deleteMany({
+      where: { expiresAt: { lt: now } }
+    });
+    console.log(`Cleaned up ${deletedAttempts.count} expired quiz attempts`);
+    return deletedAttempts.count;
+  }
+
   async convertTemporaryUserToPaid(sessionId: string) {
+    // First get the user to find their ID
+    const user = await this.prisma.user.findFirst({
+      where: { sessionId, isTemporary: true }
+    });
+
+    if (user) {
+      // Remove expiration from all quiz attempts for this user (now permanent)
+      await this.prisma.quizAttempt.updateMany({
+        where: { userId: user.id },
+        data: { expiresAt: null }
+      });
+    }
+
     return await this.prisma.user.updateMany({
       where: { sessionId, isTemporary: true },
       data: { isPaid: true, isTemporary: false, sessionId: undefined, tempQuizData: undefined, expiresAt: undefined, updatedAt: new Date() },
+    });
+  }
+
+  async makeUserPaidAndRemoveQuizExpiration(userId: number) {
+    // Update user to paid status
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isPaid: true, isTemporary: false, expiresAt: null }
+    });
+
+    // Remove expiration from all quiz attempts for this user (now permanent)
+    await this.prisma.quizAttempt.updateMany({
+      where: { userId: userId },
+      data: { expiresAt: null }
     });
   }
 

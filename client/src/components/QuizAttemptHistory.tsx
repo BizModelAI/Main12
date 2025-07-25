@@ -40,8 +40,8 @@ interface QuizAttemptHistoryProps {
 }
 
 const API_BASE =
-  typeof window !== "undefined" && window.location.port === "6000"
-    ? "http://localhost:6000"
+  process.env.NODE_ENV === 'development'
+    ? "http://localhost:9000"
     : "";
 
 export const QuizAttemptHistory: React.FC<QuizAttemptHistoryProps> = ({

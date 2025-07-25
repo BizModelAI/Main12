@@ -258,17 +258,31 @@ const CongratulationsGuest: React.FC<EmailCaptureProps> = ({
   };
 
   const handleContinueToResults = () => {
+    console.log('CongratulationsGuest: Preparing for navigation to results');
+
     // Ensure currentQuizAttemptId exists
     let attemptId = localStorage.getItem("currentQuizAttemptId");
     if (!attemptId) {
       attemptId = uuidv4();
       localStorage.setItem("currentQuizAttemptId", attemptId);
+      console.log('Generated new attempt ID:', attemptId);
     }
+
+    // Ensure all data is properly saved with extended expiration
     if (quizData) {
       localStorage.setItem("quizData", JSON.stringify(quizData));
+      localStorage.setItem("quizDataTimestamp", Date.now().toString());
+      // Set expiration to 24 hours from now to prevent premature cleanup
+      const expirationTime = Date.now() + 24 * 60 * 60 * 1000;
+      localStorage.setItem("quizDataExpires", expirationTime.toString());
+      console.log('Saved quiz data with expiration:', new Date(expirationTime));
     }
-    // Now navigate
-    navigate("/results");
+
+    // Small delay to ensure data is written before navigation
+    setTimeout(() => {
+      console.log('Navigating to results page');
+      navigate("/results");
+    }, 100);
   };
 
   // Remove the useEffect that navigates away after emailSent

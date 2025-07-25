@@ -121,11 +121,26 @@ export class AIService {
       );
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.content) {
-          console.log(`✅ Retrieved ${contentType} from database for attempt ${quizAttemptId}`);
-          return data.content;
+        const responseText = await response.text();
+
+        // Check if we got HTML instead of JSON (API endpoint not found)
+        if (responseText.includes('<!doctype') || responseText.includes('<html')) {
+          console.warn(`API returned HTML instead of JSON for ${contentType}. Endpoint may not exist.`);
+          return null;
         }
+
+        try {
+          const data = JSON.parse(responseText);
+          if (data.content || data.aiContent) {
+            console.log(`✅ Retrieved ${contentType} from database for attempt ${quizAttemptId}`);
+            return data.content || data.aiContent;
+          }
+        } catch (parseError) {
+          console.error(`Failed to parse response for ${contentType}:`, responseText);
+          return null;
+        }
+      } else {
+        console.log(`No existing ${contentType} found in database (${response.status})`);
       }
       return null;
     } catch (error) {
@@ -299,30 +314,88 @@ ${userProfile}`;
       }
 
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
-      
-      // Generate fresh content
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`, {
+
+      // Generate fresh content using OpenAI chat endpoint directly
+      const { APIClient } = await import('./apiClient');
+      const promptText = this.buildResultsPreviewPrompt(quizData, topPaths);
+      console.log("🤖 Making OpenAI API call with prompt length:", promptText.length);
+      console.log("🔗 API endpoint:", `${API_BASE}/api/openai-chat`);
+
+      const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({
-          prompt: this.buildResultsPreviewPrompt(quizData, topPaths),
+          prompt: promptText,
+          maxTokens: 1200,
+          temperature: 0.7
         }),
-      });
+      }, 45000); // 45 second timeout for AI requests
+
+      console.log("📡 OpenAI API response status:", response.status, response.statusText);
+
+      const responseText = await response.text();
+      console.log("📥 OpenAI API response text length:", responseText.length);
+      console.log("📥 OpenAI API response preview:", responseText.substring(0, 200) + "...");
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        console.error('❌ AI API Error Response:', responseText);
+
+        // Check if response is HTML (indicates API endpoint not found or server error)
+        if (responseText.includes('<!doctype') || responseText.includes('<html')) {
+          console.warn('⚠️ OpenAI API endpoint returned HTML, using fallback content');
+          return this.getFallbackResultsPreview(quizData, topPaths);
+        }
+
+        // If OpenAI API key is not configured, use fallback
+        if (response.status === 500 && responseText.includes('not configured')) {
+          console.warn('⚠️ OpenAI API key not configured - AI insights disabled');
+          console.warn('💡 To enable AI insights, set OPENAI_API_KEY environment variable');
+          return this.getFallbackResultsPreview(quizData, topPaths);
+        }
+
+        console.error(`💥 OpenAI API error, using fallback: ${response.status} - ${responseText}`);
+        return this.getFallbackResultsPreview(quizData, topPaths);
       }
 
-      const data = await response.json();
-      const content = data.content;
+      // Validate JSON response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log("✅ Successfully parsed OpenAI API response");
+        console.log("📄 Response data keys:", Object.keys(data));
+      } catch (parseError) {
+        console.error('❌ Failed to parse API response as JSON:', responseText);
+        if (responseText.includes('<!doctype') || responseText.includes('<html')) {
+          console.warn('⚠️ Received HTML response instead of JSON, using fallback');
+          return this.getFallbackResultsPreview(quizData, topPaths);
+        }
+        console.error('💥 JSON parse error, using fallback:', parseError);
+        return this.getFallbackResultsPreview(quizData, topPaths);
+      }
+
+      const content = data.choices?.[0]?.message?.content || data.content || data.text || '';
+      console.log("🎯 Extracted content length:", content.length);
+      console.log("🎯 Content preview:", content.substring(0, 300) + "...");
+
+      if (!content || content.length < 50) {
+        console.warn('⚠️ OpenAI response content too short or empty, using fallback');
+        console.log("🔍 Full data object:", JSON.stringify(data, null, 2));
+        return this.getFallbackResultsPreview(quizData, topPaths);
+      }
 
       // Parse the response
       const insightsMatch = content.match(/### Preview Insights\n([\s\S]*?)(?=\n###|$)/);
       const keyInsightsMatch = content.match(/### Key Insights\n([\s\S]*?)(?=\n###|$)/);
       const predictorsMatch = content.match(/### Success Predictors\n([\s\S]*?)(?=\n###|$)/);
+
+      console.log("📋 Parsing results:", {
+        insightsFound: !!insightsMatch,
+        keyInsightsFound: !!keyInsightsMatch,
+        predictorsFound: !!predictorsMatch
+      });
 
       const keyInsights = keyInsightsMatch
         ? keyInsightsMatch[1]
@@ -352,6 +425,20 @@ ${userProfile}`;
         successPredictors,
       };
 
+      console.log("🎉 Final AI-generated result:", {
+        previewInsightsLength: result.previewInsights.length,
+        keyInsightsCount: result.keyInsights.length,
+        successPredictorsCount: result.successPredictors.length
+      });
+
+      // If the parsing failed or content is too generic, use fallback
+      if (!result.previewInsights || result.previewInsights.length < 100 ||
+          result.keyInsights.length === 0 ||
+          result.successPredictors.length === 0) {
+        console.warn('⚠️ AI content parsing failed or too short, using fallback');
+        return this.getFallbackResultsPreview(quizData, topPaths);
+      }
+
       // Save to database if we have a quiz attempt ID
       if (quizAttemptId) {
         try {
@@ -362,6 +449,7 @@ ${userProfile}`;
         }
       }
 
+      console.log("✅ Returning AI-generated content (not fallback)");
       return result;
     } catch (error) {
       console.error("Error generating results preview:", error);
@@ -410,11 +498,20 @@ ${userProfile}`;
         }),
       });
 
+      const responseText = await response.text();
+
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        console.error('Personalized insights API error:', responseText);
+        throw new Error(`OpenAI API error: ${response.status} - ${responseText}`);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse personalized insights response:', responseText);
+        throw new Error('Invalid JSON response from API');
+      }
       const content = data.content;
 
       // Parse the response
@@ -654,16 +751,27 @@ ${userProfile}`;
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.authenticated) {
-          console.log(`User authenticated - will save to database`);
-          return true;
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.log('Auth endpoint returned non-JSON response, assuming not authenticated');
+          return false;
+        }
+
+        try {
+          const data = await response.json();
+          if (data.authenticated) {
+            console.log(`User authenticated - will save to database`);
+            return true;
+          }
+        } catch (parseError) {
+          console.log('Failed to parse auth response, assuming not authenticated');
+          return false;
         }
       }
 
       // For unpaid users, do not save to database (no userEmail check)
       console.log(
-        `Unpaid user hasn't provided email - will not save to database`,
+        `User not authenticated - will not save to database`,
       );
       return false;
     } catch (error) {
@@ -909,11 +1017,20 @@ ${userProfile}`,
         }),
       });
 
+      const responseText = await response.text();
+
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        console.error('Business model fit descriptions API error:', responseText);
+        throw new Error(`OpenAI API error: ${response.status} - ${responseText}`);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse business model fit descriptions response:', responseText);
+        throw new Error('Invalid JSON response from API');
+      }
       const content = data.content;
 
       // Parse the JSON response
@@ -975,6 +1092,42 @@ ${userProfile}`,
     } catch (error) {
       console.error("Error clearing business model AI content:", error);
     }
+  }
+
+  // Fallback method when OpenAI is not available
+  private getFallbackResultsPreview(quizData: QuizData, topPaths: BusinessPath[]): {
+    previewInsights: string;
+    keyInsights: string[];
+    successPredictors: string[];
+    isFallback?: boolean;
+  } {
+    const topPath = topPaths[0] || { name: "Entrepreneurship", fitScore: 75 };
+    console.log("🔄 Using fallback content for results preview - OpenAI unavailable");
+
+    return {
+      previewInsights: `Based on your comprehensive quiz responses, ${topPath.name} emerges as your strongest business model match with a ${topPath.fitScore}% compatibility score. Your answers reveal a personality profile and goal alignment that naturally fits this entrepreneurial path.
+
+Your demonstrated risk tolerance, working style preferences, and time investment capabilities align exceptionally well with what ${topPath.name} demands. This convergence suggests you possess the fundamental mindset needed to navigate both the challenges and opportunities this business model typically presents.
+
+Success in ${topPath.name} will ultimately depend on systematically developing the specialized skills and deep market knowledge this field requires. We recommend focusing your learning efforts on mastering the core competencies and operational frameworks that drive results in this specific business model.`,
+
+      keyInsights: [
+        `${topPath.name} achieves a ${topPath.fitScore}% compatibility match with your unique profile and entrepreneurial goals`,
+        "Your demonstrated risk tolerance and investment preferences perfectly align with this business model's requirements",
+        "Your personality traits and working style preferences indicate strong potential for sustainable success in this field",
+        "Strategic skill development in core ${topPath.name} competencies will be your primary pathway to achieving results",
+        "Your time availability and commitment level match the typical demands this business model requires for profitability"
+      ],
+
+      successPredictors: [
+        "Your clearly defined goals and high motivation levels create a solid foundation for sustained business development",
+        "Your measured approach to risk-taking and financial investment aligns with proven success patterns in this field",
+        "Your preferred working style and time management approach match the operational demands of successful ${topPath.name} ventures",
+        "Your realistic understanding of both challenges and rewards indicates mature expectations essential for long-term business success",
+        "Your learning preferences and skill development approach position you well for mastering the expertise this business model requires"
+      ],
+      isFallback: true
+    };
   }
 }
 

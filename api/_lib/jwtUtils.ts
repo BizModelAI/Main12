@@ -1,6 +1,12 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme-in-prod';
+// Lazy validation - only check when actually used
+function getJWTSecret(): string {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return process.env.JWT_SECRET;
+}
 const JWT_EXPIRES_IN = '7d';
 const COOKIE_NAME = 'auth_token';
 
@@ -11,7 +17,7 @@ export interface AuthPayload {
 }
 
 export function signToken(payload: AuthPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJWTSecret(), {
     expiresIn: JWT_EXPIRES_IN,
     algorithm: 'HS256',
   });
@@ -19,7 +25,7 @@ export function signToken(payload: AuthPayload): string {
 
 export function verifyToken(token: string): AuthPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as AuthPayload;
+    return jwt.verify(token, getJWTSecret()) as AuthPayload;
   } catch (e) {
     return null;
   }
@@ -44,4 +50,4 @@ export function getTokenFromRequest(req: any): string | null {
     return auth.slice(7);
   }
   return null;
-} 
+}

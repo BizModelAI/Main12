@@ -33,16 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Import and call the main signup logic
-    const { setupAuthRoutes } = await import("../../server/auth.js");
-    const express = await import("express");
-
-    // Create a mini express app just for this route
-    const app = express.default();
-    app.use(express.json());
-
-    // Set up the auth routes
-    setupAuthRoutes(app);
+    // Use direct imports from _lib utilities
+    const bcrypt = await import("bcrypt");
+    const { storage } = await import("../_lib/storage");
+    const { signToken, setAuthCookie } = await import("../_lib/jwtUtils");
 
     // Create mock request/response objects
     const mockReq: any = {
@@ -68,9 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     };
 
-    // Find and call the signup handler directly
-    const bcrypt = await import("bcrypt");
-    const { storage } = await import("../../server/storage.js");
+    // Direct signup logic using _lib utilities
 
     // Direct signup logic (simplified version of auth.ts)
     const { email, password, name } = req.body;
@@ -112,21 +104,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(409).json({ error: "User already exists" });
     }
 
-    // Create session ID
-    const sessionId = `vercel_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Store user data
-    // TODO: Confirm if this should be createUser or another method
-    await storage.createUser({ sessionId, email, firstName, lastName });
+    // Create user in database
+    const user = await storage.createUser({
+      email,
+      password: hashedPassword,
+      firstName: name,
+      lastName: ""
+    });
+
+    // Generate JWT token
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      isPaid: user.isPaid || false
+    });
+
+    // Set auth cookie
+    setAuthCookie(res, token);
 
     // Return success response
-    return res.status(200).json({
-      id: `temp_${sessionId}`,
-      username: email,
-      email: email,
+    return res.status(201).json({
+      id: user.id,
+      email: user.email,
       firstName: firstName,
       lastName: lastName,
       hasAccessPass: false,

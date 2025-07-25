@@ -16,6 +16,11 @@ class Storage {
   }
 
   async createUser(data: any) {
+    // Check if user already exists with this email
+    const existingUser = await this.getUserByEmail(data.email);
+    if (existingUser) {
+      throw new Error('User with this email already exists');
+    }
     return await this.prisma.user.create({ data });
   }
 
@@ -28,6 +33,28 @@ class Storage {
   }
 
   async recordQuizAttempt(data: any) {
+    // Set expiration based on user type if not already provided
+    if (!data.expiresAt) {
+      if (data.userId) {
+        // Check if user is paid or temporary
+        const user = await this.prisma.user.findUnique({ where: { id: data.userId } });
+        if (user) {
+          if (user.isPaid) {
+            // Paid users: no expiration (permanent storage)
+            data.expiresAt = null;
+          } else if (user.isTemporary) {
+            // Temporary users: 90 days
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          } else {
+            // Regular users (shouldn't happen but default to 90 days)
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          }
+        }
+      } else {
+        // Anonymous users (no userId): 24 hours
+        data.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      }
+    }
     return await this.prisma.quizAttempt.create({ data });
   }
 
@@ -199,10 +226,46 @@ class Storage {
     await this.prisma.user.deleteMany({ where: { isTemporary: true, expiresAt: { lt: now } } });
   }
 
+  async cleanupExpiredQuizAttempts() {
+    const now = new Date();
+    const deletedAttempts = await this.prisma.quizAttempt.deleteMany({
+      where: { expiresAt: { lt: now } }
+    });
+    console.log(`Cleaned up ${deletedAttempts.count} expired quiz attempts`);
+    return deletedAttempts.count;
+  }
+
   async convertTemporaryUserToPaid(sessionId: string) {
+    // First get the user to find their ID
+    const user = await this.prisma.user.findFirst({
+      where: { sessionId, isTemporary: true }
+    });
+
+    if (user) {
+      // Remove expiration from all quiz attempts for this user (now permanent)
+      await this.prisma.quizAttempt.updateMany({
+        where: { userId: user.id },
+        data: { expiresAt: null }
+      });
+    }
+
     return await this.prisma.user.updateMany({
       where: { sessionId, isTemporary: true },
       data: { isPaid: true, isTemporary: false, sessionId: undefined, tempQuizData: undefined, expiresAt: undefined, updatedAt: new Date() },
+    });
+  }
+
+  async makeUserPaidAndRemoveQuizExpiration(userId: number) {
+    // Update user to paid status
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isPaid: true, isTemporary: false, expiresAt: null }
+    });
+
+    // Remove expiration from all quiz attempts for this user (now permanent)
+    await this.prisma.quizAttempt.updateMany({
+      where: { userId: userId },
+      data: { expiresAt: null }
     });
   }
 

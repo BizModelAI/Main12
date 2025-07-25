@@ -1,142 +1,115 @@
-# 🚀 BizModelAI - Vercel Deployment Guide
+# 🚀 Vercel Deployment Guide for BizModelAI
 
-## 📋 Pre-Deployment Checklist
+## Pre-Deployment Checklist ✅
 
-### 1. Required Environment Variables
-Set these in your Vercel dashboard or via CLI:
+### 1. **Environment Variables Setup**
+Copy these to your Vercel Dashboard → Project Settings → Environment Variables:
 
-```bash
-# AI & Content Generation
-OPENAI_API_KEY=sk-...
+```env
+# Required
+JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
+DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
+FRONTEND_URL=https://your-domain.vercel.app
 
-# Database
-DATABASE_URL=postgresql://...
-NEON_DATABASE_URL=postgresql://...
+# Optional but recommended
+OPENAI_API_KEY=sk-your-openai-api-key
+STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+RESEND_API_KEY=your_resend_api_key
 
-# Email Service
-RESEND_API_KEY=re_...
-
-# Payment Processing
-STRIPE_PUBLISHABLE_KEY=pk_...
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# PayPal (Optional)
-PAYPAL_CLIENT_ID=...
-PAYPAL_CLIENT_SECRET=...
-
-# Application
-NODE_ENV=production
+# Client-side variables
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
+VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
-### 2. External Services Setup
+### 2. **Build Configuration**
+- ✅ `vercel.json` configured for Node.js 20.x
+- ✅ Frontend builds to `client/dist`
+- ✅ API routes in `/api` directory
+- ✅ Proper memory allocation for AI routes
 
-#### **Database (Neon - Free)**
-1. Go to [neon.tech](https://neon.tech)
-2. Create free PostgreSQL database
-3. Copy connection string to `DATABASE_URL`
+### 3. **Database Setup**
+- ✅ Prisma schema ready
+- ✅ Neon PostgreSQL recommended
+- ✅ Auto-expiration for quiz data implemented
 
-#### **Email Service (Resend - Free)**
-1. Go to [resend.com](https://resend.com)
-2. Get free API key (3,000 emails/month)
-3. Add to `RESEND_API_KEY`
+## Deployment Steps
 
-#### **Payments (Stripe - Free)**
-1. Go to [stripe.com](https://stripe.com)
-2. Get publishable and secret keys
-3. Set up webhook endpoint: `https://yourapp.vercel.app/api/stripe/webhook`
+### 1. **Connect Repository**
+```bash
+# Install Vercel CLI (if needed)
+npm i -g vercel
 
-## 🚀 Deployment Options
+# Deploy from project root
+vercel
+```
 
-### Option A: GitHub + Vercel Dashboard (Recommended)
+### 2. **Configure Build Settings**
+- Framework Preset: **Other**
+- Build Command: `cd client && yarn install && yarn build`
+- Output Directory: `client/dist`
+- Install Command: `yarn install`
 
-1. **Push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
+### 3. **Set Environment Variables**
+In Vercel Dashboard:
+1. Go to Project Settings → Environment Variables
+2. Add all variables from `.env.vercel` template
+3. Set for Production, Preview, and Development
 
-2. **Deploy via Vercel Dashboard**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your GitHub repository
-   - Add environment variables
-   - Deploy!
+### 4. **Database Migration**
+After first deployment, run:
+```bash
+# Connect to production
+vercel env pull .env.production
+npx prisma db push
+```
 
-### Option B: Vercel CLI
+## Post-Deployment Verification
 
-1. **Install Vercel CLI**
-   ```bash
-   npm i -g vercel
-   ```
+### ✅ Check These URLs:
+- `https://your-domain.vercel.app` - Homepage loads
+- `https://your-domain.vercel.app/api/health` - API working
+- `https://your-domain.vercel.app/quiz` - Quiz functionality
+- `https://your-domain.vercel.app/results` - Results page
 
-2. **Login and Deploy**
-   ```bash
-   vercel login
-   vercel --prod
-   ```
+### ✅ Test Core Features:
+1. **Quiz Flow**: Take quiz → Get results
+2. **Email Capture**: Provide email → Temporary user created
+3. **Payment Flow**: Pay for report → Access unlocked
+4. **User Accounts**: Login → Dashboard access
 
-3. **Set Environment Variables**
-   ```bash
-   vercel env add OPENAI_API_KEY
-   vercel env add DATABASE_URL
-   # ... add all required variables
-   ```
-
-## 🔧 Post-Deployment Setup
-
-### 1. Test Your Deployment
-- Visit your Vercel URL
-- Test the quiz functionality
-- Verify payments work
-- Check email delivery
-
-### 2. Configure Custom Domain (Optional)
-- In Vercel dashboard: Settings → Domains
-- Add your custom domain
-- Update DNS records
-
-### 3. Monitor Usage
-- Check Vercel dashboard for function usage
-- Monitor API quotas (OpenAI, Stripe, etc.)
-
-## 🏆 Free Tier Limits
-
-**Vercel Hobby Plan:**
-- 100GB bandwidth/month
-- 100GB-hrs serverless execution
-- 1M function invocations
-- Should be plenty for starting out!
-
-**If you exceed limits:**
-- Upgrade to Vercel Pro ($20/month)
-- Or optimize heavy functions
-
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues:
-1. **Build fails**: Check client dependencies in `client/package.json`
-2. **API errors**: Verify environment variables are set
-3. **Database connection**: Ensure `DATABASE_URL` is correct
-4. **Payment issues**: Check Stripe webhook URL and secrets
 
-### Debug Commands:
-```bash
-# Check build locally
-cd client && yarn build
+**Build Fails:**
+- Check Node.js version (20.x required)
+- Verify all dependencies installed
+- Check for TypeScript errors
 
-# Test API locally
-cd client && yarn dev
+**API Routes Fail:**
+- Verify environment variables set
+- Check database connection
+- Monitor function logs in Vercel
 
-# Check environment variables
-vercel env ls
-```
+**Database Connection:**
+- Ensure `DATABASE_URL` format correct
+- Check SSL mode requirements
+- Verify firewall settings
 
-## 📞 Need Help?
-If you encounter issues, check:
-1. Vercel deployment logs
-2. Browser console errors
-3. API endpoint responses
+### Performance Optimization:
+- ✅ AI routes have 1024MB memory
+- ✅ Standard routes have 512MB memory
+- ✅ Prisma connection pooling enabled
+- ✅ Client-side caching implemented
 
-Your BizModelAI app is ready to launch! 🎉
+## Support
+
+For deployment issues:
+1. Check Vercel function logs
+2. Verify environment variables
+3. Test API routes individually
+4. Monitor database connections
+
+**Ready to Deploy!** 🎉

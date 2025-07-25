@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from 'api/_lib/storage';
+import { storage } from './_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -14,4 +14,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Implement logic to clear AI content for user
   // Example: await storage.clearBusinessModelAIContent(userId);
   res.status(200).json({ success: true, deletedCount: 0 });
-} 
+}

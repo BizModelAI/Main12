@@ -57,31 +57,27 @@ const PaymentMethodSelector: React.FC<{
             <span className="font-medium text-gray-900">Credit card</span>
           </div>
           <div className="flex items-center space-x-2">
-            {/* Credit card brand icons */}
+            {/* Credit card brand icons from Stripe */}
             <img
-              src="https://cdn.jsdelivr.net/gh/lipis/flag-icon-css@master/flags/4x3/us.svg"
+              src="https://js.stripe.com/v3/fingerprinted/img/visa-365725566f9f.svg"
               alt="Visa"
-              className="w-8 h-5 rounded"
-              style={{
-                background: "#1a1f71",
-                color: "white",
-                fontSize: "6px",
-                textAlign: "center",
-                lineHeight: "20px",
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
+              className="w-8 h-5"
             />
-            <div className="w-8 h-5 bg-gradient-to-r from-red-500 to-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">
-              MC
-            </div>
-            <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
-              AE
-            </div>
-            <div className="w-8 h-5 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">
-              DI
-            </div>
+            <img
+              src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130.svg"
+              alt="Mastercard"
+              className="w-8 h-5"
+            />
+            <img
+              src="https://js.stripe.com/v3/fingerprinted/img/amex-a49b82f46c5c.svg"
+              alt="American Express"
+              className="w-8 h-5"
+            />
+            <img
+              src="https://js.stripe.com/v3/fingerprinted/img/discover-ac52cd46f89e.svg"
+              alt="Discover"
+              className="w-8 h-5"
+            />
             <span className="text-xs text-gray-500">+4</span>
           </div>
         </div>

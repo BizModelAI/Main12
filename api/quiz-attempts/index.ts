@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTokenFromRequest, verifyToken } from 'api/_lib/jwtUtils';
-import { storage } from 'api/_lib/storage';
+import { getTokenFromRequest, verifyToken } from '../_lib/jwtUtils';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -19,4 +19,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   const attempts = await storage.getQuizAttempts(payload.userId);
   res.status(200).json({ attempts });
-} 
+}

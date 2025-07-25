@@ -225,7 +225,17 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
   const [showAILoading, setShowAILoading] = useState(false);
   const [showFullReportLoading, setShowFullReportLoading] = useState(false);
   const [loadedReportData, setLoadedReportData] = useState<any>(null);
-  const [hasLoadedFullReport, setHasLoadedFullReport] = useState(false);
+  const [hasLoadedFullReport, setHasLoadedFullReport] = useState(() => {
+    // Check if we have AI content in localStorage or database to avoid showing loading page again
+    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+    if (quizAttemptId) {
+      const cachedContent = localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
+      if (cachedContent) {
+        return true; // We have cached content, no need to show loading again
+      }
+    }
+    return false;
+  });
   const [personalizedPaths, setPersonalizedPaths] = useState<BusinessPath[]>(
     [],
   );
@@ -745,13 +755,19 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     // Check if we have AI content available
     const hasAIContent = loadedReportData || hasBeenViewed;
 
-    // Show full report loading page only if this is the first time loading the full report
-    if (!hasLoadedFullReport && !hasAIContent) {
+    // Check if we have full report AI content already cached or in database
+    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+    const hasFullReportContent = quizAttemptId && localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
+
+    // Show full report loading page only if this is truly the first time and no cached content exists
+    if (!hasLoadedFullReport && !hasAIContent && !hasFullReportContent) {
       console.log("First time loading full report, showing full report loading page");
       setShowFullReportLoading(true);
       window.scrollTo({ top: 0, behavior: "instant" });
     } else {
-      // If we have preloaded data or have viewed before, go directly to the full report
+      // If we have preloaded data, cached content, or have viewed before, go directly to the full report
+      console.log("Full report content exists or already loaded, going directly to full report");
+      setHasLoadedFullReport(true); // Mark as loaded since we have content
       setShowFullReport(true);
       // Scroll to top of page immediately and then again after DOM update
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -957,21 +973,104 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     await executeShareAction();
   };
 
-  // Check for required data
-  const missingQuizData = !quizData;
+  // Check for required data with more lenient scoring check
+  const missingQuizData = !quizData && !quizDataState;
   const missingQuizAttemptId = !quizAttemptId;
-  const missingScores = !businessModelScores || businessModelScores.length === 0;
+  // Only consider scores missing if we have quiz data but no scores calculated
+  const missingScores = (quizData || quizDataState) && (!businessModelScores || businessModelScores.length === 0);
 
-  // Only show Session Expired if data is truly unrecoverable after fallback
-  if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing) {
-    console.warn("[Results] Session expired or required data missing:", {
-      missingQuizData,
-      missingQuizAttemptId,
-      missingScores,
-      quizData,
-      quizAttemptId,
-      businessModelScores
-    });
+  // Add delay before showing Session Expired to allow data loading
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
+
+  useEffect(() => {
+    if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing) {
+      console.warn("[Results] Data missing, waiting before showing session expired:", {
+        missingQuizData,
+        missingQuizAttemptId,
+        missingScores,
+        quizData,
+        quizAttemptId,
+        businessModelScores
+      });
+
+      // Wait 5 seconds before showing session expired to allow data loading
+      const timeout = setTimeout(() => {
+        // Check again if data became available (including quizDataState)
+        const hasQuizData = quizData || quizDataState;
+        if (!hasQuizData) {
+          console.log("[Results] Data still missing after waiting period");
+          console.log("Final check - quizData:", !!quizData, "quizDataState:", !!quizDataState);
+          console.log("Available localStorage keys:", Object.keys(localStorage).filter(k => k.includes('quiz')));
+          setShowSessionExpired(true);
+        } else {
+          console.log("Data became available during waiting period");
+        }
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing]);
+
+  // Try to retrieve quiz data from database before showing session expired
+  const [hasTriedDatabaseRetrieval, setHasTriedDatabaseRetrieval] = useState(false);
+
+  useEffect(() => {
+    if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing && !hasTriedDatabaseRetrieval) {
+      console.log('Attempting to retrieve quiz data from database');
+      setHasTriedDatabaseRetrieval(true);
+
+      const attemptId = quizAttemptId || localStorage.getItem("currentQuizAttemptId");
+      if (attemptId) {
+        // Simplified database retrieval with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        fetch(`/api/quiz-attempts/by-id/${attemptId}`, {
+          signal: controller.signal
+        })
+          .then(async (res) => {
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+              throw new Error(`Database API returned status: ${res.status}`);
+            }
+
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              throw new Error('Database API returned non-JSON content');
+            }
+            return res.json();
+          })
+          .then((data) => {
+            if (data && data.success && data.quizData) {
+              console.log('Retrieved quiz data from database:', data);
+              setQuizDataState(data.quizData);
+              if (data.id) {
+                setQuizAttemptId(data.id);
+              }
+              // Also update localStorage with the correct ID
+              localStorage.setItem("currentQuizAttemptId", data.quizAttemptId || attemptId);
+              localStorage.setItem("quizData", JSON.stringify(data.quizData));
+            } else {
+              console.warn('Database response does not contain valid quiz data');
+            }
+          })
+          .catch((err) => {
+            if (err.name === 'AbortError') {
+              console.log("Database retrieval timed out");
+            } else {
+              console.log("Database retrieval failed:", err.message);
+            }
+            console.log("Proceeding without database retrieval");
+          });
+      } else {
+        console.log("No attempt ID available for database retrieval");
+      }
+    }
+  }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing, hasTriedDatabaseRetrieval, quizAttemptId]);
+
+  // Only show Session Expired after waiting period
+  if (showSessionExpired) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
         <div className="max-w-xl mx-auto text-center bg-white rounded-3xl shadow-2xl p-8 md:p-12">
@@ -979,15 +1078,23 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
             <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Session Expired</h1>
-            <p className="text-lg text-gray-600 mb-6">Your quiz results session has expired or required data is missing. Please retake the quiz to see your personalized results.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Connection Issue</h1>
+            <p className="text-lg text-gray-600 mb-6">We're unable to load your quiz results due to a network connectivity issue. Please check your internet connection and try refreshing the page. If the problem persists, you can retake the quiz.</p>
           </div>
-          <button
-            onClick={() => navigate('/quiz')}
-            className="w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-lg"
-          >
-            Retake the Quiz
-          </button>
+          <div className="space-y-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-blue-700 transition-colors"
+            >
+              Refresh Page
+            </button>
+            <button
+              onClick={() => navigate('/quiz')}
+              className="w-full bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-gray-700 transition-colors"
+            >
+              Retake the Quiz
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1651,7 +1758,7 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
                   {/* Business Info Boxes */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                      <div className="text-2xl mb-2 emoji">⏱️</div>
+                      <div className="text-2xl mb-2 emoji">���️</div>
                       <div className="text-xs text-blue-200 mb-1 font-bold">Time to Start</div>
                       <div className="text-sm font-normal">
                         {personalizedPaths[0]?.timeToProfit || "3-6 months"}

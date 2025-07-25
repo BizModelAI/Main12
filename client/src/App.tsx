@@ -16,6 +16,7 @@ import {
   useBusinessModelScores,
 } from "./contexts/BusinessModelScoresContext";
 import { AIInsightsProvider } from './contexts/AIInsightsContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Import debug utilities (available as window.debugOpenAI and window.debugAIContent)
 import "./utils/debugOpenAI";
@@ -92,10 +93,13 @@ function MainAppContent() {
     if (savedQuizData) {
       try {
         const parsed = JSON.parse(savedQuizData);
+        console.log("Loading quiz data from localStorage on app startup:", parsed);
         setQuizData(parsed);
       } catch (error) {
         console.error("Error parsing saved quiz data:", error);
       }
+    } else {
+      console.log("No saved quiz data found in localStorage");
     }
 
     if (savedUserEmail) {
@@ -200,7 +204,10 @@ function MainAppContent() {
         const expireTime = parseInt(expiresAt);
         const now = Date.now();
 
-        if (now > expireTime) {
+        // Add buffer time to prevent clearing data during navigation
+        const bufferTime = 2 * 60 * 1000; // 2 minutes buffer
+        if (now > (expireTime + bufferTime)) {
+          console.log('Cleaning up expired quiz data');
           localStorage.removeItem("quizData");
           localStorage.removeItem("quizDataTimestamp");
           localStorage.removeItem("quizDataExpires");
@@ -228,13 +235,16 @@ function MainAppContent() {
       }
     };
 
-    // Run cleanup immediately
-    cleanupExpiredData();
+    // Delay initial cleanup to prevent race conditions during navigation
+    const initialCleanupTimeout = setTimeout(cleanupExpiredData, 5000); // 5 second delay
 
     // Run cleanup every 5 minutes to catch expiration during session
     const interval = setInterval(cleanupExpiredData, 5 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialCleanupTimeout);
+    };
   }, [quizData]);
 
   // Handler for AI loading completion
@@ -514,6 +524,12 @@ const QuizCompletionLoadingWrapper: React.FC<{
       "Quiz completion loading complete, checking congratulations tracking",
     );
 
+    // Store quiz data immediately when loading completes
+    if (quizData) {
+      console.log("Storing quiz data to localStorage after loading completion");
+      localStorage.setItem("quizData", JSON.stringify(quizData));
+    }
+
     // Check if congratulations was already shown
     const congratulationsShown = localStorage.getItem("congratulationsShown");
     if (!congratulationsShown || congratulationsShown === "false") {
@@ -521,7 +537,16 @@ const QuizCompletionLoadingWrapper: React.FC<{
       setShowCongratulations(true);
       localStorage.setItem("congratulationsShown", "true");
     } else {
-      console.log("Congratulations already shown, skipping");
+      console.log("Congratulations already shown, navigating directly to results");
+      // Store quiz data before navigating
+      if (quizData) {
+        console.log("Storing quiz data before direct navigation to results");
+        localStorage.setItem("quizData", JSON.stringify(quizData));
+      }
+      // If congratulations was already shown, go directly to results
+      setTimeout(() => {
+        navigate("/results");
+      }, 100);
     }
   };
 
@@ -847,6 +872,91 @@ const ResultsWrapperWithReset: React.FC<{
   const [isFetchingFallback, setIsFetchingFallback] = React.useState(false);
   const [fallbackQuizData, setFallbackQuizData] = React.useState<QuizData | null>(null);
 
+  // Effect to fetch fallback data if none is available
+  React.useEffect(() => {
+    if (!quizData && !fallbackQuizData && !isFetchingFallback) {
+      console.log("No quiz data available, checking localStorage first");
+      setIsFetchingFallback(true);
+
+      // First priority: Check localStorage
+      const savedQuizData = localStorage.getItem("quizData");
+      if (savedQuizData) {
+        try {
+          const parsed = JSON.parse(savedQuizData);
+          console.log("Found existing quiz data in localStorage, using immediately");
+          setFallbackQuizData(parsed);
+          setIsFetchingFallback(false);
+          return;
+        } catch (error) {
+          console.error("Failed to parse localStorage quiz data:", error);
+        }
+      }
+
+      // Only try API if localStorage doesn't have data
+      const attemptId = localStorage.getItem("currentQuizAttemptId");
+      if (attemptId) {
+        console.log("No localStorage data, attempting API fetch with ID:", attemptId);
+
+        // Simplified API approach with timeout
+        const trySimpleAPIFetch = async () => {
+          try {
+            // Set a timeout for the entire operation
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+            console.log("Trying simple API fetch with timeout...");
+            const res = await fetch(`/api/quiz-attempts/by-id/${attemptId}`, {
+              signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+              throw new Error(`API responded with status: ${res.status}`);
+            }
+
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              throw new Error('API returned non-JSON content');
+            }
+
+            const data = await res.json();
+            if (data && data.success && data.quizData) {
+              console.log('Successfully retrieved quiz data from API');
+              return data.quizData;
+            } else {
+              throw new Error('API returned invalid data structure');
+            }
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              console.log("API request timed out");
+            } else {
+              console.log("API request failed:", error.message);
+            }
+            return null;
+          }
+        };
+
+        trySimpleAPIFetch()
+          .then((quizData) => {
+            if (quizData) {
+              setFallbackQuizData(quizData);
+              localStorage.setItem("quizData", JSON.stringify(quizData));
+              console.log("API fetch successful, data cached");
+            } else {
+              console.log("API fetch failed, proceeding without remote data");
+            }
+          })
+          .finally(() => {
+            setIsFetchingFallback(false);
+          });
+      } else {
+        console.log("No attempt ID available, proceeding without remote data");
+        setIsFetchingFallback(false);
+      }
+    }
+  }, [quizData, fallbackQuizData, isFetchingFallback]);
+
   // Check localStorage if no quiz data is provided via props
   const savedQuizData = React.useMemo(() => {
     console.log("ResultsWrapper - checking quiz data...");
@@ -907,6 +1017,18 @@ const ResultsWrapperWithReset: React.FC<{
   // React.useEffect(() => {
   //   setShowCongratulations(false);
   // }, [setShowCongratulations]);
+
+  // Show loading while fetching fallback data
+  if (isFetchingFallback && !savedQuizData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading your quiz results...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (savedQuizData) {
     console.log("Rendering Results component with savedQuizData");
@@ -977,7 +1099,8 @@ const ResultsWrapperWithReset: React.FC<{
 
 function App() {
   return (
-    <AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
       <AIInsightsProvider>
         <PaywallProvider>
           <BusinessModelScoresProvider>
@@ -1136,6 +1259,7 @@ function App() {
         </PaywallProvider>
       </AIInsightsProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

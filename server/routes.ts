@@ -209,11 +209,12 @@ export async function registerRoutes(app: Express): Promise<void> {
   // prefix all routes with /api
 
   // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // e.g. storage.insertUser(user) or storage.getUserByEmail(email)
 
   // CORS preflight handler for OpenAI chat endpoint
   app.options("/api/openai-chat", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
@@ -222,7 +223,8 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // OpenAI configuration status (secure - no sensitive info exposed)
   app.get("/api/openai-status", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
@@ -236,7 +238,8 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Stripe configuration endpoint (secure - only exposes publishable key)
   app.get("/api/stripe-config", (req: Request, res: Response) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
@@ -254,7 +257,8 @@ export async function registerRoutes(app: Express): Promise<void> {
   // General OpenAI chat endpoint
   app.post("/api/openai-chat", async (req: Request, res: Response) => {
     // Add CORS headers
-    res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
+    res.header("Access-Control-Allow-Origin", origin);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type");
@@ -3289,7 +3293,7 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         if (!user) {
           return res.status(404).json({ error: 'User not found' });
         }
-        await storage.updateUser(user.id, { isPaid: true, isTemporary: false });
+        await storage.makeUserPaidAndRemoveQuizExpiration(user.id);
         res.json({ success: true, userId: user.id });
       } catch (error) {
         res.status(500).json({ error: 'Failed to mark user as paid', details: error?.message });

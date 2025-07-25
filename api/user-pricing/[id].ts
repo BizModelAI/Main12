@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTokenFromRequest, verifyToken } from 'api/_lib/jwtUtils';
-import { storage } from 'api/_lib/storage';
+import { getTokenFromRequest, verifyToken } from '../_lib/jwtUtils';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -30,4 +30,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   // Example: return static pricing info
   res.status(200).json({ userId: id, pricing: { plan: user.isPaid ? 'paid' : 'free', price: user.isPaid ? 99 : 0 } });
-} 
+}

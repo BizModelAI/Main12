@@ -131,15 +131,26 @@ const CongratulationsLoggedIn: React.FC<LoggedInCongratulationsProps> = ({
   };
 
   const handleContinueToResults = () => {
+    console.log('CongratulationsLoggedIn: Preparing for navigation to results');
+
     // Ensure currentQuizAttemptId exists
     let attemptId = localStorage.getItem("currentQuizAttemptId");
     if (!attemptId) {
       attemptId = uuidv4();
       localStorage.setItem("currentQuizAttemptId", attemptId);
+      console.log('Generated new attempt ID:', attemptId);
     }
+
+    // Ensure all data is properly saved with extended expiration
     if (quizData) {
       localStorage.setItem("quizData", JSON.stringify(quizData));
+      localStorage.setItem("quizDataTimestamp", Date.now().toString());
+      // Set expiration to 24 hours from now to prevent premature cleanup
+      const expirationTime = Date.now() + 24 * 60 * 60 * 1000;
+      localStorage.setItem("quizDataExpires", expirationTime.toString());
+      console.log('Saved quiz data with expiration:', new Date(expirationTime));
     }
+
     // Now navigate or call onStartAIGeneration
     onStartAIGeneration();
   };

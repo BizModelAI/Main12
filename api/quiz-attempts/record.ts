@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTokenFromRequest, verifyToken } from 'api/_lib/jwtUtils';
-import { storage } from 'api/_lib/storage';
+import { getTokenFromRequest, verifyToken } from '../_lib/jwtUtils';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -22,6 +22,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(400).json({ error: 'Missing quizData' });
     return;
   }
-  const attempt = await storage.recordQuizAttempt({ userId: payload.userId, quizData });
-  res.status(200).json({ success: true, attemptId: attempt.id });
-} 
+
+  try {
+    const attempt = await storage.recordQuizAttempt({ userId: payload.userId, quizData });
+    res.status(200).json({ success: true, attemptId: attempt.id });
+  } catch (error) {
+    console.error('Quiz attempt record error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to record quiz attempt'
+    });
+  }
+}

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from 'api/_lib/storage';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -19,4 +19,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Implement conversion logic here, e.g. update user type
   await storage.updateUser(userId, { isTemporary: false });
   res.status(200).json({ success: true });
-} 
+}

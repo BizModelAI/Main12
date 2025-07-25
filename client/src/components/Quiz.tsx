@@ -872,12 +872,59 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
           localStorage.setItem("currentQuizAttemptId", quizAttemptId);
         }
 
-        // Record the quiz attempt if userId is provided
-        // Quiz attempts are now free and saved automatically via Results component
-        if (userId) {
+        // Save quiz data to database for all users
+        try {
+          if (userId) {
+            // Authenticated user - save via auth endpoint
+            const response = await fetch("/api/quiz-attempts/record", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({ quizData: formData }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Quiz data saved for authenticated user:", data);
+              toast({
+                title: "Quiz Completed!",
+                description: "Your responses have been saved to your account.",
+              });
+            }
+          } else {
+            // Guest user - save via guest endpoint
+            const response = await fetch("/api/quiz-attempts/record-guest", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                quizData: formData,
+                quizAttemptId: quizAttemptId
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("Quiz data saved for guest user:", data);
+              // Store the user ID for later reference
+              if (data.userId) {
+                localStorage.setItem("tempUserId", data.userId.toString());
+              }
+              toast({
+                title: "Quiz Completed!",
+                description: "Your responses have been saved temporarily.",
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error saving quiz data:", error);
+          // Continue with completion even if save fails
           toast({
             title: "Quiz Completed!",
-            description: "Your responses will be saved when you view results.",
+            description: "Your results are ready to view.",
           });
         }
 
