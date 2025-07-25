@@ -201,7 +201,10 @@ function MainAppContent() {
         const expireTime = parseInt(expiresAt);
         const now = Date.now();
 
-        if (now > expireTime) {
+        // Add buffer time to prevent clearing data during navigation
+        const bufferTime = 2 * 60 * 1000; // 2 minutes buffer
+        if (now > (expireTime + bufferTime)) {
+          console.log('Cleaning up expired quiz data');
           localStorage.removeItem("quizData");
           localStorage.removeItem("quizDataTimestamp");
           localStorage.removeItem("quizDataExpires");
