@@ -4,7 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "cd client && yarn dev",
+    "dev": "concurrently \"yarn dev:backend\" \"cd client && yarn dev\"",
+    "dev:frontend": "cd client && yarn dev",
     "build": "cd client && yarn install && yarn build",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
