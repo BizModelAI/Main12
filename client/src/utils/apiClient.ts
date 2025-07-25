@@ -1,3 +1,80 @@
+// API Routes constants
+export const API_ROUTES = {
+  AUTH_ME: '/api/auth/me',
+  AUTH_LOGIN: '/api/auth/login', 
+  AUTH_SIGNUP: '/api/auth/signup',
+  AUTH_LOGOUT: '/api/auth/logout',
+  AUTH_LATEST_QUIZ_DATA: '/api/auth/latest-quiz-data',
+} as const;
+
+// Custom API Error class
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public statusText?: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+// Base API request function
+async function apiRequest(
+  url: string,
+  options: RequestInit = {},
+): Promise<any> {
+  const response = await fetch(url, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      // If response isn't JSON, use status text
+    }
+    throw new ApiError(errorMessage, response.status, response.statusText);
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await response.json();
+  }
+  
+  return await response.text();
+}
+
+// HTTP method wrappers
+export async function apiGet(url: string): Promise<any> {
+  return apiRequest(url, { method: 'GET' });
+}
+
+export async function apiPost(url: string, data?: any): Promise<any> {
+  return apiRequest(url, {
+    method: 'POST',
+    body: data ? JSON.stringify(data) : undefined,
+  });
+}
+
+export async function apiPut(url: string, data?: any): Promise<any> {
+  return apiRequest(url, {
+    method: 'PUT', 
+    body: data ? JSON.stringify(data) : undefined,
+  });
+}
+
+export async function apiDelete(url: string): Promise<any> {
+  return apiRequest(url, { method: 'DELETE' });
+}
+
 // Enhanced API client with timeout and retry logic
 export class APIClient {
   private static readonly DEFAULT_TIMEOUT = 30000; // 30 seconds
