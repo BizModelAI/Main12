@@ -341,7 +341,7 @@ ${userProfile}`;
         throw new Error(`Invalid JSON response: ${parseError.message}`);
       }
 
-      const content = data.content;
+      const content = data.choices?.[0]?.message?.content || data.content || data.text || '';
 
       // Parse the response
       const insightsMatch = content.match(/### Preview Insights\n([\s\S]*?)(?=\n###|$)/);
