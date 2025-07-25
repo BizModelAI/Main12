@@ -5,7 +5,15 @@ let prismaInstance: PrismaClient | null = null;
 
 function getPrismaClient(): PrismaClient {
   if (!prismaInstance) {
-    prismaInstance = new PrismaClient();
+    try {
+      prismaInstance = new PrismaClient({
+        errorFormat: 'minimal',
+        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error']
+      });
+    } catch (error) {
+      console.error('Failed to initialize Prisma client:', error);
+      throw new Error('Database connection failed');
+    }
   }
   return prismaInstance;
 }
