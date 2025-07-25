@@ -226,6 +226,15 @@ class Storage {
     await this.prisma.user.deleteMany({ where: { isTemporary: true, expiresAt: { lt: now } } });
   }
 
+  async cleanupExpiredQuizAttempts() {
+    const now = new Date();
+    const deletedAttempts = await this.prisma.quizAttempt.deleteMany({
+      where: { expiresAt: { lt: now } }
+    });
+    console.log(`Cleaned up ${deletedAttempts.count} expired quiz attempts`);
+    return deletedAttempts.count;
+  }
+
   async convertTemporaryUserToPaid(sessionId: string) {
     return await this.prisma.user.updateMany({
       where: { sessionId, isTemporary: true },
