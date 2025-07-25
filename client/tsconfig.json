@@ -1,11 +1,11 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
+  "include": ["src/**/*", "../shared/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
     "noEmit": false,
-    "outDir": "./server/dist",
+    "outDir": "./dist",
     "target": "ES2017",
     "module": "ESNext",
     "strict": true,
@@ -19,10 +19,10 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./client/src/types", "./server"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
     }
   }
 }
