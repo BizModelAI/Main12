@@ -24,4 +24,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   const latest = attempts[0];
   res.status(200).json({ latest });
-}
+} 
