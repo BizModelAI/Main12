@@ -996,15 +996,17 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
 
       const attemptId = quizAttemptId || localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
-        fetch(`/api/quiz-attempts/attempt/${attemptId}`)
+        fetch(`/api/quiz-attempts/by-id/${attemptId}`)
           .then((res) => res.json())
           .then((data) => {
-            if (data && data.quizData) {
+            if (data && data.success && data.quizData) {
               console.log('Retrieved quiz data from database:', data);
               setQuizDataState(data.quizData);
               if (data.id) {
                 setQuizAttemptId(data.id);
               }
+              // Also update localStorage with the correct ID
+              localStorage.setItem("currentQuizAttemptId", data.quizAttemptId || attemptId);
             }
           })
           .catch((err) => {
