@@ -300,9 +300,9 @@ ${userProfile}`;
 
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
-      // Generate fresh content with timeout and retry
+      // Generate fresh content using OpenAI chat endpoint directly
       const { APIClient } = await import('./apiClient');
-      const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`, {
+      const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -310,6 +310,8 @@ ${userProfile}`;
         credentials: "include",
         body: JSON.stringify({
           prompt: this.buildResultsPreviewPrompt(quizData, topPaths),
+          maxTokens: 1200,
+          temperature: 0.7
         }),
       }, 45000); // 45 second timeout for AI requests
 
