@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from 'api/_lib/storage';
+import { storage } from '../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -23,4 +23,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       total: refunds.length === limit + offset ? 'more_available' : refunds.length,
     },
   });
-} 
+}
