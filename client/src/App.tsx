@@ -884,58 +884,76 @@ const ResultsWrapperWithReset: React.FC<{
 
         // Try multiple API approaches in sequence
         const tryFetchQuizData = async () => {
-          try {
-            // First approach: Try the specific attempt ID endpoint
-            console.log("Trying specific attempt ID endpoint...");
-            const res = await fetch(`/api/quiz-attempts/by-id/${attemptId}`);
-            console.log("Response status:", res.status, res.statusText);
+          const endpoints = [
+            `/api/quiz-attempts/by-id/${attemptId}`,
+            `/api/quiz-attempts/${attemptId}`,
+            `/api/quiz-attempts/attempt/${attemptId}`
+          ];
 
-            if (res.status === 404) {
-              console.log("Attempt ID not found, trying alternative endpoints");
-              throw new Error("Attempt not found");
-            }
-
-            const contentType = res.headers.get('content-type');
-            console.log('API response content-type:', contentType);
-
-            if (!res.ok || !contentType || !contentType.includes('application/json')) {
-              const text = await res.text();
-              console.log('Non-JSON response received:', text.substring(0, 200));
-              throw new Error(`API returned non-JSON response: ${res.status}`);
-            }
-
-            const data = await res.json();
-            if (data && data.success && data.quizData) {
-              console.log('Retrieved quiz data from specific attempt ID:', data);
-              return data;
-            } else {
-              throw new Error('Invalid data structure in response');
-            }
-          } catch (error) {
-            console.log("Specific attempt ID failed, trying latest quiz data:", error.message);
-
-            // Second approach: Try latest quiz data endpoint
+          // Try each endpoint in sequence
+          for (let i = 0; i < endpoints.length; i++) {
+            const endpoint = endpoints[i];
             try {
-              const res = await fetch('/api/auth/latest-quiz-data', {
-                credentials: 'include'
-              });
+              console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoint}`);
+              const res = await fetch(endpoint);
+              console.log(`Response status: ${res.status} ${res.statusText}`);
+
+              if (res.status === 404) {
+                console.log("Endpoint not found, trying next...");
+                continue;
+              }
 
               const contentType = res.headers.get('content-type');
+              console.log('Response content-type:', contentType);
+
               if (!res.ok || !contentType || !contentType.includes('application/json')) {
-                throw new Error(`Latest quiz API returned non-JSON: ${res.status}`);
+                const text = await res.text();
+                console.log('Non-JSON response:', text.substring(0, 200));
+                continue;
               }
 
               const data = await res.json();
-              if (data && data.quizData) {
-                console.log('Retrieved latest quiz data as fallback:', data);
-                return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId };
+              console.log('Response data structure:', Object.keys(data));
+
+              // Handle different response structures
+              if (data && data.success && data.quizData) {
+                console.log('Retrieved quiz data from endpoint:', endpoint);
+                return data;
+              } else if (data && data.quizData) {
+                console.log('Retrieved quiz data (alternate structure) from endpoint:', endpoint);
+                return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId || attemptId };
               } else {
-                throw new Error('No valid quiz data in latest quiz response');
+                console.log('Invalid data structure, trying next endpoint');
+                continue;
               }
-            } catch (latestError) {
-              console.error("Latest quiz data also failed:", latestError.message);
-              throw new Error("All API endpoints failed");
+            } catch (error) {
+              console.log(`Endpoint ${endpoint} failed:`, error.message);
+              continue;
             }
+          }
+
+          // If all specific endpoints failed, try latest quiz data
+          try {
+            console.log("All specific endpoints failed, trying latest quiz data...");
+            const res = await fetch('/api/auth/latest-quiz-data', {
+              credentials: 'include'
+            });
+
+            const contentType = res.headers.get('content-type');
+            if (!res.ok || !contentType || !contentType.includes('application/json')) {
+              throw new Error(`Latest quiz API returned non-JSON: ${res.status}`);
+            }
+
+            const data = await res.json();
+            if (data && data.quizData) {
+              console.log('Retrieved latest quiz data as final fallback');
+              return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId };
+            } else {
+              throw new Error('No valid quiz data in latest quiz response');
+            }
+          } catch (latestError) {
+            console.error("Latest quiz data also failed:", latestError.message);
+            throw new Error("All API endpoints failed to return valid data");
           }
         };
 
