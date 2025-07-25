@@ -26,11 +26,21 @@ class Storage {
   }
 
   async getUser(id: number) {
-    return await this.prisma.user.findUnique({ where: { id } });
+    try {
+      return await this.prisma.user.findUnique({ where: { id } });
+    } catch (error) {
+      console.error('Database error in getUser:', error);
+      throw new Error('Failed to fetch user');
+    }
   }
 
   async getUserByEmail(email: string) {
-    return await this.prisma.user.findUnique({ where: { email } });
+    try {
+      return await this.prisma.user.findUnique({ where: { email } });
+    } catch (error) {
+      console.error('Database error in getUserByEmail:', error);
+      throw new Error('Failed to fetch user by email');
+    }
   }
 
   async createUser(data: any) {
