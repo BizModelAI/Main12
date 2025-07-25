@@ -699,16 +699,27 @@ ${userProfile}`;
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.authenticated) {
-          console.log(`User authenticated - will save to database`);
-          return true;
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.log('Auth endpoint returned non-JSON response, assuming not authenticated');
+          return false;
+        }
+
+        try {
+          const data = await response.json();
+          if (data.authenticated) {
+            console.log(`User authenticated - will save to database`);
+            return true;
+          }
+        } catch (parseError) {
+          console.log('Failed to parse auth response, assuming not authenticated');
+          return false;
         }
       }
 
       // For unpaid users, do not save to database (no userEmail check)
       console.log(
-        `Unpaid user hasn't provided email - will not save to database`,
+        `User not authenticated - will not save to database`,
       );
       return false;
     } catch (error) {
