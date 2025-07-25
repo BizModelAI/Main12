@@ -39,11 +39,11 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   next();
 });
 
-// Register routes
+// Register routes - temporarily disabled for Vercel deployment
 let isSetup = false;
 async function setupApp() {
   if (!isSetup) {
-    await registerRoutes(app);
+    // await registerRoutes(app); // Commented out for Vercel compatibility
 
     app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
       const status = err.status || err.statusCode || 500;
