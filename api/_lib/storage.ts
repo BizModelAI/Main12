@@ -44,15 +44,30 @@ class Storage {
   }
 
   async createUser(data: any) {
-    return await this.prisma.user.create({ data });
+    try {
+      return await this.prisma.user.create({ data });
+    } catch (error) {
+      console.error('Database error in createUser:', error);
+      throw new Error('Failed to create user');
+    }
   }
 
   async updateUser(id: number, data: any) {
-    return await this.prisma.user.update({ where: { id }, data });
+    try {
+      return await this.prisma.user.update({ where: { id }, data });
+    } catch (error) {
+      console.error('Database error in updateUser:', error);
+      throw new Error('Failed to update user');
+    }
   }
 
   async deleteUser(id: number) {
-    return await this.prisma.user.delete({ where: { id } });
+    try {
+      return await this.prisma.user.delete({ where: { id } });
+    } catch (error) {
+      console.error('Database error in deleteUser:', error);
+      throw new Error('Failed to delete user');
+    }
   }
 
   async recordQuizAttempt(data: any) {
