@@ -89,7 +89,7 @@ const PORT = 5173;
 
 server.listen(PORT, () => {
   console.log(`🚀 API server running on port ${PORT}`);
-  console.log(`🔗 CORS enabled for http://localhost:5173`);
+  console.log(`🔗 CORS enabled for ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
