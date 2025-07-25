@@ -300,8 +300,9 @@ ${userProfile}`;
 
       console.log(` Generating fresh preview insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
-      // Generate fresh content
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`, {
+      // Generate fresh content with timeout and retry
+      const { APIClient } = await import('./apiClient');
+      const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -310,7 +311,7 @@ ${userProfile}`;
         body: JSON.stringify({
           prompt: this.buildResultsPreviewPrompt(quizData, topPaths),
         }),
-      });
+      }, 45000); // 45 second timeout for AI requests
 
       if (!response.ok) {
         throw new Error(`OpenAI API error: ${response.status}`);
