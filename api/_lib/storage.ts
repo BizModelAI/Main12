@@ -331,9 +331,36 @@ class Storage {
   }
 
   async convertTemporaryUserToPaid(sessionId: string) {
+    // First get the user to find their ID
+    const user = await this.prisma.user.findFirst({
+      where: { sessionId, isTemporary: true }
+    });
+
+    if (user) {
+      // Remove expiration from all quiz attempts for this user (now permanent)
+      await this.prisma.quizAttempt.updateMany({
+        where: { userId: user.id },
+        data: { expiresAt: null }
+      });
+    }
+
     return await this.prisma.user.updateMany({
       where: { sessionId, isTemporary: true },
       data: { isPaid: true, isTemporary: false, sessionId: undefined, tempQuizData: undefined, expiresAt: undefined, updatedAt: new Date() },
+    });
+  }
+
+  async makeUserPaidAndRemoveQuizExpiration(userId: number) {
+    // Update user to paid status
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { isPaid: true, isTemporary: false, expiresAt: null }
+    });
+
+    // Remove expiration from all quiz attempts for this user (now permanent)
+    await this.prisma.quizAttempt.updateMany({
+      where: { userId: userId },
+      data: { expiresAt: null }
     });
   }
 
