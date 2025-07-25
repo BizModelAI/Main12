@@ -17,7 +17,7 @@ export interface AuthPayload {
 }
 
 export function signToken(payload: AuthPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJWTSecret(), {
     expiresIn: JWT_EXPIRES_IN,
     algorithm: 'HS256',
   });
@@ -25,7 +25,7 @@ export function signToken(payload: AuthPayload): string {
 
 export function verifyToken(token: string): AuthPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as AuthPayload;
+    return jwt.verify(token, getJWTSecret()) as AuthPayload;
   } catch (e) {
     return null;
   }
