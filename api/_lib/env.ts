@@ -29,8 +29,13 @@ export function validateOptionalEnvVars() {
   }
 }
 
-// Auto-validate on import in production
+// Auto-validate on import in production - but catch errors to prevent crash
 if (process.env.NODE_ENV === 'production') {
-  validateRequiredEnvVars();
-  validateOptionalEnvVars();
+  try {
+    validateRequiredEnvVars();
+    validateOptionalEnvVars();
+  } catch (error) {
+    console.error('Environment validation failed:', error);
+    // Don't throw - let individual functions handle validation
+  }
 }
