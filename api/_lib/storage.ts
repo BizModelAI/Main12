@@ -62,9 +62,17 @@ class Storage {
 
   async createUser(data: any) {
     try {
+      // Check if user already exists with this email
+      const existingUser = await this.getUserByEmail(data.email);
+      if (existingUser) {
+        throw new Error('User with this email already exists');
+      }
       return await this.prisma.user.create({ data });
     } catch (error) {
       console.error('Database error in createUser:', error);
+      if (error instanceof Error && error.message.includes('already exists')) {
+        throw error; // Re-throw our custom error message
+      }
       throw new Error('Failed to create user');
     }
   }
