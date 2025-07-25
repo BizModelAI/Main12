@@ -363,12 +363,16 @@ ${userProfile}`;
       let data;
       try {
         data = JSON.parse(responseText);
+        console.log("✅ Successfully parsed OpenAI API response");
+        console.log("📄 Response data keys:", Object.keys(data));
       } catch (parseError) {
-        console.error('Failed to parse API response as JSON:', responseText);
+        console.error('❌ Failed to parse API response as JSON:', responseText);
         if (responseText.includes('<!doctype') || responseText.includes('<html')) {
-          throw new Error('API returned HTML instead of JSON. Check if the API endpoint exists.');
+          console.warn('⚠️ Received HTML response instead of JSON, using fallback');
+          return this.getFallbackResultsPreview(quizData, topPaths);
         }
-        throw new Error(`Invalid JSON response: ${parseError.message}`);
+        console.error('💥 JSON parse error, using fallback:', parseError);
+        return this.getFallbackResultsPreview(quizData, topPaths);
       }
 
       const content = data.choices?.[0]?.message?.content || data.content || data.text || '';
