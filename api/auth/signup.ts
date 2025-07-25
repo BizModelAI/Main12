@@ -129,7 +129,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(201).json({
       id: user.id,
       email: user.email,
-      email: email,
       firstName: firstName,
       lastName: lastName,
       hasAccessPass: false,
