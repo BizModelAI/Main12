@@ -351,7 +351,8 @@ ${userProfile}`;
 
         // If OpenAI API key is not configured, use fallback
         if (response.status === 500 && responseText.includes('not configured')) {
-          console.warn('⚠️ OpenAI API key not configured, using fallback content');
+          console.warn('⚠️ OpenAI API key not configured - AI insights disabled');
+          console.warn('💡 To enable AI insights, set OPENAI_API_KEY environment variable');
           return this.getFallbackResultsPreview(quizData, topPaths);
         }
 
