@@ -7,6 +7,14 @@
   "functions": {
     "api/**/*.ts": {
       "runtime": "nodejs20.x",
+      "memory": 512
+    },
+    "api/openai-chat.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 1024
+    },
+    "api/ai-business-fit-analysis.ts": {
+      "runtime": "nodejs20.x",
       "memory": 1024
     }
   },
