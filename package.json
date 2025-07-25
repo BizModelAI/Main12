@@ -8,10 +8,6 @@
     "build": "cd client && yarn install && yarn build",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
-
-
-
-
     "cleanup-expired-data": "tsx scripts/cleanup-expired-data.ts",
     "remove-quiz-attempt-expiration": "tsx scripts/remove-quiz-attempt-expiration.ts",
     "check-emoji-corruption": "node scripts/check-emoji-corruption.js",
