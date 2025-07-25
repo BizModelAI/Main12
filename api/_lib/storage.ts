@@ -1,10 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 
+// Singleton database connection for serverless environments
+let prismaInstance: PrismaClient | null = null;
+
+function getPrismaClient(): PrismaClient {
+  if (!prismaInstance) {
+    prismaInstance = new PrismaClient();
+  }
+  return prismaInstance;
+}
+
 class Storage {
   private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = getPrismaClient();
   }
 
   async getUser(id: number) {
