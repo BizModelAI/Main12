@@ -336,7 +336,14 @@ ${userProfile}`;
 
         // Check if response is HTML (indicates API endpoint not found or server error)
         if (errorText.includes('<!doctype') || errorText.includes('<html')) {
-          throw new Error(`API endpoint not found or server error. Expected JSON but got HTML. Status: ${response.status}`);
+          console.warn('OpenAI API endpoint not available, using fallback content');
+          return this.getFallbackResultsPreview(quizData, topPaths);
+        }
+
+        // If OpenAI API key is not configured, use fallback
+        if (response.status === 500 && errorText.includes('not configured')) {
+          console.warn('OpenAI API key not configured, using fallback content');
+          return this.getFallbackResultsPreview(quizData, topPaths);
         }
 
         throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
