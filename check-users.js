@@ -11,7 +11,7 @@ async function checkUsers() {
     console.log(`Found ${allUsers.length} paid users:`);
     allUsers.forEach((user) => {
       console.log(
-        `- ID: ${user.id}, Email: ${user.username}, HasAccess: ${user.hasAccessPass}, Created: ${user.createdAt}`,
+        `- ID: ${user.id}, Email: ${user.email}, HasAccess: ${user.hasAccessPass}, Created: ${user.createdAt}`,
       );
     });
 
