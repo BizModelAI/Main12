@@ -880,60 +880,77 @@ const ResultsWrapperWithReset: React.FC<{
 
       const attemptId = localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
-        fetch(`/api/quiz-attempts/by-id/${attemptId}`)
-          .then(async (res) => {
+        console.log("Attempting to fetch quiz data with attempt ID:", attemptId);
+
+        // Try multiple API approaches in sequence
+        const tryFetchQuizData = async () => {
+          try {
+            // First approach: Try the specific attempt ID endpoint
+            console.log("Trying specific attempt ID endpoint...");
+            const res = await fetch(`/api/quiz-attempts/by-id/${attemptId}`);
+            console.log("Response status:", res.status, res.statusText);
+
+            if (res.status === 404) {
+              console.log("Attempt ID not found, trying alternative endpoints");
+              throw new Error("Attempt not found");
+            }
+
             const contentType = res.headers.get('content-type');
             console.log('API response content-type:', contentType);
 
-            if (!contentType || !contentType.includes('application/json')) {
+            if (!res.ok || !contentType || !contentType.includes('application/json')) {
               const text = await res.text();
-              console.log('Received non-JSON response:', text.substring(0, 200));
-              throw new Error('API returned HTML instead of JSON');
+              console.log('Non-JSON response received:', text.substring(0, 200));
+              throw new Error(`API returned non-JSON response: ${res.status}`);
             }
 
-            return res.json();
-          })
-          .then((data) => {
+            const data = await res.json();
             if (data && data.success && data.quizData) {
-              console.log('Retrieved fallback quiz data from API:', data);
-              setFallbackQuizData(data.quizData);
-              // Also update localStorage for future use
-              localStorage.setItem("quizData", JSON.stringify(data.quizData));
-              if (data.quizAttemptId) {
-                localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
-              }
+              console.log('Retrieved quiz data from specific attempt ID:', data);
+              return data;
             } else {
-              console.warn('API response does not contain valid quiz data:', data);
+              throw new Error('Invalid data structure in response');
             }
-          })
-          .catch((err) => {
-            console.error("Failed to fetch fallback quiz data:", err);
-            // Try alternative approach - get latest quiz data
-            console.log("Trying alternative approach to get latest quiz data");
-            fetch('/api/auth/latest-quiz-data', {
-              credentials: 'include'
-            })
-            .then(async (res) => {
+          } catch (error) {
+            console.log("Specific attempt ID failed, trying latest quiz data:", error.message);
+
+            // Second approach: Try latest quiz data endpoint
+            try {
+              const res = await fetch('/api/auth/latest-quiz-data', {
+                credentials: 'include'
+              });
+
               const contentType = res.headers.get('content-type');
-              if (!contentType || !contentType.includes('application/json')) {
-                console.log('Latest quiz data API also returned HTML');
-                return null;
+              if (!res.ok || !contentType || !contentType.includes('application/json')) {
+                throw new Error(`Latest quiz API returned non-JSON: ${res.status}`);
               }
-              return res.json();
-            })
-            .then((data) => {
+
+              const data = await res.json();
               if (data && data.quizData) {
                 console.log('Retrieved latest quiz data as fallback:', data);
-                setFallbackQuizData(data.quizData);
-                localStorage.setItem("quizData", JSON.stringify(data.quizData));
-                if (data.quizAttemptId) {
-                  localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
-                }
+                return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId };
+              } else {
+                throw new Error('No valid quiz data in latest quiz response');
               }
-            })
-            .catch((fallbackErr) => {
-              console.error("Fallback latest quiz data also failed:", fallbackErr);
-            });
+            } catch (latestError) {
+              console.error("Latest quiz data also failed:", latestError.message);
+              throw new Error("All API endpoints failed");
+            }
+          }
+        };
+
+        tryFetchQuizData()
+          .then((data) => {
+            setFallbackQuizData(data.quizData);
+            localStorage.setItem("quizData", JSON.stringify(data.quizData));
+            if (data.quizAttemptId) {
+              localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
+            }
+            console.log("Successfully retrieved fallback quiz data");
+          })
+          .catch((err) => {
+            console.error("All fallback attempts failed:", err.message);
+            console.log("Will proceed without fallback data");
           })
           .finally(() => {
             setIsFetchingFallback(false);
