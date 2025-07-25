@@ -314,10 +314,31 @@ ${userProfile}`;
       }, 45000); // 45 second timeout for AI requests
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('AI API Error Response:', errorText);
+
+        // Check if response is HTML (indicates API endpoint not found or server error)
+        if (errorText.includes('<!doctype') || errorText.includes('<html')) {
+          throw new Error(`API endpoint not found or server error. Expected JSON but got HTML. Status: ${response.status}`);
+        }
+
+        throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      // Validate JSON response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse API response as JSON:', responseText);
+        if (responseText.includes('<!doctype') || responseText.includes('<html')) {
+          throw new Error('API returned HTML instead of JSON. Check if the API endpoint exists.');
+        }
+        throw new Error(`Invalid JSON response: ${parseError.message}`);
+      }
+
       const content = data.content;
 
       // Parse the response
