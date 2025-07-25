@@ -33,16 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Import and call the main signup logic
-    const { setupAuthRoutes } = await import("../../server/auth.js");
-    const express = await import("express");
-
-    // Create a mini express app just for this route
-    const app = express.default();
-    app.use(express.json());
-
-    // Set up the auth routes
-    setupAuthRoutes(app);
+    // Use direct imports from _lib utilities
+    const bcrypt = await import("bcrypt");
+    const { storage } = await import("../_lib/storage");
+    const { signToken, setAuthCookie } = await import("../_lib/jwtUtils");
 
     // Create mock request/response objects
     const mockReq: any = {
@@ -68,9 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     };
 
-    // Find and call the signup handler directly
-    const bcrypt = await import("bcrypt");
-    const { storage } = await import("../../server/storage.js");
+    // Direct signup logic using _lib utilities
 
     // Direct signup logic (simplified version of auth.ts)
     const { email, password, name } = req.body;
