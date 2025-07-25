@@ -19,8 +19,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Validate OpenAI API key
     const apiKey = process.env.OPENAI_API_KEY;
+    console.log('🔑 Checking OpenAI API key:', apiKey ? 'Present' : 'Missing');
     if (!apiKey) {
-      console.error('OpenAI API key not configured');
+      console.error('❌ OpenAI API key not configured');
       res.status(500).json({ error: 'OpenAI API key not configured' });
       return;
     }
