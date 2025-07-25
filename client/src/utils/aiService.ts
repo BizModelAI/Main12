@@ -1103,11 +1103,11 @@ ${userProfile}`,
     const topPath = topPaths[0] || { name: "Entrepreneurship", fitScore: 75 };
 
     return {
-      previewInsights: `Based on your quiz responses, ${topPath.name} appears to be a strong match for your goals and personality traits. Your responses indicate you have the right mindset and preferences for this type of business model.
+      previewInsights: `Based on your comprehensive quiz responses, ${topPath.name} emerges as your strongest business model match with a ${topPath.fitScore}% compatibility score. Your answers reveal a personality profile and goal alignment that naturally fits this entrepreneurial path.
 
-Your risk tolerance and working style preferences align well with the requirements of ${topPath.name}. This suggests you would be comfortable with the typical challenges and opportunities this business model presents.
+Your demonstrated risk tolerance, working style preferences, and time investment capabilities align exceptionally well with what ${topPath.name} demands. This convergence suggests you possess the fundamental mindset needed to navigate both the challenges and opportunities this business model typically presents.
 
-While you show promise in this area, success will depend on developing the specific skills and knowledge required for ${topPath.name}. Consider focusing on building expertise in the core competencies this business model demands.`,
+Success in ${topPath.name} will ultimately depend on systematically developing the specialized skills and deep market knowledge this field requires. We recommend focusing your learning efforts on mastering the core competencies and operational frameworks that drive results in this specific business model.`,
 
       keyInsights: [
         `Your top business model match is ${topPath.name} with a ${topPath.fitScore}% compatibility score`,
