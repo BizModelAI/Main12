@@ -31,6 +31,10 @@ export class PDFService {
   }
 
   async initializeBrowser(): Promise<void> {
+    if (!puppeteer) {
+      throw new Error("Puppeteer is not available - PDF generation disabled");
+    }
+
     if (!this.browser) {
       try {
         // Vercel-compatible configuration
