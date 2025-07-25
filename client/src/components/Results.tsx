@@ -962,16 +962,32 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
   const missingQuizAttemptId = !quizAttemptId;
   const missingScores = !businessModelScores || businessModelScores.length === 0;
 
-  // Only show Session Expired if data is truly unrecoverable after fallback
-  if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing) {
-    console.warn("[Results] Session expired or required data missing:", {
-      missingQuizData,
-      missingQuizAttemptId,
-      missingScores,
-      quizData,
-      quizAttemptId,
-      businessModelScores
-    });
+  // Add delay before showing Session Expired to allow data loading
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
+
+  useEffect(() => {
+    if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing) {
+      console.warn("[Results] Data missing, waiting before showing session expired:", {
+        missingQuizData,
+        missingQuizAttemptId,
+        missingScores,
+        quizData,
+        quizAttemptId,
+        businessModelScores
+      });
+
+      // Wait 3 seconds before showing session expired to allow data loading
+      const timeout = setTimeout(() => {
+        console.error("[Results] Session expired - data still missing after waiting");
+        setShowSessionExpired(true);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing]);
+
+  // Only show Session Expired after waiting period
+  if (showSessionExpired) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
         <div className="max-w-xl mx-auto text-center bg-white rounded-3xl shadow-2xl p-8 md:p-12">
