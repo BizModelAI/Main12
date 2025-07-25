@@ -854,6 +854,39 @@ const ResultsWrapperWithReset: React.FC<{
   const [isFetchingFallback, setIsFetchingFallback] = React.useState(false);
   const [fallbackQuizData, setFallbackQuizData] = React.useState<QuizData | null>(null);
 
+  // Effect to fetch fallback data if none is available
+  React.useEffect(() => {
+    if (!quizData && !fallbackQuizData && !isFetchingFallback) {
+      console.log("No quiz data available, attempting to fetch from API");
+      setIsFetchingFallback(true);
+
+      const attemptId = localStorage.getItem("currentQuizAttemptId");
+      if (attemptId) {
+        fetch(`/api/quiz-attempts/by-id/${attemptId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.success && data.quizData) {
+              console.log('Retrieved fallback quiz data from API:', data);
+              setFallbackQuizData(data.quizData);
+              // Also update localStorage for future use
+              localStorage.setItem("quizData", JSON.stringify(data.quizData));
+              if (data.quizAttemptId) {
+                localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to fetch fallback quiz data:", err);
+          })
+          .finally(() => {
+            setIsFetchingFallback(false);
+          });
+      } else {
+        setIsFetchingFallback(false);
+      }
+    }
+  }, [quizData, fallbackQuizData, isFetchingFallback]);
+
   // Check localStorage if no quiz data is provided via props
   const savedQuizData = React.useMemo(() => {
     console.log("ResultsWrapper - checking quiz data...");
