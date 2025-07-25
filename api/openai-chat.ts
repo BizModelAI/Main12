@@ -64,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Call OpenAI API
     console.log('🤖 Making OpenAI API call with messages count:', openaiMessages.length);
-    console.log('🎛️ Request parameters:', { maxTokens: finalMaxTokens, temperature });
+    console.log('🎛️ Request parameters:', { maxTokens: max_tokens || maxTokens, temperature });
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
