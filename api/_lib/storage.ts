@@ -117,6 +117,28 @@ class Storage {
   }
 
   async recordQuizAttempt(data: any) {
+    // Set expiration based on user type if not already provided
+    if (!data.expiresAt) {
+      if (data.userId) {
+        // Check if user is paid or temporary
+        const user = await this.prisma.user.findUnique({ where: { id: data.userId } });
+        if (user) {
+          if (user.isPaid) {
+            // Paid users: no expiration (permanent storage)
+            data.expiresAt = null;
+          } else if (user.isTemporary) {
+            // Temporary users: 90 days
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          } else {
+            // Regular users (shouldn't happen but default to 90 days)
+            data.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+          }
+        }
+      } else {
+        // Anonymous users (no userId): 24 hours
+        data.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      }
+    }
     return await this.prisma.quizAttempt.create({ data });
   }
 
