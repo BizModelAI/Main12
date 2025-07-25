@@ -1099,8 +1099,10 @@ ${userProfile}`,
     previewInsights: string;
     keyInsights: string[];
     successPredictors: string[];
+    isFallback?: boolean;
   } {
     const topPath = topPaths[0] || { name: "Entrepreneurship", fitScore: 75 };
+    console.log("🔄 Using fallback content for results preview - OpenAI unavailable");
 
     return {
       previewInsights: `Based on your comprehensive quiz responses, ${topPath.name} emerges as your strongest business model match with a ${topPath.fitScore}% compatibility score. Your answers reveal a personality profile and goal alignment that naturally fits this entrepreneurial path.
