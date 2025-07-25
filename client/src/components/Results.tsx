@@ -755,13 +755,19 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     // Check if we have AI content available
     const hasAIContent = loadedReportData || hasBeenViewed;
 
-    // Show full report loading page only if this is the first time loading the full report
-    if (!hasLoadedFullReport && !hasAIContent) {
+    // Check if we have full report AI content already cached or in database
+    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+    const hasFullReportContent = quizAttemptId && localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
+
+    // Show full report loading page only if this is truly the first time and no cached content exists
+    if (!hasLoadedFullReport && !hasAIContent && !hasFullReportContent) {
       console.log("First time loading full report, showing full report loading page");
       setShowFullReportLoading(true);
       window.scrollTo({ top: 0, behavior: "instant" });
     } else {
-      // If we have preloaded data or have viewed before, go directly to the full report
+      // If we have preloaded data, cached content, or have viewed before, go directly to the full report
+      console.log("Full report content exists or already loaded, going directly to full report");
+      setHasLoadedFullReport(true); // Mark as loaded since we have content
       setShowFullReport(true);
       // Scroll to top of page immediately and then again after DOM update
       window.scrollTo({ top: 0, behavior: "instant" });
