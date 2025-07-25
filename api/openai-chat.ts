@@ -10,7 +10,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(500).json({ error: 'OpenAI API key not configured' });
     return;
   }
+  // Input validation
   const { prompt, messages, maxTokens = 1200, max_tokens, temperature = 0.7, responseFormat = null, systemMessage } = req.body;
+
+  // Validate prompt size
+  if (prompt && typeof prompt === 'string' && prompt.length > 10000) {
+    res.status(400).json({ error: 'Prompt too long (max 10,000 characters)' });
+    return;
+  }
+
+  // Validate messages array
+  if (messages && (!Array.isArray(messages) || messages.length > 50)) {
+    res.status(400).json({ error: 'Invalid messages format or too many messages (max 50)' });
+    return;
+  }
+
+  // Validate temperature
+  if (temperature < 0 || temperature > 2) {
+    res.status(400).json({ error: 'Temperature must be between 0 and 2' });
+    return;
+  }
   let openaiMessages = [];
   if (messages && Array.isArray(messages)) {
     openaiMessages = messages;
@@ -47,4 +66,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     res.status(500).json({ error: 'OpenAI request failed', details: error instanceof Error ? error.message : String(error) });
   }
-} 
+}
