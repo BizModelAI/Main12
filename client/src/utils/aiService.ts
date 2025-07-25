@@ -1125,7 +1125,8 @@ Success in ${topPath.name} will ultimately depend on systematically developing t
         "Your preferred working style and time management approach match the operational demands of successful ${topPath.name} ventures",
         "Your realistic understanding of both challenges and rewards indicates mature expectations essential for long-term business success",
         "Your learning preferences and skill development approach position you well for mastering the expertise this business model requires"
-      ]
+      ],
+      isFallback: true
     };
   }
 }
