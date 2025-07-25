@@ -3,6 +3,10 @@ import { getTokenFromRequest, verifyToken } from '../../../_lib/jwtUtils';
 import { storage } from '../../../_lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Always return JSON, never HTML
+  res.setHeader('Content-Type', 'application/json');
+
+  try {
   const token = getTokenFromRequest(req);
   if (!token) {
     res.status(401).json({ error: 'Not authenticated' });
@@ -53,5 +57,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(200).json({ success: true });
     return;
   }
-  res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('AI content API error:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to process AI content request'
+    });
+  }
 }
