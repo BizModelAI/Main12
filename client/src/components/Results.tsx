@@ -973,10 +973,11 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     await executeShareAction();
   };
 
-  // Check for required data
+  // Check for required data with more lenient scoring check
   const missingQuizData = !quizData;
   const missingQuizAttemptId = !quizAttemptId;
-  const missingScores = !businessModelScores || businessModelScores.length === 0;
+  // Only consider scores missing if we have quiz data but no scores calculated
+  const missingScores = quizData && (!businessModelScores || businessModelScores.length === 0);
 
   // Add delay before showing Session Expired to allow data loading
   const [showSessionExpired, setShowSessionExpired] = useState(false);
