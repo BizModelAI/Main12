@@ -993,18 +993,19 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
         businessModelScores
       });
 
-      // Wait 7 seconds before showing session expired to allow data loading
+      // Wait 5 seconds before showing session expired to allow data loading
       const timeout = setTimeout(() => {
         // Check again if data became available (including quizDataState)
         const hasQuizData = quizData || quizDataState;
         if (!hasQuizData) {
-          console.error("[Results] Session expired - data still missing after waiting");
-          console.log("Final check - quizData:", quizData, "quizDataState:", quizDataState);
+          console.log("[Results] Data still missing after waiting period");
+          console.log("Final check - quizData:", !!quizData, "quizDataState:", !!quizDataState);
+          console.log("Available localStorage keys:", Object.keys(localStorage).filter(k => k.includes('quiz')));
           setShowSessionExpired(true);
         } else {
           console.log("Data became available during waiting period");
         }
-      }, 7000);
+      }, 5000);
 
       return () => clearTimeout(timeout);
     }
