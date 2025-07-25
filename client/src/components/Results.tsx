@@ -986,6 +986,34 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     }
   }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing]);
 
+  // Try to retrieve quiz data from database before showing session expired
+  const [hasTriedDatabaseRetrieval, setHasTriedDatabaseRetrieval] = useState(false);
+
+  useEffect(() => {
+    if ((missingQuizData || missingQuizAttemptId || missingScores) && !isInitializing && !hasTriedDatabaseRetrieval) {
+      console.log('Attempting to retrieve quiz data from database');
+      setHasTriedDatabaseRetrieval(true);
+
+      const attemptId = quizAttemptId || localStorage.getItem("currentQuizAttemptId");
+      if (attemptId) {
+        fetch(`/api/quiz-attempts/attempt/${attemptId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.quizData) {
+              console.log('Retrieved quiz data from database:', data);
+              setQuizDataState(data.quizData);
+              if (data.id) {
+                setQuizAttemptId(data.id);
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to retrieve quiz data from database:", err);
+          });
+      }
+    }
+  }, [missingQuizData, missingQuizAttemptId, missingScores, isInitializing, hasTriedDatabaseRetrieval, quizAttemptId]);
+
   // Only show Session Expired after waiting period
   if (showSessionExpired) {
     return (
