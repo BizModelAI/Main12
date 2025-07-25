@@ -128,6 +128,17 @@ class Storage {
     return await this.prisma.quizAttempt.findUnique({ where: { id } });
   }
 
+  async getQuizAttemptByUUID(quizAttemptId: string) {
+    try {
+      return await this.prisma.quizAttempt.findFirst({
+        where: { quizAttemptId: quizAttemptId }
+      });
+    } catch (error) {
+      console.error('Database error in getQuizAttemptByUUID:', error);
+      throw new Error('Failed to fetch quiz attempt by UUID');
+    }
+  }
+
   async updateQuizAttempt(id: number, data: any) {
     return await this.prisma.quizAttempt.update({ where: { id }, data });
   }
