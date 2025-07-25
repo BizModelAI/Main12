@@ -908,6 +908,32 @@ const ResultsWrapperWithReset: React.FC<{
           })
           .catch((err) => {
             console.error("Failed to fetch fallback quiz data:", err);
+            // Try alternative approach - get latest quiz data
+            console.log("Trying alternative approach to get latest quiz data");
+            fetch('/api/auth/latest-quiz-data', {
+              credentials: 'include'
+            })
+            .then(async (res) => {
+              const contentType = res.headers.get('content-type');
+              if (!contentType || !contentType.includes('application/json')) {
+                console.log('Latest quiz data API also returned HTML');
+                return null;
+              }
+              return res.json();
+            })
+            .then((data) => {
+              if (data && data.quizData) {
+                console.log('Retrieved latest quiz data as fallback:', data);
+                setFallbackQuizData(data.quizData);
+                localStorage.setItem("quizData", JSON.stringify(data.quizData));
+                if (data.quizAttemptId) {
+                  localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
+                }
+              }
+            })
+            .catch((fallbackErr) => {
+              console.error("Fallback latest quiz data also failed:", fallbackErr);
+            });
           })
           .finally(() => {
             setIsFetchingFallback(false);
