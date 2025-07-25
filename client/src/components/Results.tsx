@@ -225,7 +225,17 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
   const [showAILoading, setShowAILoading] = useState(false);
   const [showFullReportLoading, setShowFullReportLoading] = useState(false);
   const [loadedReportData, setLoadedReportData] = useState<any>(null);
-  const [hasLoadedFullReport, setHasLoadedFullReport] = useState(false);
+  const [hasLoadedFullReport, setHasLoadedFullReport] = useState(() => {
+    // Check if we have AI content in localStorage or database to avoid showing loading page again
+    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+    if (quizAttemptId) {
+      const cachedContent = localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
+      if (cachedContent) {
+        return true; // We have cached content, no need to show loading again
+      }
+    }
+    return false;
+  });
   const [personalizedPaths, setPersonalizedPaths] = useState<BusinessPath[]>(
     [],
   );
