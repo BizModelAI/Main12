@@ -165,6 +165,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       isMounted = false; // Cleanup function to prevent state updates after unmount
+      if (activeXhr) {
+        activeXhr.abort(); // Abort any pending requests
+        activeXhr = null;
+      }
     };
   }, []);
 
