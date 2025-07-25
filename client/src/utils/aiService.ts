@@ -1110,10 +1110,11 @@ Your demonstrated risk tolerance, working style preferences, and time investment
 Success in ${topPath.name} will ultimately depend on systematically developing the specialized skills and deep market knowledge this field requires. We recommend focusing your learning efforts on mastering the core competencies and operational frameworks that drive results in this specific business model.`,
 
       keyInsights: [
-        `Your top business model match is ${topPath.name} with a ${topPath.fitScore}% compatibility score`,
-        "Your risk tolerance and working preferences align with entrepreneurial ventures",
-        "You show potential for business ownership based on your personality traits",
-        "Success will require focused skill development in your chosen business area"
+        `${topPath.name} achieves a ${topPath.fitScore}% compatibility match with your unique profile and entrepreneurial goals`,
+        "Your demonstrated risk tolerance and investment preferences perfectly align with this business model's requirements",
+        "Your personality traits and working style preferences indicate strong potential for sustainable success in this field",
+        "Strategic skill development in core ${topPath.name} competencies will be your primary pathway to achieving results",
+        "Your time availability and commitment level match the typical demands this business model requires for profitability"
       ],
 
       successPredictors: [
