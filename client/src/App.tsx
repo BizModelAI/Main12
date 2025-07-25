@@ -875,119 +875,83 @@ const ResultsWrapperWithReset: React.FC<{
   // Effect to fetch fallback data if none is available
   React.useEffect(() => {
     if (!quizData && !fallbackQuizData && !isFetchingFallback) {
-      console.log("No quiz data available, attempting to fetch from API");
+      console.log("No quiz data available, checking localStorage first");
       setIsFetchingFallback(true);
 
+      // First priority: Check localStorage
+      const savedQuizData = localStorage.getItem("quizData");
+      if (savedQuizData) {
+        try {
+          const parsed = JSON.parse(savedQuizData);
+          console.log("Found existing quiz data in localStorage, using immediately");
+          setFallbackQuizData(parsed);
+          setIsFetchingFallback(false);
+          return;
+        } catch (error) {
+          console.error("Failed to parse localStorage quiz data:", error);
+        }
+      }
+
+      // Only try API if localStorage doesn't have data
       const attemptId = localStorage.getItem("currentQuizAttemptId");
       if (attemptId) {
-        console.log("Attempting to fetch quiz data with attempt ID:", attemptId);
+        console.log("No localStorage data, attempting API fetch with ID:", attemptId);
 
-        // Try multiple API approaches in sequence
-        const tryFetchQuizData = async () => {
-          const endpoints = [
-            `/api/quiz-attempts/by-id/${attemptId}`,
-            `/api/quiz-attempts/${attemptId}`,
-            `/api/quiz-attempts/attempt/${attemptId}`
-          ];
-
-          // Try each endpoint in sequence
-          for (let i = 0; i < endpoints.length; i++) {
-            const endpoint = endpoints[i];
-            try {
-              console.log(`Trying endpoint ${i + 1}/${endpoints.length}: ${endpoint}`);
-              const res = await fetch(endpoint);
-              console.log(`Response status: ${res.status} ${res.statusText}`);
-
-              if (res.status === 404) {
-                console.log("Endpoint not found, trying next...");
-                continue;
-              }
-
-              const contentType = res.headers.get('content-type');
-              console.log('Response content-type:', contentType);
-
-              if (!res.ok || !contentType || !contentType.includes('application/json')) {
-                const text = await res.text();
-                console.log('Non-JSON response:', text.substring(0, 200));
-                continue;
-              }
-
-              const data = await res.json();
-              console.log('Response data structure:', Object.keys(data));
-
-              // Handle different response structures
-              if (data && data.success && data.quizData) {
-                console.log('Retrieved quiz data from endpoint:', endpoint);
-                return data;
-              } else if (data && data.quizData) {
-                console.log('Retrieved quiz data (alternate structure) from endpoint:', endpoint);
-                return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId || attemptId };
-              } else {
-                console.log('Invalid data structure, trying next endpoint');
-                continue;
-              }
-            } catch (error) {
-              console.log(`Endpoint ${endpoint} failed:`, error.message);
-              continue;
-            }
-          }
-
-          // If all specific endpoints failed, try latest quiz data
+        // Simplified API approach with timeout
+        const trySimpleAPIFetch = async () => {
           try {
-            console.log("All specific endpoints failed, trying latest quiz data...");
-            const res = await fetch('/api/auth/latest-quiz-data', {
-              credentials: 'include'
+            // Set a timeout for the entire operation
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+            console.log("Trying simple API fetch with timeout...");
+            const res = await fetch(`/api/quiz-attempts/by-id/${attemptId}`, {
+              signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
+
+            if (!res.ok) {
+              throw new Error(`API responded with status: ${res.status}`);
+            }
+
             const contentType = res.headers.get('content-type');
-            if (!res.ok || !contentType || !contentType.includes('application/json')) {
-              throw new Error(`Latest quiz API returned non-JSON: ${res.status}`);
+            if (!contentType || !contentType.includes('application/json')) {
+              throw new Error('API returned non-JSON content');
             }
 
             const data = await res.json();
-            if (data && data.quizData) {
-              console.log('Retrieved latest quiz data as final fallback');
-              return { success: true, quizData: data.quizData, quizAttemptId: data.quizAttemptId };
+            if (data && data.success && data.quizData) {
+              console.log('Successfully retrieved quiz data from API');
+              return data.quizData;
             } else {
-              throw new Error('No valid quiz data in latest quiz response');
+              throw new Error('API returned invalid data structure');
             }
-          } catch (latestError) {
-            console.error("Latest quiz data also failed:", latestError.message);
-            throw new Error("All API endpoints failed to return valid data");
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              console.log("API request timed out");
+            } else {
+              console.log("API request failed:", error.message);
+            }
+            return null;
           }
         };
 
-        tryFetchQuizData()
-          .then((data) => {
-            setFallbackQuizData(data.quizData);
-            localStorage.setItem("quizData", JSON.stringify(data.quizData));
-            if (data.quizAttemptId) {
-              localStorage.setItem("currentQuizAttemptId", String(data.quizAttemptId));
+        trySimpleAPIFetch()
+          .then((quizData) => {
+            if (quizData) {
+              setFallbackQuizData(quizData);
+              localStorage.setItem("quizData", JSON.stringify(quizData));
+              console.log("API fetch successful, data cached");
+            } else {
+              console.log("API fetch failed, proceeding without remote data");
             }
-            console.log("Successfully retrieved fallback quiz data");
-          })
-          .catch((err) => {
-            console.error("All fallback attempts failed:", err.message);
-            console.log("Will proceed without fallback data");
           })
           .finally(() => {
             setIsFetchingFallback(false);
           });
       } else {
-        console.log("No attempt ID available for fallback data fetch");
-
-        // Final fallback: Check if we have any quiz data in localStorage
-        const savedQuizData = localStorage.getItem("quizData");
-        if (savedQuizData) {
-          try {
-            const parsed = JSON.parse(savedQuizData);
-            console.log("Found existing quiz data in localStorage as ultimate fallback");
-            setFallbackQuizData(parsed);
-          } catch (error) {
-            console.error("Failed to parse existing localStorage quiz data:", error);
-          }
-        }
-
+        console.log("No attempt ID available, proceeding without remote data");
         setIsFetchingFallback(false);
       }
     }
