@@ -104,20 +104,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(409).json({ error: "User already exists" });
     }
 
-    // Create session ID
-    const sessionId = `vercel_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Store user data
-    // TODO: Confirm if this should be createUser or another method
-    await storage.createUser({ sessionId, email, firstName, lastName });
+    // Create user in database
+    const user = await storage.createUser({
+      email,
+      password: hashedPassword,
+      firstName: name,
+      lastName: ""
+    });
+
+    // Generate JWT token
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      isPaid: user.isPaid || false
+    });
+
+    // Set auth cookie
+    setAuthCookie(res, token);
 
     // Return success response
-    return res.status(200).json({
-      id: `temp_${sessionId}`,
-      username: email,
+    return res.status(201).json({
+      id: user.id,
+      email: user.email,
       email: email,
       firstName: firstName,
       lastName: lastName,
