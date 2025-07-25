@@ -69,6 +69,27 @@ class Storage {
     }
   }
 
+  async createTemporaryUser(data: { email: string; sessionId: string; quizAttemptId: string }) {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email: data.email,
+          password: 'temp', // Temporary password
+          firstName: 'Guest',
+          lastName: 'User',
+          isTemporary: true,
+          sessionId: data.sessionId,
+          quizAttemptId: data.quizAttemptId,
+          createdAt: new Date(),
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
+        }
+      });
+    } catch (error) {
+      console.error('Database error in createTemporaryUser:', error);
+      throw new Error('Failed to create temporary user');
+    }
+  }
+
   async updateUser(id: number, data: any) {
     try {
       return await this.prisma.user.update({ where: { id }, data });
