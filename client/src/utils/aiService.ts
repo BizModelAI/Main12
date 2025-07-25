@@ -424,6 +424,20 @@ ${userProfile}`;
         successPredictors,
       };
 
+      console.log("🎉 Final AI-generated result:", {
+        previewInsightsLength: result.previewInsights.length,
+        keyInsightsCount: result.keyInsights.length,
+        successPredictorsCount: result.successPredictors.length
+      });
+
+      // If the parsing failed or content is too generic, use fallback
+      if (!result.previewInsights || result.previewInsights.length < 100 ||
+          result.keyInsights.length === 0 ||
+          result.successPredictors.length === 0) {
+        console.warn('⚠️ AI content parsing failed or too short, using fallback');
+        return this.getFallbackResultsPreview(quizData, topPaths);
+      }
+
       // Save to database if we have a quiz attempt ID
       if (quizAttemptId) {
         try {
@@ -434,6 +448,7 @@ ${userProfile}`;
         }
       }
 
+      console.log("✅ Returning AI-generated content (not fallback)");
       return result;
     } catch (error) {
       console.error("Error generating results preview:", error);
