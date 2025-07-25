@@ -81,10 +81,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
 
+    console.log('📡 OpenAI API response status:', openaiResponse.status, openaiResponse.statusText);
+
     if (!openaiResponse.ok) {
       const errorData = await openaiResponse.text();
-      console.error('OpenAI API error:', openaiResponse.status, errorData);
-      res.status(openaiResponse.status).json({ 
+      console.error('❌ OpenAI API error:', openaiResponse.status, errorData);
+      res.status(openaiResponse.status).json({
         error: 'OpenAI API error',
         details: process.env.NODE_ENV === 'development' ? errorData : undefined
       });
@@ -92,6 +94,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const data = await openaiResponse.json();
+    console.log('✅ OpenAI API success, response data keys:', Object.keys(data));
+    console.log('📝 Content length:', data.choices?.[0]?.message?.content?.length || 0);
     
     // Extract content from response
     const content = data.choices?.[0]?.message?.content;
