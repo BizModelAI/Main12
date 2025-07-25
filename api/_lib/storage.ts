@@ -8,7 +8,17 @@ function getPrismaClient(): PrismaClient {
     try {
       prismaInstance = new PrismaClient({
         errorFormat: 'minimal',
-        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error']
+        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+        datasources: {
+          db: {
+            url: process.env.DATABASE_URL
+          }
+        }
+      });
+
+      // Configure connection pool for serverless
+      prismaInstance.$on('beforeExit', async () => {
+        await prismaInstance?.$disconnect();
       });
     } catch (error) {
       console.error('Failed to initialize Prisma client:', error);
