@@ -1,0 +1,2072 @@
+{
+  "config": {
+    "configFile": "/Users/casey/Main12-1/playwright.config.ts",
+    "rootDir": "/Users/casey/Main12-1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/casey/Main12-1/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/casey/Main12-1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/casey/Main12-1/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/casey/Main12-1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/casey/Main12-1/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/casey/Main12-1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/casey/Main12-1/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/casey/Main12-1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/casey/Main12-1/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/casey/Main12-1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.1",
+    "workers": 5,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "payment-flow.spec.ts",
+      "file": "payment-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Payment Flow Tests",
+          "file": "payment-flow.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete quiz flow and verify payment unlocks results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 20678,
+                      "error": {
+                        "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n",
+                        "stack": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 42,
+                          "line": 70
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 42,
+                            "line": 70
+                          },
+                          "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:09.973Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 42,
+                        "line": 70
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-6a8a92243176e32204e8",
+              "file": "payment-flow.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "Paid user sees correct pricing ($4.99)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 15624,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:09.966Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-140a72c1a66702e83717",
+              "file": "payment-flow.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "Payment success properly unlocks content after page reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 21283,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 67,
+                          "line": 204
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 67,
+                            "line": 204
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n\n\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:09.966Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 67,
+                        "line": 204
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-3405c7f1226faef32170",
+              "file": "payment-flow.spec.ts",
+              "line": 173,
+              "column": 3
+            },
+            {
+              "title": "Debug unlock status logging works",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 22220,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 32,
+                          "line": 252
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 32,
+                            "line": 252
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:09.974Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 32,
+                        "line": 252
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-b32d032cf3a4a1aac464",
+              "file": "payment-flow.spec.ts",
+              "line": 212,
+              "column": 3
+            },
+            {
+              "title": "Complete quiz flow and verify payment unlocks results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "timedOut",
+                      "duration": 30144,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 14,
+                            "line": 350
+                          },
+                          "message": "Error: page.waitForLoadState: Test timeout of 30000ms exceeded.\n\n\u001b[0m \u001b[90m 348 |\u001b[39m   \n \u001b[90m 349 |\u001b[39m   \u001b[90m// Wait for results to fully load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 350 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 351 |\u001b[39m   \n \u001b[90m 352 |\u001b[39m   \u001b[90m// If we're on a loading page, wait for it to complete and navigate to results\u001b[39m\n \u001b[90m 353 |\u001b[39m   \u001b[36mconst\u001b[39m loadingIndicator \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Processing, text=Loading, text=Generating, text=AI is Creating Your Personalized Report'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at fillQuizData (/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:350:14)\u001b[22m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:60:5\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 0: page.waitForLoadState: Test timeout of 30000ms exceeded.\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 2: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 3: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 4: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 5: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 6: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 7: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 8: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 9: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 10: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 11: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 12: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 13: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 14: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 15: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 16: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 17: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 18: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 19: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 20: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 21: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 22: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 23: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 24: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 25: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 26: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 27: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 28: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 29: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 30: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 31: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 32: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 33: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 34: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 35: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 36: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 37: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 38: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 39: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 40: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 41: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 42: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 43: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Error on step 44: page.waitForSelector: Target page, context or browser has been closed\n"
+                        },
+                        {
+                          "text": "Could not get debug info: page.textContent: Target page, context or browser has been closed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:09.986Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-firefox/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-54764894e3688deff426",
+              "file": "payment-flow.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "Paid user sees correct pricing ($4.99)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 17282,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:26.153Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-f885420d3aefda794f90",
+              "file": "payment-flow.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "Payment success properly unlocks content after page reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19744,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 67,
+                          "line": 204
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 67,
+                            "line": 204
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n\n\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:31.096Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 67,
+                        "line": 204
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-1eee0c9c06485853613d",
+              "file": "payment-flow.spec.ts",
+              "line": 173,
+              "column": 3
+            },
+            {
+              "title": "Debug unlock status logging works",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 20830,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 32,
+                          "line": 252
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 32,
+                            "line": 252
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:31.709Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-firefox/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-firefox/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-firefox/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 32,
+                        "line": 252
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-632f8117bd84a02cf36d",
+              "file": "payment-flow.spec.ts",
+              "line": 212,
+              "column": 3
+            },
+            {
+              "title": "Complete quiz flow and verify payment unlocks results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 20671,
+                      "error": {
+                        "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n",
+                        "stack": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 42,
+                          "line": 70
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 42,
+                            "line": 70
+                          },
+                          "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:32.648Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 42,
+                        "line": 70
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-4bcfe79de07ed78b9378",
+              "file": "payment-flow.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "Paid user sees correct pricing ($4.99)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 15384,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:42.147Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-7c20b245ba1b2b76f920",
+              "file": "payment-flow.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "Payment success properly unlocks content after page reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 21225,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 67,
+                          "line": 204
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 67,
+                            "line": 204
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n\n\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:44.691Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 67,
+                        "line": 204
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-d57c443435cd5edd1441",
+              "file": "payment-flow.spec.ts",
+              "line": 173,
+              "column": 3
+            },
+            {
+              "title": "Debug unlock status logging works",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 22068,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 32,
+                          "line": 252
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 32,
+                            "line": 252
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:51.898Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-webkit/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-webkit/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-webkit/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 32,
+                        "line": 252
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-54c0ea8300e6dfe9407e",
+              "file": "payment-flow.spec.ts",
+              "line": 212,
+              "column": 3
+            },
+            {
+              "title": "Complete quiz flow and verify payment unlocks results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 19980,
+                      "error": {
+                        "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n",
+                        "stack": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 42,
+                          "line": 70
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 42,
+                            "line": 70
+                          },
+                          "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:53.679Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 42,
+                        "line": 70
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-84b8041a54f3515da4ed",
+              "file": "payment-flow.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "Paid user sees correct pricing ($4.99)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 14989,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:54.270Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-38288405eb24e16a91ac",
+              "file": "payment-flow.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "Payment success properly unlocks content after page reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 20750,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 67,
+                          "line": 204
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 67,
+                            "line": 204
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n\n\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:22:57.999Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 67,
+                        "line": 204
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-fe8be26057cd3252f2c9",
+              "file": "payment-flow.spec.ts",
+              "line": 173,
+              "column": 3
+            },
+            {
+              "title": "Debug unlock status logging works",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 21645,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 32,
+                          "line": 252
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 32,
+                            "line": 252
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:23:06.459Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Chrome/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 32,
+                        "line": 252
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-59529b4efada80f2f10b",
+              "file": "payment-flow.spec.ts",
+              "line": 212,
+              "column": 3
+            },
+            {
+              "title": "Complete quiz flow and verify payment unlocks results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 20313,
+                      "error": {
+                        "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n",
+                        "stack": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 42,
+                          "line": 70
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 42,
+                            "line": 70
+                          },
+                          "message": "Error: expect.toContainText: Error: strict mode violation: locator('h1, h2') resolved to 4 elements:\n    1) <h1 class=\"text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2 md:px-0\">…</h1> aka getByRole('heading', { name: 'Your Best Fit Business Model' })\n    2) <h2 class=\"text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4\">Your AI-Powered Business Blueprint</h2> aka getByRole('heading', { name: 'Your AI-Powered Business' })\n    3) <h2 class=\"text-2xl font-bold\">Your AI-Generated Insights</h2> aka getByRole('heading', { name: 'Your AI-Generated Insights' })\n    4) <h2 class=\"text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2 md:px-0\">Your Analysis is Complete!</h2> aka getByRole('heading', { name: 'Your Analysis is Complete!' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1, h2')\u001b[22m\n\u001b[2m    8 × locator resolved to <h1 class=\"text-4xl font-bold text-gray-900 mb-2\">AI is Creating Your Personalized Report</h1>\u001b[22m\n\u001b[2m      - unexpected value \"AI is Creating Your Personalized Report\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 68 |\u001b[39m     \n \u001b[90m 69 |\u001b[39m     \u001b[90m// Verify we're on the results page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 70 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'h1, h2'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[35m/results|analysis|recommendations/i\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 71 |\u001b[39m     \n \u001b[90m 72 |\u001b[39m     \u001b[90m// Wait a bit more for the page to settle\u001b[39m\n \u001b[90m 73 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:70:42\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:23:09.654Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--becc7-ify-payment-unlocks-results-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 42,
+                        "line": 70
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-5645b326d721a3551f70",
+              "file": "payment-flow.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "Paid user sees correct pricing ($4.99)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 15441,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:23:14.102Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-a0afedb4a709cb5f1f12",
+              "file": "payment-flow.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "Payment success properly unlocks content after page reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 21053,
+                      "error": {
+                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n",
+                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 67,
+                          "line": 204
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 67,
+                            "line": 204
+                          },
+                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: locator('text=Your AI-Generated Insights')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Your AI-Generated Insights')\u001b[22m\n\n\n\u001b[0m \u001b[90m 202 |\u001b[39m     \n \u001b[90m 203 |\u001b[39m     \u001b[90m// Verify content is unlocked after reload\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 204 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Your AI-Generated Insights'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 205 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Personalized Action Plan'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \n \u001b[90m 207 |\u001b[39m     \u001b[90m// Verify paywall is not showing\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:204:67\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:23:14.505Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--f3ec0-s-content-after-page-reload-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 67,
+                        "line": 204
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-e5c12ff5e1654cc36a82",
+              "file": "payment-flow.spec.ts",
+              "line": 173,
+              "column": 3
+            },
+            {
+              "title": "Debug unlock status logging works",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 4,
+                      "status": "failed",
+                      "duration": 22039,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32",
+                        "location": {
+                          "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                          "column": 32,
+                          "line": 252
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                            "column": 32,
+                            "line": 252
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 250 |\u001b[39m     \n \u001b[90m 251 |\u001b[39m     \u001b[90m// Verify debug logs are present\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 252 |\u001b[39m     expect(consoleLogs\u001b[33m.\u001b[39mlength)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 253 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 254 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 255 |\u001b[39m\u001b[0m\n\u001b[2m    at /Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts:252:32\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "localStorage access blocked, continuing...\n"
+                        },
+                        {
+                          "text": "On round intro page, clicking Start Round\n"
+                        },
+                        {
+                          "text": "Error on step 1: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Start Round\"), button:has-text(\"Next\"), button:has-text(\"Get My Results\")') to be visible\u001b[22m\n\n"
+                        },
+                        {
+                          "text": "Page content: \n    BizModelAIHomeExplore Business IdeasTake QuizYour Best Fit Business Model is Podcasting!Results link sent to delivered@resend.devYour AI-Powered Business BlueprintPersonalized recommendations bas...\n"
+                        },
+                        {
+                          "text": "Current URL: http://localhost:5173/results\n"
+                        },
+                        {
+                          "text": "Quiz completed, reached results or loading page\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-29T02:23:19.126Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Safari/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/casey/Main12-1/test-results/payment-flow-Payment-Flow--45d2e-unlock-status-logging-works-Mobile-Safari/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/casey/Main12-1/tests/e2e/payment-flow.spec.ts",
+                        "column": 32,
+                        "line": 252
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "78204f79ba8de233d4ca-1f3081d1bfd30dfc4e2a",
+              "file": "payment-flow.spec.ts",
+              "line": 212,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-07-29T02:22:09.619Z",
+    "duration": 91720.26100000001,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 15,
+    "flaky": 0
+  }
+}

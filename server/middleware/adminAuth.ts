@@ -50,7 +50,7 @@ export function requireAdminAuth(
     const adminId = (req.headers["x-admin-id"] as string) || "admin";
 
     // Validate admin key
-    if (!adminKey || adminKey !== process.env.ADMIN_API_KEY) {
+    if (!adminKey || adminKey !== process.env.ADMIN_SECRET) {
       console.warn(` Unauthorized admin access attempt from ${req.ip}:`, {
         headers: {
           userAgent: req.headers["user-agent"],
@@ -72,8 +72,8 @@ export function requireAdminAuth(
     }
 
     // Check for valid admin API key configuration
-    if (!process.env.ADMIN_API_KEY) {
-      console.error("❌ ADMIN_API_KEY not configured in environment");
+    if (!process.env.ADMIN_SECRET) {
+      console.error("❌ ADMIN_SECRET not configured in environment");
       return res
         .status(500)
         .json(

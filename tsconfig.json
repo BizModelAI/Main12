@@ -5,14 +5,15 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
     "noEmit": false,
-    "outDir": "./server/dist",
-    "target": "ES2017",
+    "outDir": "./dist",
+    "target": "ES2020",
     "module": "ESNext",
     "strict": true,
     "downlevelIteration": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "preserve",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": false,
     "moduleResolution": "node",
@@ -22,8 +23,7 @@
     "typeRoots": ["./node_modules/@types", "./client/src/types", "./server"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"],
-      "api/_lib/*": ["./api/_lib/*"]
+      "@shared/*": ["./shared/*"]
     }
   }
 }

@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: business-model-finder
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://business-model-finder.onrender.com
+      - key: ADMIN_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
+    autoDeploy: true 

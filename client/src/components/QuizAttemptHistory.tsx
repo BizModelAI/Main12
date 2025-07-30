@@ -41,7 +41,7 @@ interface QuizAttemptHistoryProps {
 
 const API_BASE =
   process.env.NODE_ENV === 'development'
-    ? "http://localhost:9000"
+    ? "http://localhost:3001"
     : "";
 
 export const QuizAttemptHistory: React.FC<QuizAttemptHistoryProps> = ({

@@ -6,8 +6,7 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
+
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { PaywallProvider } from "./contexts/PaywallContext";
 import {
@@ -814,7 +813,6 @@ const QuizWithNavigation: React.FC<{
           onClick={handleSkipToResults}
           className="bg-red-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl hover:bg-red-600 transition-all duration-300 transform hover:scale-105 border-2 border-white"
           style={{ zIndex: 9999 }}
-          hidden
         >
            SKIP TO RESULTS (DEV)
         </button>
@@ -928,10 +926,12 @@ const ResultsWrapperWithReset: React.FC<{
               throw new Error('API returned invalid data structure');
             }
           } catch (error) {
-            if (error.name === 'AbortError') {
+            if (error && typeof error === 'object' && 'name' in error && (error as any).name === 'AbortError') {
               console.log("API request timed out");
+            } else if (error && typeof error === 'object' && 'message' in error) {
+              console.log("API request failed:", (error as any).message);
             } else {
-              console.log("API request failed:", error.message);
+              console.log("API request failed:", error);
             }
             return null;
           }
@@ -1054,6 +1054,13 @@ const ResultsWrapperWithReset: React.FC<{
       const fetchQuizData = async () => {
         if (isFetchingFallback) return; // Prevent multiple simultaneous requests
         
+        // Only try to fetch from API if we have userEmail (indicating user is authenticated)
+        if (!userEmail) {
+          console.log("No user email available, skipping API fallback request");
+          setIsFetchingFallback(false);
+          return;
+        }
+        
         try {
           setIsFetchingFallback(true);
           console.log("Attempting to fetch quiz data from API as fallback...");
@@ -1072,14 +1079,20 @@ const ResultsWrapperWithReset: React.FC<{
             console.log("API fallback failed:", response.status);
           }
         } catch (error) {
-          console.log("API fallback error:", error);
+          if (error && typeof error === 'object' && 'name' in error && (error as any).name === 'AbortError') {
+            console.log("API request timed out");
+          } else if (error && typeof error === 'object' && 'message' in error) {
+            console.log("API request failed:", (error as any).message);
+          } else {
+            console.log("API request failed:", error);
+          }
         } finally {
           setIsFetchingFallback(false);
         }
       };
 
       fetchQuizData();
-    }, [isFetchingFallback]);
+    }, [isFetchingFallback, userEmail]);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -1106,8 +1119,7 @@ function App() {
           <BusinessModelScoresProvider>
             <Router>
               <NavigationGuardWrapper>
-                <Analytics />
-                <SpeedInsights />
+                
                 <Routes>
                   {/* Public routes with layout */}
                   <Route

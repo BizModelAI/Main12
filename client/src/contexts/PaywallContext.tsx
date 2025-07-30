@@ -79,7 +79,7 @@ export const PaywallProvider: React.FC<PaywallProviderProps> = ({
     return () => {
       isMounted = false; // Cleanup function to prevent state updates after unmount
     };
-  }, [user, isLoading, getLatestQuizData]);
+  }, [user, isLoading]);
 
   // Save state to localStorage when it changes (for non-authenticated users)
   useEffect(() => {

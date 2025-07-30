@@ -297,7 +297,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
     };
 
     fetchQuizData();
-  }, [user, propQuizData, getLatestQuizData]);
+  }, [user, propQuizData]);
 
   useEffect(() => {
     if (!businessId) return;

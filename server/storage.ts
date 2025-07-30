@@ -124,10 +124,30 @@ class Storage {
   }
 
   async completePayment(paymentId: number) {
-    return await this.prisma.payment.update({
+    // First get the payment to find the quiz attempt ID
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId }
+    });
+    
+    if (!payment) {
+      throw new Error(`Payment with ID ${paymentId} not found`);
+    }
+    
+    // Update the payment status
+    const updatedPayment = await this.prisma.payment.update({
       where: { id: paymentId },
       data: { status: 'completed', completedAt: new Date() },
     });
+    
+    // If this is a report unlock payment and has a quiz attempt ID, unlock the quiz attempt
+    if (payment.type === 'report_unlock' && payment.quizAttemptId) {
+      await this.prisma.quizAttempt.update({
+        where: { id: payment.quizAttemptId },
+        data: { isReportUnlocked: true }
+      });
+    }
+    
+    return updatedPayment;
   }
 
   async linkPaymentToQuizAttempt(paymentId: number, quizAttemptId: number) {
@@ -274,6 +294,13 @@ class Storage {
     return !!(user && user.isPaid);
   }
 
+  async isQuizAttemptUnlocked(quizAttemptId: number) {
+    const quizAttempt = await this.prisma.quizAttempt.findUnique({ 
+      where: { id: quizAttemptId } 
+    });
+    return !!(quizAttempt && quizAttempt.isReportUnlocked);
+  }
+
   async createPasswordResetToken(userId: number, token: string, expiresAt: Date) {
     return await this.prisma.passwordResetToken.create({ data: { userId, token, expiresAt } });
   }
@@ -288,6 +315,10 @@ class Storage {
 
   async updateUserPassword(userId: number, hashedPassword: string) {
     return await this.prisma.user.update({ where: { id: userId }, data: { password: hashedPassword, updatedAt: new Date() } });
+  }
+
+  async testConnection() {
+    return await this.prisma.$queryRaw`SELECT 1`;
   }
 }
 

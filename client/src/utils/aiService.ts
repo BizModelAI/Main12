@@ -1,7 +1,7 @@
 import { QuizData, BusinessPath, AIAnalysis } from "../types";
 import { AICacheManager } from "./aiCacheManager";
 
-const API_BASE = "";
+const API_BASE = process.env.NODE_ENV === 'development' ? "http://localhost:3001" : "";
 
 // Optimized AI Service with 3 clean calls structure
 export class AIService {

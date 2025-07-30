@@ -1,0 +1,190 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "BizModelAI Logo BizModelAI":
+    - /url: /
+    - img "BizModelAI Logo"
+    - text: BizModelAI
+  - button "User menu":
+    - img
+  - button "Toggle mobile menu":
+    - img
+- main:
+  - heading "Your Best Fit Business Model is Podcasting!" [level=1]
+  - heading "Your AI-Powered Business Blueprint" [level=2]
+  - paragraph: Personalized recommendations based on your unique goals, skills, and preferences
+  - img
+  - heading "Your AI-Generated Insights" [level=2]
+  - paragraph: Personalized analysis based on your unique profile
+  - paragraph: Based on your comprehensive assessment, Podcasting appears to be an excellent match for your entrepreneurial goals and personality.
+  - paragraph: Your quiz responses indicate strong alignment with the requirements and challenges of this business path.
+  - paragraph
+  - heading "Key Insights" [level=4]:
+    - img
+    - text: Key Insights
+  - list:
+    - listitem:
+      - img
+      - text: Your personality traits align well with this business model
+    - listitem:
+      - img
+      - text: Your time commitment and investment preferences match the requirements
+    - listitem:
+      - img
+      - text: Your learning style and work preferences support success in this field
+  - heading "Success Predictors" [level=4]:
+    - img
+    - text: Success Predictors
+  - list:
+    - listitem:
+      - img
+      - text: Strong motivation and goal alignment
+    - listitem:
+      - img
+      - text: Appropriate risk tolerance for this business type
+    - listitem:
+      - img
+      - text: Realistic expectations about time and investment requirements
+  - text: ⏱️ Time to Start 1-3 months 💰 Initial Investment $0-500 📈 Potential Income $3K-10K+/month 🕒 Time Commitment 20 hours/week
+  - button "View Full Report":
+    - img
+    - text: View Full Report
+  - button "Get started with Podcasting":
+    - text: Get started with Podcasting
+    - img
+  - img
+  - text: AI RECOMMENDED
+  - heading "🎙️ Podcasting" [level=3]
+  - text: 88% AI Match
+  - img
+  - text: Potential Income $3K-10K+/month
+  - heading "Top Benefits" [level=4]:
+    - img
+    - text: Top Benefits
+  - list:
+    - listitem: • Low barrier to entry
+    - listitem: • Build authority in niche
+    - listitem: • Multiple revenue streams
+  - paragraph: Podcasting offers a unique opportunity to build a profitable business by leveraging your skills and interests. This model provides flexibility and growth potential while allowing you to work on your own terms.
+  - img
+  - text: Time to Profit 1-3 months
+  - img
+  - text: Startup Cost $0-500
+  - button "View Full Report":
+    - img
+    - text: View Full Report
+  - button "Learn more about Podcasting for you":
+    - text: Learn more about Podcasting for you
+    - img
+  - button "Complete Guide to Podcasting":
+    - text: Complete Guide to Podcasting
+    - img
+  - img
+  - text: 2nd Best
+  - heading "🧑‍💻 Freelancing" [level=3]
+  - text: 85% AI Match
+  - img
+  - text: Potential Income $3K-10K+/month
+  - heading "Top Benefits" [level=4]:
+    - img
+    - text: Top Benefits
+  - list:
+    - listitem: • Quick to start with existing skills
+    - listitem: • Complete schedule flexibility
+    - listitem: • Choose your own clients and projects
+  - paragraph: Offer your specialized skills and services to clients on a project-by-project basis, working independently with complete schedule flexibility. Perfect for skilled professionals who want to monetize their expertise while maintaining control over their workload and client relationships.
+  - img
+  - text: Time to Profit 1-3 months
+  - img
+  - text: Startup Cost $0-500
+  - button "View Full Report":
+    - img
+    - text: View Full Report
+  - button "Learn more about Freelancing for you":
+    - text: Learn more about Freelancing for you
+    - img
+  - button "Complete Guide to Freelancing":
+    - text: Complete Guide to Freelancing
+    - img
+  - img
+  - text: 3rd Best
+  - heading "📣 Social Media Marketing Agency" [level=3]
+  - text: 83% AI Match
+  - img
+  - text: Potential Income $3K-10K+/month
+  - heading "Top Benefits" [level=4]:
+    - img
+    - text: Top Benefits
+  - list:
+    - listitem: • High demand service
+    - listitem: • Recurring monthly revenue
+    - listitem: • Creative and strategic work
+  - paragraph: Help businesses grow their online presence by managing their social media accounts, creating content, and running advertising campaigns. You'll combine creativity with strategic thinking to deliver measurable results for clients across various industries.
+  - img
+  - text: Time to Profit 1-3 months
+  - img
+  - text: Startup Cost $0-500
+  - button "View Full Report":
+    - img
+    - text: View Full Report
+  - button "Learn more about Social Media Marketing Agency for you":
+    - text: Learn more about Social Media Marketing Agency for you
+    - img
+  - button "Complete Guide to Social Media Marketing Agency":
+    - text: Complete Guide to Social Media Marketing Agency
+    - img
+  - heading "Take Action on Your Results" [level=3]
+  - button "Download as PDF Get your complete report as a downloadable file for offline reference":
+    - img
+    - heading "Download as PDF" [level=4]
+    - paragraph: Get your complete report as a downloadable file for offline reference
+  - button "Email My Results Send this report to your email for easy access and sharing":
+    - img
+    - heading "Email My Results" [level=4]
+    - paragraph: Send this report to your email for easy access and sharing
+  - button "Share My Results Share your business match with friends, family, and mentors":
+    - img
+    - heading "Share My Results" [level=4]
+    - paragraph: Share your business match with friends, family, and mentors
+  - img
+  - heading "Your Analysis is Complete!" [level=2]
+  - paragraph: Access your personalized dashboard to track your progress, view detailed insights, and manage your business journey.
+  - button "Go to Dashboard"
+- contentinfo:
+  - img "BizModelAI Logo"
+  - text: BizModelAI
+  - paragraph: Your AI-powered business model discovery platform. Find the perfect business model tailored to your unique goals, skills, and lifestyle with intelligent analysis.
+  - heading "Platform" [level=3]
+  - list:
+    - listitem:
+      - link "Dashboard":
+        - /url: /dashboard
+    - listitem:
+      - link "Business Explorer":
+        - /url: /explore
+    - listitem:
+      - link "Take Quiz":
+        - /url: /quiz
+  - heading "Support" [level=3]
+  - list:
+    - listitem:
+      - link "Contact Us":
+        - /url: /contact
+    - listitem:
+      - link "Privacy Policy":
+        - /url: /privacy
+  - paragraph: © 2025 BizModelAI. All rights reserved.
+  - link "Follow us on Instagram":
+    - /url: https://www.instagram.com/bizmodelai/
+    - img
+  - link "Follow us on TikTok":
+    - /url: https://www.tiktok.com/@bizmodelai
+    - img
+  - link "Follow us on X (Twitter)":
+    - /url: https://x.com/bizmodelai
+    - img
+  - link "Follow us on Pinterest":
+    - /url: https://www.pinterest.com/bizmodelai/
+    - img
+```

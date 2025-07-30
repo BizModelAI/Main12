@@ -113,7 +113,7 @@ const BusinessExplorer: React.FC<BusinessExplorerProps> = ({
     };
 
     fetchQuizData();
-  }, [isRealUser, propQuizData, getLatestQuizData]);
+  }, [isRealUser, propQuizData]);
 
   // Load consistent scoring algorithm paths
   useEffect(() => {

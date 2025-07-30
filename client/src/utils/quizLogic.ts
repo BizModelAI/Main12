@@ -3,8 +3,8 @@ import { businessPaths } from "../data/businessPaths";
 import { apiPost } from "./apiClient";
 import { businessModelService } from './businessModelService';
 
-// Use relative path for API_BASE
-const API_BASE = "";
+// Use absolute path for API_BASE in development
+const API_BASE = process.env.NODE_ENV === 'development' ? "http://localhost:3001" : "";
 
 // AI-powered business fit analysis
 export async function generateAIPersonalizedPaths(

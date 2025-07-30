@@ -28,7 +28,7 @@ export const businessModels: BusinessModel[] = [
     id: "freelancing",
     title: "Freelancing",
     description:
-      "Offer specialized services to clients on a project or contract basis with flexible scheduling and remote work options. In 2025, success requires niche expertise, strong client relationships, and personal branding.",
+      "Offer specialized services to clients on a project or contract basis. Success requires niche expertise and strong client relationships.",
     detailedDescription:
       "Freelancing in 2025 involves offering specialized services (writing, design, development, marketing, consulting, etc.) to clients on a project or contract basis. The market is more global and competitive than ever, with AI tools automating some tasks and raising the bar for quality. Success depends on niche expertise, building a personal brand, and maintaining strong client relationships. Platforms like Upwork and Fiverr remain popular, but direct outreach and portfolio sites are increasingly important.",
     category: "Service",
@@ -101,7 +101,7 @@ export const businessModels: BusinessModel[] = [
     id: "content-creation",
     title: "Content Creation / UGC",
     description:
-      "Create videos, photos, blogs, or social media posts for personal brands or businesses to build audience and monetize content. In 2025, authenticity, niche focus, and platform adaptation are key.",
+      "Create videos, photos, blogs, or social media posts for personal brands or businesses. Authenticity and niche focus are key to success.",
     detailedDescription:
       "Content creation and user-generated content (UGC) in 2025 involves producing videos, photos, blogs, or social media posts for personal brands or businesses. The creator economy is more saturated, and platforms (TikTok, YouTube, Instagram) reward authenticity, niche focus, and adaptation to new features (AI, shoppable content, live streaming). Monetization comes from brand deals, platform revenue sharing, affiliate marketing, or selling products/services. AI tools can help with editing and ideation, but human creativity and community-building are more valuable than ever.",
     category: "Creative",
@@ -174,7 +174,7 @@ export const businessModels: BusinessModel[] = [
     id: "youtube-automation",
     title: "YouTube Automation Channels",
     description:
-      "Build faceless YouTube channels by outsourcing content creation and focusing on channel strategy, monetization, and analytics. In 2025, success requires advanced data analysis, compliance, and multi-channel repurposing.",
+      "Build faceless YouTube channels by outsourcing content creation. Focus on strategy, monetization, and analytics for success.",
     detailedDescription:
       "YouTube automation in 2025 involves creating and scaling faceless YouTube channels by outsourcing scripts, voiceovers, video editing, and thumbnails to freelancers or agencies. The owner focuses on niche selection, channel strategy, and monetization (AdSense, sponsorships, affiliate links). The landscape is more competitive, with stricter YouTube policies, higher content costs, and a need for advanced data analysis and compliance. Success requires multi-channel repurposing (TikTok, Instagram Reels), strong channel management, and the ability to adapt to algorithm and policy changes.",
     category: "Media",
@@ -240,7 +240,7 @@ export const businessModels: BusinessModel[] = [
     id: "local-service",
     title: "Local Service Arbitrage",
     description:
-      "Generate leads for local services and hire others to fulfill the work while you manage client relationships and quality control. In 2025, success depends on digital marketing and reliable vendor partnerships.",
+      "Generate leads for local services and hire others to fulfill the work. Manage client relationships and quality control for profit.",
     detailedDescription:
       "Local service arbitrage in 2025 is the process of generating leads for a local service (like lawn care, cleaning, or home repair), then hiring someone else to fulfill the job. The business owner profits from the margin between the client's fee and the vendor's cost. Digital marketing (Google Ads, local SEO, lead gen platforms) is more important than ever, and reliable vendor partnerships are critical. Customer expectations for speed and quality are higher, and online reviews can make or break your business.",
     category: "Service",
@@ -301,7 +301,7 @@ export const businessModels: BusinessModel[] = [
     id: "high-ticket-sales",
     title: "High-Ticket Sales / Closing",
     description:
-      "Sell expensive products or services (usually $2,000+) over phone/Zoom for commission. In 2025, success requires advanced sales skills, follow-up, and adapting to remote/AI-assisted sales environments.",
+      "Sell expensive products or services over phone/Zoom for commission. Requires advanced sales skills and follow-up consistency.",
     detailedDescription:
       "High-ticket sales in 2025 is the process of selling expensive products or services (often $2,000+) over the phone or via Zoom. Closers are typically paid commission (10–20%) per sale and don't need to generate leads—the company handles marketing and passes warm leads to closers. AI tools are increasingly used for lead scoring, call analysis, and follow-up automation. Success requires advanced sales skills, emotional intelligence, and the ability to adapt to remote and AI-assisted sales environments.",
     category: "Sales",
@@ -360,7 +360,7 @@ export const businessModels: BusinessModel[] = [
     id: "saas-development",
     title: "App or SaaS Development",
     description:
-      "Create scalable software products (web or mobile apps) with subscription or license revenue. In 2024, success requires strong product-market fit, user experience, and ongoing support.",
+      "Create scalable software products with subscription revenue. Success requires strong product-market fit and user experience.",
     detailedDescription:
       "App or SaaS development involves building a software product (web or mobile) that solves a real problem and can be monetized through subscriptions, licenses, or usage fees. In 2024, the SaaS market is highly competitive, and success depends on identifying a clear niche, validating demand, and delivering a great user experience. Modern tools (e.g., no-code, low-code) lower technical barriers, but customer acquisition, retention, and support are ongoing challenges. Expect significant upfront work and continuous iteration.",
     category: "Tech",
@@ -382,7 +382,7 @@ export const businessModels: BusinessModel[] = [
       "Critical thinking",
       "Planning and scoping",
     ],
-    tools: ["React", "Vercel", "Supabase", "Stripe", "Figma"],
+            tools: ["React", "Render", "Supabase", "Stripe", "Figma"],
     emoji: "💻",
     resources: [
       {
@@ -424,7 +424,7 @@ export const businessModels: BusinessModel[] = [
     id: "social-media-agency",
     title: "Social Media Marketing Agency",
     description:
-      "Deliver marketing services like paid ads and content to businesses with monthly retainers and performance-based pricing. In 2025, success requires specialization, automation, and measurable ROI.",
+      "Deliver marketing services like paid ads and content to businesses. Success requires specialization and measurable ROI.",
     detailedDescription:
       "A Social Media Marketing Agency (SMMA) in 2025 delivers marketing services—typically paid ads, content, or lead gen—to small businesses or personal brands. The market is more saturated, and success depends on specialization (industry, platform, or service), automation (AI tools for scheduling, analytics, and creative), and the ability to deliver measurable ROI. Agencies must adapt to frequent platform changes, privacy regulations, and rising ad costs. Building case studies and client trust is essential.",
     category: "Service",
@@ -487,7 +487,7 @@ export const businessModels: BusinessModel[] = [
     id: "ai-marketing-agency",
     title: "AI Marketing Agency",
     description:
-      "Help businesses automate and enhance marketing using AI tools (ChatGPT, Claude, Zapier, etc.) to improve efficiency and results. In 2024, differentiation and client education are key.",
+      "Help businesses automate and enhance marketing using AI tools. Differentiation and client education are key to success.",
     detailedDescription:
       "AI Marketing Agencies help businesses automate and enhance their marketing using artificial intelligence. In 2024, the field is crowded, and success depends on deep tool fluency, workflow design, and the ability to educate clients on AI's real capabilities and limitations. Agencies implement tools like ChatGPT, Claude, Zapier, and Make to create personalized customer journeys, automate content, and streamline analytics. Staying current with rapid AI changes and providing measurable ROI are essential.",
     category: "Service",
@@ -545,7 +545,7 @@ export const businessModels: BusinessModel[] = [
     id: "digital-services",
     title: "Digital Services Agency",
     description:
-      "Offer a range of online services including branding, web dev, email marketing, SEO with flexible project-based pricing. In 2025, success requires process automation, specialization, and client retention.",
+      "Offer a range of online services including branding, web dev, email marketing, SEO. Success requires process automation and specialization.",
     detailedDescription:
       "A Digital Services Agency in 2025 offers a range of online services including branding, web development, email marketing, SEO, and more. The market is more competitive, and success depends on process automation (SOPs, AI tools), specialization (industry or service), and client retention strategies. Agencies that productize services, automate delivery, and build strong client relationships are best positioned for recurring revenue and growth.",
     category: "Service",
@@ -606,7 +606,7 @@ export const businessModels: BusinessModel[] = [
     id: "investing-trading",
     title: "Investing / Trading",
     description:
-      "Allocate capital into assets like stocks, crypto, or forex for returns with various strategies and risk management. In 2025, success requires advanced risk controls, tech adoption, and adapting to regulatory changes.",
+      "Allocate capital into assets like stocks, crypto, or forex for returns. Success requires advanced risk controls and tech adoption.",
     detailedDescription:
       "Investing and trading in 2025 involve allocating capital into assets like stocks, crypto, or forex with the goal of generating returns. The landscape is more volatile, with increased algorithmic trading, AI-powered analysis, and regulatory scrutiny. Success depends on advanced risk management, tech adoption (AI bots, analytics), and adapting to changing regulations and market conditions. Both short-term trading and long-term investing require discipline, ongoing learning, and emotional control.",
     category: "Finance",
@@ -667,7 +667,7 @@ export const businessModels: BusinessModel[] = [
     id: "online-reselling",
     title: "Online Reselling",
     description:
-      "Source physical products and flip them for profit on platforms like eBay, Amazon, or Poshmark with low startup costs and flexible inventory. In 2025, success requires niche focus, tech tools, and multi-platform selling.",
+      "Source physical products and flip them for profit on platforms like eBay, Amazon, or Poshmark. Success requires niche focus and multi-platform selling.",
     detailedDescription:
       "Online reselling in 2025 involves sourcing physical products and flipping them for a profit on platforms like eBay, Amazon, Mercari, and Poshmark. The market is more competitive, with more sellers using tech tools for sourcing, pricing, and inventory management. Success depends on niche focus, multi-platform selling, and leveraging analytics and automation tools. Sustainability and authenticity are increasingly valued by buyers.",
     category: "Commerce",
@@ -728,7 +728,7 @@ export const businessModels: BusinessModel[] = [
     id: "handmade-goods",
     title: "Handmade Goods",
     description:
-      "Sell physical, handcrafted items like jewelry, home decor, or clothing with unique designs and premium pricing potential. In 2025, success requires strong branding, storytelling, and multi-channel sales.",
+      "Sell physical, handcrafted items like jewelry, home decor, or clothing. Success requires strong branding and multi-channel sales.",
     detailedDescription:
       "Handmade Goods in 2025 is a business model focused on selling physical, handcrafted items such as jewelry, home decor, clothing, or accessories. The market is more competitive, and success depends on unique designs, strong branding, storytelling, and selling across multiple channels (Etsy, Instagram, TikTok Shop, etc.). AI tools can help with design inspiration and marketing, but authenticity and craftsmanship remain key differentiators.",
     category: "Creative",
@@ -789,7 +789,7 @@ export const businessModels: BusinessModel[] = [
     id: "copywriting",
     title: "Copywriting",
     description:
-      "Write persuasive marketing content that drives sales and conversions for businesses. In 2025, success requires AI-assisted writing, niche expertise, and strong portfolio building.",
+      "Write persuasive marketing content that drives sales and conversions. Success requires AI-assisted writing and niche expertise.",
     detailedDescription:
       "Copywriting in 2025 involves creating persuasive written content designed to drive sales and conversions—website copy, email campaigns, ads, product descriptions, and more. The field is more competitive, with AI tools automating basic copy and raising the bar for creativity and strategy. Success depends on niche expertise, building a strong portfolio, and leveraging AI for research, ideation, and editing. Direct response, storytelling, and conversion optimization are highly valued skills.",
     category: "Writing",
@@ -851,7 +851,7 @@ export const businessModels: BusinessModel[] = [
     id: "ghostwriting",
     title: "Ghostwriting",
     description:
-      "Write content for others who publish under their own name, including books, articles, and speeches. In 2025, success requires adaptability, confidentiality, and leveraging AI tools for research and drafting.",
+      "Write content for others who publish under their own name. Success requires adaptability and confidentiality.",
     detailedDescription:
       "Ghostwriting in 2025 involves writing content for others who publish under their own name—books, articles, speeches, blog posts, and more. The field is more competitive, with clients expecting faster turnaround and higher quality. Success depends on adapting to different voices, maintaining confidentiality, and leveraging AI tools for research, drafting, and editing. Building a strong portfolio and client trust is essential for high-paying projects.",
     category: "Writing",
@@ -911,7 +911,7 @@ export const businessModels: BusinessModel[] = [
     id: "e-commerce",
     title: "E-commerce",
     description:
-      "Build and sell products through your own online store with full control over branding, customer experience, and data. In 2024, success requires strong marketing, logistics, and customer retention.",
+      "Build and sell products through your own online store. Success requires strong marketing and customer retention.",
     detailedDescription:
       "E-commerce involves building and selling products through your own online store (physical or digital). In 2024, the market is mature and competitive, so success depends on strong branding, marketing, and customer retention. You have full control over your brand, customer experience, and data, but must manage logistics, fulfillment, and support. Platforms like Shopify and WooCommerce make setup easier, but customer acquisition costs are rising and retention is key.",
     category: "E-commerce",
@@ -968,7 +968,7 @@ export const businessModels: BusinessModel[] = [
     id: "dropshipping",
     title: "Dropshipping",
     description:
-      "Sell products online without holding inventory by partnering with suppliers who ship directly to customers. Success in 2024 requires strong branding, marketing, and supplier vetting.",
+      "Sell products online without holding inventory by partnering with suppliers. Success requires strong branding and supplier vetting.",
     detailedDescription:
       "Dropshipping is an e-commerce model where you sell products online without holding inventory. When a customer places an order, your supplier ships the product directly to them. In 2024, the market is highly saturated, and success depends on niche selection, strong branding, and reliable suppliers. Margins are thin, and customer service, shipping times, and quality control are major challenges. Many platforms (Shopify, WooCommerce) support dropshipping, but ad costs and competition are higher than ever.",
     category: "E-commerce",
@@ -1025,7 +1025,7 @@ export const businessModels: BusinessModel[] = [
     id: "affiliate-marketing",
     title: "Affiliate Marketing",
     description:
-      "Promote other people's products and earn commission on sales through content creation and traffic generation. In 2025, success requires niche authority, SEO, and adapting to platform changes.",
+      "Promote other people's products and earn commission on sales. Success requires niche authority and SEO expertise.",
     detailedDescription:
       "Affiliate marketing in 2025 involves promoting other people's products and earning a commission on each sale made through your referral link. The field is more competitive, with stricter platform rules and more sophisticated tracking. Success depends on building niche authority, mastering SEO, and adapting to changes in affiliate programs and platforms. Common formats include blogs, email lists, review sites, and social media content. AI tools can help with content and analytics, but trust and authenticity are key.",
     category: "Marketing",
@@ -1085,7 +1085,7 @@ export const businessModels: BusinessModel[] = [
     id: "virtual-assistant",
     title: "Virtual Assistant",
     description:
-      "Provide remote administrative support to entrepreneurs and businesses with flexible scheduling and diverse skill sets. In 2025, success requires tech fluency, specialization, and proactive client management.",
+      "Provide remote administrative support to entrepreneurs and businesses. Success requires tech fluency and specialization.",
     detailedDescription:
       "A Virtual Assistant (VA) in 2025 provides remote administrative support to entrepreneurs, businesses, or executives. Tasks might include email management, scheduling, customer service, research, or social media coordination. Specialization (e.g., e-commerce, podcast production, AI tools) is increasingly valuable. Success depends on tech fluency, proactive client management, and the ability to adapt to new tools and platforms. Many VAs now use AI assistants to boost productivity and offer more value.",
     category: "Admin",
@@ -1146,7 +1146,7 @@ export const businessModels: BusinessModel[] = [
     id: "online-course-creation",
     title: "Online Course Creation",
     description:
-      "Create and sell educational courses on platforms like Udemy, Teachable, or your own website",
+      "Create and sell educational courses on platforms like Udemy or Teachable. Success requires subject expertise and marketing skills.",
     detailedDescription:
       "Online course creation involves developing educational content on specific topics and selling it through platforms like Udemy, Teachable, or your own website. Successful course creators focus on solving specific problems, creating engaging content, and building a marketing system to reach their target audience.",
     category: "Education",
@@ -1205,7 +1205,7 @@ export const businessModels: BusinessModel[] = [
     id: "consulting",
     title: "Consulting",
     description:
-      "Provide expert advice and strategic guidance to businesses or individuals. In 2025, success requires niche expertise, personal branding, and the ability to deliver measurable results.",
+      "Provide expert advice and strategic guidance to businesses. Success requires niche expertise and measurable results.",
     detailedDescription:
       "Consulting in 2025 involves providing expert advice and strategic guidance to businesses or individuals in a specific niche (marketing, operations, tech, HR, etc.). The market is more crowded, and clients expect measurable ROI and actionable insights. Success depends on niche expertise, personal branding, and the ability to deliver results quickly. Many consultants now use AI tools for research, analysis, and reporting, and offer hybrid (in-person/remote) services.",
     category: "Professional",
@@ -1264,7 +1264,7 @@ export const businessModels: BusinessModel[] = [
     id: "real-estate-investing",
     title: "Real Estate Investing",
     description:
-      "Generate income through property investments (rental, flipping, syndication, etc.). In 2025, success requires market research, risk management, and adapting to changing regulations and technology.",
+      "Generate income through property investments like rental or flipping. Success requires market research and risk management.",
     detailedDescription:
       "Real Estate Investing in 2025 involves generating income through property investments—rental, flipping, syndication, short-term rentals, and more. The market is more volatile, with rising interest rates, regulatory changes, and new technology (AI-powered analysis, tokenization, etc.). Success depends on thorough market research, risk management, and the ability to adapt to changing conditions. Diversification and creative financing are increasingly important.",
     category: "Finance",
@@ -1324,7 +1324,7 @@ export const businessModels: BusinessModel[] = [
     id: "podcasting",
     title: "Podcasting",
     description:
-      "Create and monetize audio content through sponsorships, advertising, and audience building in specific niches. In 2025, success requires niche focus, multi-platform distribution, and community engagement.",
+      "Create and monetize audio content through sponsorships and advertising. Success requires niche focus and community engagement.",
     detailedDescription:
       "Podcasting in 2025 involves creating audio content on specific topics or niches, building an audience, and monetizing through sponsorships, advertising, affiliate marketing, or premium content. The market is more crowded, and success depends on niche focus, multi-platform distribution (YouTube, Spotify, Apple, TikTok), and community engagement. AI tools can help with editing, show notes, and distribution, but human connection and unique voice are key differentiators.",
     category: "Media",
@@ -1385,7 +1385,7 @@ export const businessModels: BusinessModel[] = [
     id: "blogging",
     title: "Blogging",
     description:
-      "Create written content on specific topics to build an audience and monetize through advertising, affiliate marketing, and digital products. In 2025, success requires SEO, niche focus, and adapting to AI-driven search changes.",
+      "Create written content to build an audience and monetize through advertising and affiliate marketing. Success requires SEO and niche focus.",
     detailedDescription:
       "Blogging in 2025 involves creating written content on specific topics or niches, building an engaged audience, and monetizing through advertising, affiliate marketing, sponsored posts, or selling digital products. The landscape is more competitive, and success depends on SEO, niche focus, and adapting to AI-driven changes in search and content discovery. AI tools can help with content ideation and optimization, but trust, expertise, and unique voice are more important than ever.",
     category: "Content",
@@ -1446,7 +1446,7 @@ export const businessModels: BusinessModel[] = [
     id: "amazon-fba",
     title: "Amazon FBA",
     description:
-      "Sell products on Amazon using Fulfillment by Amazon (FBA) for storage, shipping, and customer service. In 2024, success requires capital, research, and strong brand differentiation.",
+      "Sell products on Amazon using Fulfillment by Amazon for storage and shipping. Success requires capital and strong brand differentiation.",
     detailedDescription:
       "Amazon FBA (Fulfillment by Amazon) allows you to sell products on Amazon's marketplace while Amazon handles storage, shipping, and customer service. In 2024, the FBA landscape is highly competitive, with increased fees, stricter compliance, and a need for strong product research and branding. Upfront investment is significant, and success depends on finding profitable niches, managing inventory, and optimizing listings. Many sellers now focus on private label brands and advanced marketing strategies.",
     category: "E-commerce",
@@ -1503,7 +1503,7 @@ export const businessModels: BusinessModel[] = [
     id: "print-on-demand",
     title: "Print on Demand",
     description:
-      "Create and sell custom designs on products without inventory management through automated fulfillment and global reach. In 2025, success requires strong design, niche selection, and multi-platform marketing.",
+      "Create and sell custom designs on products without inventory management. Success requires strong design and niche selection.",
     detailedDescription:
       "Print on Demand (POD) in 2025 allows creators to design custom graphics, artwork, or text that gets printed on products like t-shirts, mugs, phone cases, and more only when orders are placed. Platforms like Printful, Printify, and Redbubble handle production and shipping, while creators focus on design, marketing, and niche selection. The market is more saturated, so success depends on unique designs, strong branding, and multi-platform marketing (Etsy, Amazon, TikTok Shop, etc.). AI tools can help with design and trend research, but competition and copycats are major challenges.",
     category: "Creative",

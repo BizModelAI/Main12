@@ -5,6 +5,8 @@ export const API_ROUTES = {
   AUTH_SIGNUP: '/api/auth/signup',
   AUTH_LOGOUT: '/api/auth/logout',
   AUTH_LATEST_QUIZ_DATA: '/api/auth/latest-quiz-data',
+  USER_PRICING: '/api/user-pricing/1',
+  GENERATE_PDF: '/api/generate-pdf',
 } as const;
 
 // Custom API Error class

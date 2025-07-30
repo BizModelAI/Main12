@@ -748,16 +748,17 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
     }
 
     // Check if this report has been viewed before
+    const quizAttemptIdRaw = localStorage.getItem("currentQuizAttemptId");
+    const quizAttemptId = quizAttemptIdRaw ? parseInt(quizAttemptIdRaw, 10) : undefined;
     const hasBeenViewed =
-      quizAttemptId &&
+      quizAttemptId !== undefined &&
       reportViewManager.hasViewedReport(quizAttemptId, quizData, userEmail);
 
     // Check if we have AI content available
     const hasAIContent = loadedReportData || hasBeenViewed;
 
     // Check if we have full report AI content already cached or in database
-    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-    const hasFullReportContent = quizAttemptId && localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
+    const hasFullReportContent = quizAttemptId !== undefined && localStorage.getItem(`ai-content-full-report-${quizAttemptId}`);
 
     // Show full report loading page only if this is truly the first time and no cached content exists
     if (!hasLoadedFullReport && !hasAIContent && !hasFullReportContent) {

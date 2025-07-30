@@ -26,10 +26,10 @@
 - Added better error handling for authentication failures
 - Improved response parsing to handle different API response formats
 
-### 4. **Puppeteer Deployment Issues**
-**Problem**: PDF service using puppeteer which can cause deployment failures
+### 4. **PDF Service Deployment Issues**
+**Problem**: PDF service using old dependencies which can cause deployment failures
 **Fix Applied**:
-- Made puppeteer import optional to prevent deployment crashes
+- Migrated to Playwright for more reliable PDF generation
 - Added availability checks before initializing browser instances
 - Graceful degradation when PDF generation is not available
 

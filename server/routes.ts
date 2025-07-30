@@ -11,6 +11,483 @@ import { requireAdminAuth } from "./middleware/adminAuth.js";
 import { generateBusinessResources } from "./services/resourceService.js";
 import { pdfService } from "./services/pdfService.js";
 import { emailService } from "./services/emailService.js";
+
+// Function to generate PDF report HTML with clean, simple design
+function generatePDFReportHTML(data: any): string {
+  const { quizData, userEmail, aiAnalysis, topBusinessPath, businessScores } = data;
+
+  // Helper functions
+  const escapeHtml = (text: string | undefined | null): string => {
+    if (!text) return "";
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#x27;");
+  };
+
+  const formatCurrency = (value: number | undefined | null): string => {
+    if (typeof value !== "number" || isNaN(value)) return "0";
+    return value.toLocaleString();
+  };
+
+  const formatScore = (score: number) => `${score}%`;
+
+  // Get top 3 and bottom 3 business scores
+  const topBusinesses = businessScores?.slice(0, 3) || [];
+  const bottomBusinesses = businessScores?.slice(-3).reverse() || [];
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Business Path Analysis Report</title>
+        <style>
+            @page {
+                margin: 1in;
+                size: A4;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 14px;
+                line-height: 1.5;
+                color: #374151;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .page {
+                page-break-after: always;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .page:last-child {
+                page-break-after: auto;
+            }
+            
+            .hero {
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                color: white;
+                padding: 60px 40px;
+                text-align: center;
+                margin-bottom: 40px;
+                border-radius: 16px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+                font-weight: 700;
+                margin: 0 0 16px 0;
+                color: white;
+            }
+            
+            .hero p {
+                font-size: 18px;
+                margin: 0;
+                color: #dbeafe;
+            }
+            
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+            
+            .section {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                page-break-inside: avoid;
+            }
+            
+            .section h2 {
+                font-size: 24px;
+                font-weight: 600;
+                color: #1f2937;
+                margin: 0 0 20px 0;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .stat-card {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .stat-number {
+                font-size: 28px;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 4px;
+            }
+            
+            .stat-desc {
+                font-size: 11px;
+                color: #94a3b8;
+            }
+            
+            .business-card {
+                background: #f8fafc;
+                border-left: 4px solid #10b981;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 16px;
+            }
+            
+            .business-card.avoid {
+                background: #fef3c7;
+                border-left-color: #f59e0b;
+            }
+            
+            .business-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            .business-name {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1f2937;
+            }
+            
+            .business-score {
+                font-size: 20px;
+                font-weight: 700;
+            }
+            
+            .business-score.good {
+                color: #059669;
+            }
+            
+            .business-score.avoid {
+                color: #d97706;
+            }
+            
+            .business-desc {
+                font-size: 13px;
+                color: #6b7280;
+                line-height: 1.4;
+            }
+            
+            .recommendation {
+                background: #f0fdf4;
+                border-left: 3px solid #10b981;
+                border-radius: 6px;
+                padding: 16px;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .recommendation-icon {
+                color: #10b981;
+                font-weight: bold;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+            
+            .recommendation-text {
+                font-size: 13px;
+                color: #374151;
+                line-height: 1.4;
+            }
+            
+            .ai-analysis {
+                background: #faf5ff;
+                border: 1px solid #e9d5ff;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .ai-analysis h3 {
+                color: #7c3aed;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0 0 12px 0;
+            }
+            
+            .ai-analysis p {
+                color: #4c1d95;
+                font-size: 13px;
+                line-height: 1.5;
+                margin: 0;
+            }
+            
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #9ca3af;
+                font-size: 12px;
+                border-top: 1px solid #e5e7eb;
+                margin-top: 40px;
+            }
+            
+            /* Personality Sliders */
+            .personality-section {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .personality-section h3 {
+                color: #374151;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0 0 16px 0;
+            }
+            
+            .personality-sliders {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .personality-trait {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .trait-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .trait-name {
+                font-size: 13px;
+                font-weight: 500;
+                color: #374151;
+            }
+            
+            .trait-score {
+                font-size: 12px;
+                font-weight: 600;
+                color: #3b82f6;
+            }
+            
+            .slider-container {
+                width: 100%;
+            }
+            
+            .slider-track {
+                width: 100%;
+                height: 8px;
+                background: #e5e7eb;
+                border-radius: 4px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .slider-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+                border-radius: 4px;
+                transition: width 0.3s ease;
+            }
+            
+            @media print {
+                body { 
+                    print-color-adjust: exact; 
+                    -webkit-print-color-adjust: exact;
+                }
+                .section { page-break-inside: avoid; }
+                .business-card { page-break-inside: avoid; }
+                .recommendation { page-break-inside: avoid; }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Your Business Path Analysis</h1>
+            <p>AI-powered insights and personalized recommendations for your entrepreneurial journey</p>
+        </div>
+
+        <div class="container">
+            <!-- Executive Summary -->
+            <div class="section">
+                <h2>📊 Executive Summary</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #3b82f6;">${topBusinessPath?.score || 85}%</div>
+                        <div class="stat-label">Best Match</div>
+                        <div class="stat-desc">${topBusinessPath?.name || 'Freelancing'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #059669;">${quizData.weeklyTimeCommitment}</div>
+                        <div class="stat-label">Hours/Week</div>
+                        <div class="stat-desc">Available Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #7c3aed;">$${formatCurrency(quizData.successIncomeGoal)}</div>
+                        <div class="stat-label">Income Goal</div>
+                        <div class="stat-desc">Monthly Target</div>
+                    </div>
+                </div>
+
+                <!-- Personality Profile -->
+                <div class="personality-section">
+                    <h3>🧠 Personality Profile</h3>
+                    ${quizData.personalityTraits ? `
+                    <div class="personality-sliders">
+                        <div class="personality-trait">
+                            <div class="trait-header">
+                                <span class="trait-name">Extroversion</span>
+                                <span class="trait-score">${quizData.personalityTraits.extroversion || 50}%</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track">
+                                    <div class="slider-fill" style="width: ${quizData.personalityTraits.extroversion || 50}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="personality-trait">
+                            <div class="trait-header">
+                                <span class="trait-name">Conscientiousness</span>
+                                <span class="trait-score">${quizData.personalityTraits.conscientiousness || 50}%</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track">
+                                    <div class="slider-fill" style="width: ${quizData.personalityTraits.conscientiousness || 50}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="personality-trait">
+                            <div class="trait-header">
+                                <span class="trait-name">Openness</span>
+                                <span class="trait-score">${quizData.personalityTraits.openness || 50}%</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track">
+                                    <div class="slider-fill" style="width: ${quizData.personalityTraits.openness || 50}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="personality-trait">
+                            <div class="trait-header">
+                                <span class="trait-name">Agreeableness</span>
+                                <span class="trait-score">${quizData.personalityTraits.agreeableness || 50}%</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track">
+                                    <div class="slider-fill" style="width: ${quizData.personalityTraits.agreeableness || 50}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="personality-trait">
+                            <div class="trait-header">
+                                <span class="trait-name">Neuroticism</span>
+                                <span class="trait-score">${quizData.personalityTraits.neuroticism || 50}%</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-track">
+                                    <div class="slider-fill" style="width: ${quizData.personalityTraits.neuroticism || 50}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                ${aiAnalysis?.summary ? `
+                <div class="ai-analysis">
+                    <h3>🤖 AI Analysis Summary</h3>
+                    <p>${escapeHtml(aiAnalysis.summary)}</p>
+                </div>
+                ` : ''}
+            </div>
+
+            <!-- Top Business Matches -->
+            <div class="section">
+                <h2>🎯 Your Top Business Matches</h2>
+                
+                ${topBusinesses.map((business, index) => `
+                <div class="business-card">
+                    <div class="business-header">
+                        <div class="business-name">${index + 1}. ${escapeHtml(business.name)}</div>
+                        <div class="business-score good">${formatScore(business.score)}</div>
+                    </div>
+                    ${business.description ? `<div class="business-desc">${escapeHtml(business.description)}</div>` : ''}
+                </div>
+                `).join('')}
+            </div>
+
+            <!-- Businesses to Avoid -->
+            <div class="section">
+                <h2>⚠️ Businesses to Avoid</h2>
+                
+                ${bottomBusinesses.map((business, index) => `
+                <div class="business-card avoid">
+                    <div class="business-header">
+                        <div class="business-name">${escapeHtml(business.name)}</div>
+                        <div class="business-score avoid">${formatScore(business.score)}</div>
+                    </div>
+                    ${business.description ? `<div class="business-desc">${escapeHtml(business.description)}</div>` : ''}
+                </div>
+                `).join('')}
+            </div>
+
+            <!-- AI Recommendations -->
+            ${aiAnalysis?.recommendations && aiAnalysis.recommendations.length > 0 ? `
+            <div class="section">
+                <h2>💡 AI Recommendations</h2>
+                
+                ${aiAnalysis.recommendations.map((rec: string) => `
+                <div class="recommendation">
+                    <div class="recommendation-icon">✓</div>
+                    <div class="recommendation-text">${escapeHtml(rec)}</div>
+                </div>
+                `).join('')}
+            </div>
+            ` : ''}
+
+            <!-- Footer -->
+            <div class="footer">
+                Generated by BizModelAI • ${new Date().toLocaleDateString()}
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
 import { aiScoringService } from "./services/aiScoringService.js";
 import { personalityAnalysisService } from "./services/personalityAnalysisService.js";
 import { db } from "./db.js";
@@ -188,388 +665,9 @@ async function claimAnonymousQuizAttemptsForUser(user, sessionId) {
 export async function registerRoutes(app: Express): Promise<void> {
   // registerDebugRoutes(app);
   console.log("[DEBUG] registerRoutes called - registering main API routes");
-  // Health check endpoint
-  app.get("/api/health", async (req: Request, res: Response) => {
-    try {
-      // Optionally check database connection
-      let dbStatus = 'unknown';
-      try {
-        await storage.testConnection();
-        dbStatus = 'healthy';
-      } catch (e) {
-        dbStatus = 'unhealthy';
-      }
-      res.status(200).json({ status: 'ok', database: dbStatus, environment: process.env.NODE_ENV || 'unknown' });
-    } catch (error) {
-      res.status(500).json({ status: 'unhealthy', error: error instanceof Error ? error.message : String(error) });
-    }
-  });
 
-  // put application routes here
-  // prefix all routes with /api
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByEmail(email)
 
-  // CORS preflight handler for OpenAI chat endpoint
-  app.options("/api/openai-chat", (req: Request, res: Response) => {
-    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    res.sendStatus(200);
-  });
-
-  // OpenAI configuration status (secure - no sensitive info exposed)
-  app.get("/api/openai-status", (req: Request, res: Response) => {
-    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    const hasApiKey = !!process.env.OPENAI_API_KEY;
-
-    res.json({
-      configured: hasApiKey,
-      status: hasApiKey ? "ready" : "not_configured",
-    });
-  });
-
-  // Stripe configuration endpoint (secure - only exposes publishable key)
-  app.get("/api/stripe-config", (req: Request, res: Response) => {
-    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-    
-    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
-    const hasSecretKey = !!process.env.STRIPE_SECRET_KEY;
-
-    res.json({
-      publishableKey: publishableKey || null,
-      configured: hasSecretKey,
-      status: hasSecretKey ? "ready" : "not_configured",
-    });
-  });
-
-  // General OpenAI chat endpoint
-  app.post("/api/openai-chat", async (req: Request, res: Response) => {
-    // Add CORS headers
-    const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type");
-
-    try {
-      console.log(" OpenAI API request received:", {
-        hasBody: !!req.body,
-        promptLength: req.body?.prompt?.length || 0,
-        maxTokens: req.body?.maxTokens,
-        responseFormat: req.body?.responseFormat,
-      });
-
-      // Secure rate limiting based on user/session instead of IP
-      // Allow unauthenticated users by always generating a session key if not present
-      let userId = await getUserIdFromRequest(req);
-      // Prefer sessionId from body if provided, else from session
-      const sessionId = req.body.sessionId || req.sessionID;
-      if (!sessionId) {
-        sessionId = `anon_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-      }
-
-      if (!openaiRateLimiter.canMakeRequest(userId, sessionId)) {
-        console.log("Rate limit exceeded for user/session:", userId || sessionId);
-        return res.status(429).json({
-          error: "Too many requests. Please wait a moment before trying again.",
-        });
-      }
-
-      // Check if OpenAI API key is configured
-      if (!process.env.OPENAI_API_KEY) {
-        console.error("OpenAI API key not configured");
-        return res.status(500).json({ error: "OpenAI API key not configured" });
-      }
-
-      const {
-        prompt,
-        messages: directMessages,
-        maxTokens = 1200,
-        max_tokens,
-        temperature = 0.7,
-        responseFormat = null,
-        systemMessage,
-      } = req.body;
-
-      let messages = [];
-
-      // Support both old format (prompt + systemMessage) and new format (messages array)
-      if (directMessages && Array.isArray(directMessages)) {
-        // New format: messages array passed directly
-        messages = directMessages;
-      } else if (prompt) {
-        // Old format: prompt + optional systemMessage
-        if (systemMessage) {
-          messages.push({
-            role: "system",
-            content: systemMessage,
-          });
-        }
-        messages.push({
-          role: "user",
-          content: prompt,
-        });
-      } else {
-        return res
-          .status(400)
-          .json({ error: "Either 'messages' array or 'prompt' is required" });
-      }
-
-      const requestBody: any = {
-        model: "gpt-4o-mini", // Using gpt-4o-mini for cost efficiency
-        messages,
-        max_tokens: max_tokens || maxTokens,
-        temperature: temperature,
-      };
-
-      // Add response format if specified (for JSON responses)
-      if (responseFormat) {
-        requestBody.response_format = responseFormat;
-      }
-
-      // Add timeout to OpenAI request
-      const openaiResponse = (await Promise.race([
-        fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify(requestBody),
-        }),
-        new Promise((_, reject) =>
-          setTimeout(
-            () =>
-              reject(
-                new Error("OpenAI API request timed out after 30 seconds"),
-              ),
-            30000,
-          ),
-        ),
-      ])) as Response;
-
-      if (!openaiResponse.ok) {
-        const errorText = await openaiResponse.text();
-        console.error(
-          `OpenAI API error: ${openaiResponse.status}`,
-          errorText,
-        );
-        throw new Error(
-          `OpenAI API error: ${openaiResponse.status} - ${errorText}`,
-        );
-      }
-
-      const data = await openaiResponse.json();
-      console.log(
-        "OpenAI API response received, content length:",
-        data.choices?.[0]?.message?.content?.length || 0,
-      );
-
-      const content = data.choices[0].message.content;
-
-      res.json({ content });
-    } catch (error) {
-      console.error("Error in OpenAI chat:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-
-      // Handle rate limit errors specifically
-      if (error instanceof Error && error.message.includes("429")) {
-        console.warn(" Rate limited by OpenAI");
-        res.status(429).json({
-          error: "Rate limited by OpenAI",
-          details: "Please try again in a few seconds",
-          retry: true,
-        });
-      } else {
-        res.status(500).json({
-          error: "OpenAI API request failed",
-          details: errorMessage,
-        });
-      }
-    }
-  });
-
-  // Skills analysis endpoint using OpenAI
-  app.post("/api/analyze-skills", async (req: Request, res: Response) => {
-    try {
-      const { quizData, requiredSkills, businessModel, userProfile } = req.body;
-
-      const prompt = `
-        Based on your quiz responses, analyze your current skill level for each required skill for ${businessModel}:
-
-        YOUR PROFILE:
-        ${userProfile}
-
-        REQUIRED SKILLS:
-        ${requiredSkills.map((skill: string) => `- ${skill}`).join("\n")}
-
-        For each skill, determine:
-        1. Status: "have" (you already have this skill), "working-on" (you have some experience but need development), or "need" (you don't have this skill)
-        2. Confidence: 1-10 score of how confident you are in this assessment
-        3. Reasoning: Brief explanation of why you categorized it this way
-
-        Return a JSON object with this structure:
-        {
-          "skillAssessments": [
-            {
-              "skill": "skill name",
-              "status": "have" | "working-on" | "need",
-              "confidence": 1-10,
-              "reasoning": "brief explanation"
-            }
-          ]
-        }
-
-        Base your assessment on:
-        - Your experience level and existing skills
-        - Your learning preferences and willingness to learn
-        - Your time commitment and motivation
-        - Your tech comfort level
-        - Your communication and work preferences
-        - Your past tools and experience indicators
-      `;
-
-      const openaiResponse = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "gpt-4o-mini", // Using gpt-4o-mini for cost efficiency
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are an expert career coach and skills assessor. Analyze profiles and provide accurate skill assessments for business models. Always address the user directly using 'you' and 'your'.",
-              },
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-            response_format: { type: "json_object" },
-            temperature: 0.7,
-          }),
-        },
-      );
-
-      if (!openaiResponse.ok) {
-        throw new Error(`OpenAI API error: ${openaiResponse.status}`);
-      }
-
-      const data = await openaiResponse.json();
-      const content = data.choices[0].message.content;
-      const result = JSON.parse(content);
-
-      // Store skills analysis in database if user is authenticated
-      try {
-        const userId = await getUserIdFromRequest(req);
-        if (userId) {
-          const attempts = await storage.getQuizAttempts(userId);
-          const quizAttemptId = attempts.length > 0 ? attempts[0].id : undefined;
-          if (quizAttemptId) {
-            await storage.saveAIContentToQuizAttempt(
-              quizAttemptId,
-              `skills_${businessModel}`,
-              result,
-            );
-            console.log(
-              `✅ Skills analysis for ${businessModel} stored in database`,
-            );
-          }
-        }
-      } catch (dbError) {
-        // Import error handler dynamically to avoid circular dependencies
-        const { ErrorHandler } = await import("./utils/errorHandler.js");
-        await ErrorHandler.handleStorageError(dbError as Error, {
-          operation: "store_skills_analysis",
-          context: {},
-          isCritical: false, // Non-critical as the main result is still returned
-          shouldThrow: false,
-        });
-      }
-
-      res.json(result);
-    } catch (error) {
-      console.error("Error in skills analysis:", error);
-
-      // Return fallback analysis
-      const { requiredSkills } = req.body;
-      const third = Math.ceil(requiredSkills.length / 3);
-
-      const fallbackResult = {
-        skillAssessments: [
-          ...requiredSkills.slice(0, third).map((skill: string) => ({
-            skill,
-            status: "have",
-            confidence: 7,
-            reasoning:
-              "Based on your quiz responses, you show strong aptitude for this skill",
-          })),
-          ...requiredSkills.slice(third, third * 2).map((skill: string) => ({
-            skill,
-            status: "working-on",
-            confidence: 6,
-            reasoning:
-              "You have some experience but could benefit from further development",
-          })),
-          ...requiredSkills.slice(third * 2).map((skill: string) => ({
-            skill,
-            status: "need",
-            confidence: 8,
-            reasoning:
-              "This skill would need to be developed for optimal success",
-          })),
-        ],
-      };
-
-      // Store fallback skills analysis in database if user is authenticated
-      try {
-        const userId = await getUserIdFromRequest(req);
-        if (userId) {
-          const attempts = await storage.getQuizAttempts(userId);
-          const quizAttemptId = attempts.length > 0 ? attempts[0].id : undefined;
-          if (quizAttemptId) {
-            const { businessModel } = req.body;
-            await storage.saveAIContentToQuizAttempt(
-              quizAttemptId,
-              `skills_${businessModel}`,
-              fallbackResult,
-            );
-            console.log(
-              `✅ Fallback skills analysis for ${businessModel} stored in database`,
-            );
-          }
-        }
-      } catch (dbError) {
-        const { ErrorHandler } = await import("./utils/errorHandler.js");
-        await ErrorHandler.handleStorageError(dbError as Error, {
-          operation: "store_fallback_skills_analysis",
-          context: {},
-          isCritical: false,
-          shouldThrow: false,
-        });
-      }
-
-      res.json(fallbackResult);
-    }
-  });
 
   // AI-powered business fit scoring endpoint
   app.post(
@@ -856,56 +954,49 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Save AI content for a specific quiz attempt
-  app.post(
-    "/api/quiz-attempts/attempt/:quizAttemptId/ai-content",
-    async (req: Request, res: Response) => {
-      try {
-        const quizAttemptId = parseInt(req.params.quizAttemptId);
-        const { contentType, content, aiContent } = req.body;
-        const currentUserId = await getUserIdFromRequest(req);
 
-        // Require authentication for AI content
-        if (!currentUserId) {
-          return res.status(401).json({ error: "Not authenticated" });
-        }
 
-        // Support both new format (contentType + content) and old format (aiContent)
-        const contentToSave = aiContent || content;
-        if (!contentToSave) {
-          return res.status(400).json({ error: "AI content is required" });
-        }
-
-        // Save to database
-        await storage.saveAIContent(quizAttemptId, contentType || "results-preview", contentToSave);
-
-        res.json({ success: true });
-      } catch (error) {
-        console.error("Error saving AI content:", error);
-        res.status(500).json({ error: "Failed to save AI content" });
-      }
-    }
-  );
-
-  // Get AI content for a specific quiz attempt
+  // Check report unlock status for a specific quiz attempt
   app.get(
-    "/api/quiz-attempts/attempt/:quizAttemptId/ai-content",
+    "/api/report-unlock-status/:userId/:quizAttemptId",
     async (req: Request, res: Response) => {
       try {
+        const userId = parseInt(req.params.userId);
         const quizAttemptId = parseInt(req.params.quizAttemptId);
-        const { contentType } = req.query;
         const currentUserId = await getUserIdFromRequest(req);
 
-        // Require authentication for AI content
+        // Check if user is authenticated
         if (!currentUserId) {
           return res.status(401).json({ error: "Not authenticated" });
         }
 
-        const aiContent = await storage.getAIContent(quizAttemptId, contentType as string || "results-preview");
-        res.json({ success: true, aiContent });
+        // Check if user is requesting their own data
+        if (currentUserId !== userId) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+
+        // Check if quiz attempt exists and belongs to user
+        const quizAttempt = await storage.getQuizAttempt(quizAttemptId);
+        if (!quizAttempt) {
+          return res.status(404).json({ error: "Quiz attempt not found" });
+        }
+
+        if (quizAttempt.userId !== userId) {
+          return res.status(403).json({ error: "Access denied" });
+        }
+
+        // Check if the quiz attempt is unlocked using the new field
+        const isUnlocked = await storage.isQuizAttemptUnlocked(quizAttemptId);
+
+        res.json({
+          success: true,
+          isUnlocked,
+          quizAttemptId,
+          userId
+        });
       } catch (error) {
-        console.error("Error getting AI content:", error);
-        res.status(500).json({ error: "Failed to get AI content" });
+        console.error("Error checking report unlock status:", error);
+        res.status(500).json({ error: "Failed to check unlock status" });
       }
     }
   );
@@ -1001,120 +1092,7 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   );
 
-  // Get latest quiz data for authenticated user (for business model pages)
-  app.get("/api/auth/latest-quiz-data", async (req: Request, res: Response) => {
-    console.log("LATEST QUIZ DATA: Endpoint called!");
-    console.log("API: GET /api/auth/latest-quiz-data", {
-      sessionId: req.sessionID,
-      userId: req.session?.userId,
-      hasCookie: !!req.headers.cookie,
-    });
 
-    try {
-      // Debug session information before calling getUserIdFromRequest
-      const sessionKey = getSessionKey(req);
-      console.log("Latest quiz data: Session debug", {
-        sessionUserId: req.session?.userId,
-        sessionKey: sessionKey,
-        userAgent: req.headers["user-agent"]?.substring(0, 50) + "...",
-        ip: req.ip || req.connection.remoteAddress,
-      });
-
-      const userId = await getUserIdFromRequest(req);
-      console.log("Latest quiz data: getUserIdFromRequest returned", userId);
-
-      if (!userId) {
-        console.log(
-          "Latest quiz data: No userId found via getUserIdFromRequest",
-        );
-
-        console.log("Latest quiz data: Not authenticated - returning 401", {
-          sessionUserId: req.session?.userId,
-          cacheUserId: userId,
-          sessionKey: getSessionKey(req),
-        });
-        return res.status(401).json({ error: "Not authenticated" });
-      }
-
-      console.log(
-        `Latest quiz data: Authenticated user ${userId}, fetching attempts`,
-      );
-
-      console.log(`Latest quiz data: Fetching attempts for user ${userId}`);
-      const attempts = await storage.getQuizAttempts(userId);
-      console.log(
-        `Latest quiz data: Found ${attempts.length} attempts for user ${userId}`,
-      );
-
-      if (attempts.length > 0) {
-        console.log(
-          `Latest quiz data: Returning quiz data for user ${userId}, attempt ${attempts[0].id}`,
-        );
-        res.json({
-          quizData: attempts[0].quizData,
-          quizAttemptId: attempts[0].id,
-        });
-      } else {
-        console.log(
-          `Latest quiz data: No attempts found for user ${userId}, returning null`,
-        );
-        res.json(null);
-      }
-    } catch (error) {
-      console.error("Error getting latest quiz data:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Get latest PAID quiz data for authenticated user (for navigation guard)
-  app.get(
-    "/api/auth/latest-paid-quiz-data",
-    async (req: Request, res: Response) => {
-      console.log("API: GET /api/auth/latest-paid-quiz-data", {
-        sessionId: req.sessionID,
-        userId: req.session?.userId,
-        hasCookie: !!req.headers.cookie,
-      });
-
-      try {
-        const userId = await getUserIdFromRequest(req);
-        if (!userId) {
-          return res.status(401).json({ error: "Not authenticated" });
-        }
-
-        console.log(`Latest paid quiz data: Fetching for user ${userId}`);
-
-        // Get user info
-        const user = await storage.getUser(userId);
-        if (!user) {
-          return res.status(404).json({ error: "User not found" });
-        }
-
-        const attempts = await storage.getQuizAttempts(userId);
-        console.log(`Latest paid quiz data: Found ${attempts.length} attempts`);
-
-        if (attempts.length === 0) {
-          console.log("Latest paid quiz data: No attempts found");
-          return res.json(null);
-        }
-
-        // In pure pay-per-report model: all logged-in users have access to their latest quiz data
-        // They just need to pay per report unlock if they want full reports
-        const latestAttempt = attempts[0]; // attempts are sorted by most recent
-        console.log(
-          `Latest paid quiz data: Returning latest attempt ${latestAttempt.id}`,
-        );
-        return res.json({
-          quizData: latestAttempt.quizData,
-          quizAttemptId: latestAttempt.id,
-          isUnlocked: true,
-        });
-      } catch (error) {
-        console.error("Error getting latest paid quiz data:", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
-  );
 
   // Save quiz data with 3-tier caching system
   app.post("/api/save-quiz-data", async (req: Request, res: Response) => {
@@ -1340,78 +1318,7 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Legacy endpoint for backward compatibility
-  app.post("/api/auth/save-quiz-data", async (req: Request, res: Response) => {
-    console.log(
-      "API: Legacy /api/auth/save-quiz-data redirecting to new endpoint",
-    );
 
-    // Ensure user is authenticated for legacy endpoint
-    const userId = getUserIdFromRequest(req);
-    if (!userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
-
-    // Add userId to body and forward to new endpoint
-    req.body.userId = userId;
-
-    // Call new endpoint logic
-    const { quizData, paymentId } = req.body;
-    if (!quizData) {
-      return res.status(400).json({ error: "Quiz data is required" });
-    }
-
-    try {
-      const user = await storage.getUser(userId);
-      const isPaid = await storage.isPaidUser(userId);
-
-      // Check if user already has a recent quiz attempt (within last 5 minutes)
-      const recentAttempts = await storage.getQuizAttempts(userId);
-      const recentAttempt = recentAttempts.find(attempt => {
-        const attemptTime = new Date(attempt.completedAt).getTime();
-        const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-        return attemptTime > fiveMinutesAgo;
-      });
-
-      if (recentAttempt) {
-        console.log(
-          `Legacy save quiz data: Found recent quiz attempt ${recentAttempt.id} for user ${userId}, skipping duplicate creation`,
-        );
-        return res.json({
-          success: true,
-          attemptId: recentAttempt.id,
-          message: "Using existing quiz attempt",
-          isFirstQuiz: false,
-          requiresPayment: false,
-          quizAttemptId: recentAttempt.id,
-          isExisting: true,
-        });
-      }
-
-      const attempt = await storage.recordQuizAttempt({
-        userId: userId,
-        quizData,
-      });
-
-      // Note: Session establishment removed - frontend will handle user ID locally during quiz flow
-
-      console.log(
-        `Legacy save quiz data: Quiz attempt recorded with ID ${attempt.id} for user ${userId}`,
-      );
-
-      res.json({
-        success: true,
-        attemptId: attempt.id,
-        message: "Quiz data saved successfully",
-        isFirstQuiz: (await storage.getQuizAttempts(userId)).length === 1,
-        requiresPayment: false,
-        quizAttemptId: attempt.id,
-      });
-    } catch (error) {
-      console.error("Error in legacy save quiz data:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
 
   // Access pass concept removed - use report unlock payments instead
 
@@ -1428,12 +1335,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (!pricingUser) {
         return res.status(404).json({ error: "User not found" });
       }
-      // Determine pricing: $9.99 for unpaid, $4.99 for paid
+      // Determine pricing: $9.99 for new users, $4.99 for paid users
       const payments = await storage.getPaymentsByUser(parseInt(userId));
       let amountDollar;
-      if (pricingUser.isPaid === true) {
+      if (pricingUser.isPaid === true && !pricingUser.isTemporary) {
+        // Paid users (converted from temporary) get $4.99 for subsequent quizzes
         amountDollar = "4.99";
       } else {
+        // New users (temporary) pay $9.99 for first quiz
         amountDollar = "9.99";
       }
 
@@ -1645,12 +1554,14 @@ export async function registerRoutes(app: Express): Promise<void> {
             error: "Report is already unlocked for this quiz attempt"
           });
         }
-        // Determine report unlock price based on finalUser.isPaid
+        // Determine report unlock price based on user type
         let amount, amountDollar;
-        if (finalUser.isPaid === true) {
+        if (finalUser.isPaid === true && !finalUser.isTemporary) {
+          // Paid users (converted from temporary) get $4.99 for subsequent quizzes
           amount = 499;
           amountDollar = "4.99";
         } else {
+          // New users (temporary) pay $9.99 for first quiz
           amount = 999;
           amountDollar = "9.99";
         }
@@ -1996,12 +1907,14 @@ export async function registerRoutes(app: Express): Promise<void> {
           });
         }
 
-        // Determine report unlock price based on user.isPaid
+        // Determine report unlock price based on user type
         let amount, paypalAmount;
-        if (user.isPaid === true) {
+        if (user.isPaid === true && !user.isTemporary) {
+          // Paid users (converted from temporary) get $4.99 for subsequent quizzes
           amount = 499;
           paypalAmount = "4.99";
         } else {
+          // New users (temporary) pay $9.99 for first quiz
           amount = 999;
           paypalAmount = "9.99";
         }
@@ -2375,7 +2288,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       // TODO: Add admin authentication check here
       // For now, we'll add a simple API key check
       const adminKey = req.headers["x-admin-key"];
-      if (adminKey !== process.env.ADMIN_API_KEY) {
+      if (adminKey !== process.env.ADMIN_SECRET) {
         return res.status(401).json({ error: "Unauthorized" });
       }
 
@@ -2618,7 +2531,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.get("/api/admin/refunds", async (req: Request, res: Response) => {
     try {
       const adminKey = req.headers["x-admin-key"];
-      if (adminKey !== process.env.ADMIN_API_KEY) {
+      if (adminKey !== process.env.ADMIN_SECRET) {
         return res.status(401).json({ error: "Unauthorized" });
       }
 
@@ -2689,11 +2602,41 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // PDF report page endpoint (for Playwright to render)
+  app.get("/pdf-report", async (req: Request, res: Response) => {
+    try {
+      const dataParam = req.query.data as string;
+      if (!dataParam) {
+        return res.status(400).send("No data provided");
+      }
+
+      // Decode the base64 data
+      const decodedData = Buffer.from(
+        decodeURIComponent(dataParam).replace("data:application/json;base64,", ""),
+        'base64'
+      ).toString();
+      const data = JSON.parse(decodedData);
+
+      if (!data.quizData) {
+        return res.status(400).send("Invalid data format");
+      }
+
+      // Generate HTML for the PDF report
+      const htmlContent = generatePDFReportHTML(data);
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.send(htmlContent);
+    } catch (error) {
+      console.error("PDF report generation error:", error);
+      res.status(500).send("Failed to generate PDF report");
+    }
+  });
+
   // PDF generation endpoint
   app.post("/api/generate-pdf", async (req: Request, res: Response) => {
     console.log('[PDF DEBUG] /api/generate-pdf route handler called');
     try {
-      const { quizData, userEmail, aiAnalysis, topBusinessPath } = req.body;
+      const { quizData, userEmail, aiAnalysis, topBusinessPath, businessScores } = req.body;
 
       console.log("PDF generation request received", {
         hasQuizData: !!quizData,
@@ -2712,12 +2655,12 @@ export async function registerRoutes(app: Express): Promise<void> {
         : "https://bizmodelai.com";
       console.log("Base URL:", baseUrl);
 
-      // Generate PDF with AI data included
       const pdfBuffer = await pdfService.generatePDF({
         quizData,
         userEmail,
         aiAnalysis,
         topBusinessPath,
+        businessScores,
         baseUrl,
       });
 
@@ -3260,6 +3203,87 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
       }
     } catch (error) {
       console.error("Error in /api/send-email:", error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Send quiz results email
+  app.post("/api/send-quiz-results", async (req, res) => {
+    try {
+      const { email, quizData, attemptId } = req.body;
+      if (!email || !quizData) {
+        return res.status(400).json({ success: false, error: "Missing email or quiz data" });
+      }
+
+      console.log('[EMAIL DEBUG] Sending quiz results to:', email);
+      
+      // Check if user has paid for this specific report
+      let hasPaidForReport = false;
+      if (attemptId) {
+        const attempt = await db.quizAttempt.findUnique({
+          where: { id: attemptId },
+          include: { user: true }
+        });
+        
+        if (attempt?.user) {
+          // Check if there's a successful payment for this specific quiz attempt
+          const payment = await db.payment.findFirst({
+            where: {
+              userId: attempt.user.id,
+              quizAttemptId: attemptId,
+              status: 'completed'
+            }
+          });
+          hasPaidForReport = !!payment;
+        }
+      }
+      
+      const result = await emailService.sendQuizResults(email, quizData, attemptId, hasPaidForReport);
+      console.log('[EMAIL DEBUG] /api/send-quiz-results result:', result);
+      
+      if (result.success) {
+        res.json({ success: true, message: "Quiz results sent successfully" });
+      } else if (result.rateLimitInfo) {
+        res.status(429).json({ 
+          success: false, 
+          error: "Rate limit exceeded", 
+          rateLimitInfo: result.rateLimitInfo 
+        });
+      } else {
+        res.status(500).json({ success: false, error: "Failed to send quiz results" });
+      }
+    } catch (error) {
+      console.error("Error in /api/send-quiz-results:", error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
+  // Send full report email
+  app.post("/api/send-full-report", async (req, res) => {
+    try {
+      const { email, quizData, attemptId } = req.body;
+      if (!email || !quizData) {
+        return res.status(400).json({ success: false, error: "Missing email or quiz data" });
+      }
+
+      console.log('[EMAIL DEBUG] Sending full report to:', email);
+      
+      const result = await emailService.sendFullReport(email, quizData, attemptId);
+      console.log('[EMAIL DEBUG] /api/send-full-report result:', result);
+      
+      if (result.success) {
+        res.json({ success: true, message: "Full report sent successfully" });
+      } else if (result.rateLimitInfo) {
+        res.status(429).json({ 
+          success: false, 
+          error: "Rate limit exceeded", 
+          rateLimitInfo: result.rateLimitInfo 
+        });
+      } else {
+        res.status(500).json({ success: false, error: "Failed to send full report" });
+      }
+    } catch (error) {
+      console.error("Error in /api/send-full-report:", error);
       res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
     }
   });

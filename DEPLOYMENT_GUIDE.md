@@ -1,115 +1,154 @@
-# 🚀 Vercel Deployment Guide for BizModelAI
+# Deployment Guide for Render
 
-## Pre-Deployment Checklist ✅
+## Overview
+This guide covers deploying the Business Model Finder application to Render.
 
-### 1. **Environment Variables Setup**
-Copy these to your Vercel Dashboard → Project Settings → Environment Variables:
+## Prerequisites
+- Render account
+- Database (PostgreSQL recommended)
+- Environment variables configured
 
-```env
-# Required
-JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
-DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
-FRONTEND_URL=https://your-domain.vercel.app
+## Environment Variables Required
 
-# Optional but recommended
-OPENAI_API_KEY=sk-your-openai-api-key
-STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
-STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-RESEND_API_KEY=your_resend_api_key
+Set these environment variables in your Render dashboard:
 
-# Client-side variables
-VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
-VITE_PAYPAL_CLIENT_ID=your_paypal_client_id
-```
+### Required Variables
+- `DATABASE_URL` - PostgreSQL connection string
+- `SESSION_SECRET` - Secret key for session management
+- `OPENAI_API_KEY` - OpenAI API key for AI features
+- `STRIPE_SECRET_KEY` - Stripe secret key for payments
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
+- `ADMIN_SECRET` - Secret for admin access
+- `RESEND_API_KEY` - Resend API key for emails
 
-### 2. **Build Configuration**
-- ✅ `vercel.json` configured for Node.js 20.x
-- ✅ Frontend builds to `client/dist`
-- ✅ API routes in `/api` directory
-- ✅ Proper memory allocation for AI routes
-
-### 3. **Database Setup**
-- ✅ Prisma schema ready
-- ✅ Neon PostgreSQL recommended
-- ✅ Auto-expiration for quiz data implemented
+### Optional Variables
+- `NODE_ENV` - Set to "production" (default)
+- `FRONTEND_URL` - Set to your Render URL (auto-configured)
+- `JWT_SECRET` - JWT secret (if using JWT auth)
 
 ## Deployment Steps
 
-### 1. **Connect Repository**
-```bash
-# Install Vercel CLI (if needed)
-npm i -g vercel
+### 1. Connect Repository
+1. Connect your GitHub repository to Render
+2. Select the repository containing this project
 
-# Deploy from project root
-vercel
-```
+### 2. Configure Service
+- **Service Type**: Web Service
+- **Environment**: Node
+- **Plan**: Starter (or higher for production)
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `npm start`
+- **Health Check Path**: `/api/health`
 
-### 2. **Configure Build Settings**
-- Framework Preset: **Other**
-- Build Command: `cd client && yarn install && yarn build`
-- Output Directory: `client/dist`
-- Install Command: `yarn install`
+### 3. Set Environment Variables
+Add all required environment variables in the Render dashboard.
 
-### 3. **Set Environment Variables**
-In Vercel Dashboard:
-1. Go to Project Settings → Environment Variables
-2. Add all variables from `.env.vercel` template
-3. Set for Production, Preview, and Development
+### 4. Deploy
+1. Click "Create Web Service"
+2. Render will automatically build and deploy your application
+3. Monitor the build logs for any issues
 
-### 4. **Database Migration**
-After first deployment, run:
-```bash
-# Connect to production
-vercel env pull .env.production
-npx prisma db push
-```
+## Build Process
 
-## Post-Deployment Verification
+The build process:
+1. Installs dependencies (`npm install`)
+2. Builds the frontend (`cd client && yarn build`)
+3. Compiles TypeScript (`tsc`)
+4. Creates production-ready files in `dist/` directory
 
-### ✅ Check These URLs:
-- `https://your-domain.vercel.app` - Homepage loads
-- `https://your-domain.vercel.app/api/health` - API working
-- `https://your-domain.vercel.app/quiz` - Quiz functionality
-- `https://your-domain.vercel.app/results` - Results page
+## Production Configuration
 
-### ✅ Test Core Features:
-1. **Quiz Flow**: Take quiz → Get results
-2. **Email Capture**: Provide email → Temporary user created
-3. **Payment Flow**: Pay for report → Access unlocked
-4. **User Accounts**: Login → Dashboard access
+### Session Security
+- Secure cookies enabled in production
+- SameSite set to 'strict' in production
+- HTTP-only cookies enabled
+
+### CORS Configuration
+- Allows requests from production domain
+- Credentials enabled for authenticated requests
+- Proper origin validation
+
+### Static File Serving
+- Frontend built files served from `/client/dist`
+- SPA routing handled by catch-all route
+- API routes served from `/api/*`
+
+## Health Checks
+
+The application provides health check endpoints:
+- `/api/health` - Basic health check
+- `/api/admin/health` - Admin health check with database stats
+
+## Monitoring
+
+### Logs
+- Application logs available in Render dashboard
+- Error tracking and monitoring recommended
+
+### Performance
+- Monitor response times
+- Check database connection health
+- Monitor API usage
 
 ## Troubleshooting
 
-### Common Issues:
+### Common Issues
 
-**Build Fails:**
-- Check Node.js version (20.x required)
-- Verify all dependencies installed
-- Check for TypeScript errors
+1. **Build Failures**
+   - Check TypeScript compilation errors
+   - Verify all dependencies are installed
+   - Check for missing environment variables
 
-**API Routes Fail:**
-- Verify environment variables set
-- Check database connection
-- Monitor function logs in Vercel
+2. **Database Connection Issues**
+   - Verify DATABASE_URL is correct
+   - Check database is accessible from Render
+   - Ensure database migrations are run
 
-**Database Connection:**
-- Ensure `DATABASE_URL` format correct
-- Check SSL mode requirements
-- Verify firewall settings
+3. **Session Issues**
+   - Verify SESSION_SECRET is set
+   - Check cookie settings in production
+   - Ensure CORS is properly configured
 
-### Performance Optimization:
-- ✅ AI routes have 1024MB memory
-- ✅ Standard routes have 512MB memory
-- ✅ Prisma connection pooling enabled
-- ✅ Client-side caching implemented
+4. **API Errors**
+   - Check environment variables
+   - Verify external API keys (OpenAI, Stripe)
+   - Monitor rate limits
+
+### Debug Commands
+
+```bash
+# Check TypeScript compilation
+npm run check
+
+# Build locally to test
+npm run build
+
+# Test production build
+npm start
+```
+
+## Post-Deployment
+
+### Database Setup
+1. Run Prisma migrations: `npx prisma migrate deploy`
+2. Generate Prisma client: `npx prisma generate`
+
+### Testing
+1. Test health check endpoint
+2. Verify authentication flow
+3. Test payment integration
+4. Check email functionality
+
+### Security
+1. Verify HTTPS is enabled
+2. Check security headers
+3. Validate CORS settings
+4. Test session security
 
 ## Support
 
-For deployment issues:
-1. Check Vercel function logs
+For issues:
+1. Check Render logs
 2. Verify environment variables
-3. Test API routes individually
-4. Monitor database connections
-
-**Ready to Deploy!** 🎉
+3. Test locally with production settings
+4. Contact support if needed

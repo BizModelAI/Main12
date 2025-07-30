@@ -27,32 +27,13 @@ export const useReportUnlock = (
     setIsLoading(true);
     setError(null);
     try {
-      // If paymentId is provided, check payment status directly
-      if (resolvedPaymentId) {
-        const response = await fetch(`/api/payment-status/${resolvedPaymentId}`, {
-          credentials: "include",
-        });
-        if (!response.ok) throw new Error("Failed to check payment status");
-        const data = await response.json();
-        setIsUnlocked(data.status === "succeeded" || data.status === "completed");
-        setIsLoading(false);
-        return;
-      }
-      // Otherwise, try to find a completed payment for this quizAttemptId
-      const response = await fetch(`/api/admin/payments`, {
+      // Use the new report unlock status endpoint
+      const response = await fetch(`/api/report-unlock-status/${user.id}/${quizAttemptId}`, {
         credentials: "include",
       });
-      if (!response.ok) throw new Error("Failed to fetch payments");
+      if (!response.ok) throw new Error("Failed to check unlock status");
       const data = await response.json();
-      const completedPayment = (data as any[]).find(
-        (p) => p.quizAttemptId === quizAttemptId && p.status === "completed"
-      );
-      if (completedPayment) {
-        setResolvedPaymentId(completedPayment.id);
-        setIsUnlocked(true);
-      } else {
-        setIsUnlocked(false);
-      }
+      setIsUnlocked(data.isUnlocked);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
       setIsUnlocked(false);

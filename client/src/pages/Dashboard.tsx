@@ -121,7 +121,7 @@ const Dashboard: React.FC = () => {
     };
 
     loadBusinessModelScores();
-  }, [user, authLoading, isRealUser, getLatestQuizData]);
+  }, [user, authLoading, isRealUser]);
 
 
 

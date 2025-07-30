@@ -1,0 +1,428 @@
+import express from 'express';
+
+import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
+import { getUserIdFromRequest } from '../auth.js';
+
+const router = express.Router();
+const prisma = new PrismaClient();
+
+// Helper functions - removed JWT functions, using main auth system
+
+// Validation schemas
+const quizDataSchema = z.object({
+  mainMotivation: z.string().optional(),
+  workStyle: z.string().optional(),
+  riskTolerance: z.string().optional(),
+  timeCommitment: z.string().optional(),
+  financialGoals: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  interests: z.array(z.string()).optional(),
+  experience: z.string().optional(),
+  location: z.string().optional(),
+  budget: z.string().optional()
+});
+
+const recordGuestSchema = z.object({
+  quizData: quizDataSchema,
+  quizAttemptId: z.string(),
+  tempUserId: z.number().optional()
+});
+
+// Routes
+router.post('/record-guest', async (req: any, res: any) => {
+  try {
+    const { quizData, quizAttemptId, tempUserId } = recordGuestSchema.parse(req.body);
+    
+    // Create or find temp user
+    let userId: number;
+    if (tempUserId) {
+      userId = tempUserId;
+    } else {
+      const tempUser = await prisma.user.create({
+        data: {
+          email: `temp-${Date.now()}@temp.com`,
+          password: 'temp-password',
+          firstName: 'Guest',
+          lastName: 'User',
+          isTemporary: true
+        }
+      });
+      userId = tempUser.id;
+    }
+    
+    // Record quiz attempt
+    const quizAttempt = await prisma.quizAttempt.create({
+      data: {
+        quizAttemptId,
+        userId,
+        quizData,
+        completedAt: new Date()
+      }
+    });
+    
+    res.status(201).json({
+      success: true,
+      attemptId: quizAttempt.id,
+      userId
+    });
+  } catch (error) {
+    console.error('Record guest error:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid input data', details: error.errors });
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/record', async (req: any, res: any) => {
+  try {
+    const token = getUserIdFromRequest(req);
+    if (!token) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const { quizData, quizAttemptId } = req.body;
+    
+    const quizAttempt = await prisma.quizAttempt.create({
+      data: {
+        quizAttemptId,
+        userId: token,
+        quizData,
+        completedAt: new Date()
+      }
+    });
+    
+    res.status(201).json({
+      success: true,
+      attemptId: quizAttempt.id
+    });
+  } catch (error) {
+    console.error('Record quiz error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/', async (req: any, res: any) => {
+  try {
+    const token = getUserIdFromRequest(req);
+    if (!token) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { userId: token },
+      orderBy: { completedAt: 'desc' },
+      include: {
+        aiContents: true
+      }
+    });
+    
+    res.json({ attempts });
+  } catch (error) {
+    console.error('Get attempts error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/:id', async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const token = getUserIdFromRequest(req);
+    
+    let userId: number | undefined;
+    if (token) {
+      userId = token;
+    }
+    
+    const attempt = await prisma.quizAttempt.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        aiContents: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    // Check if user can access this attempt
+    if (userId && attempt.userId !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    res.json({ attempt });
+  } catch (error) {
+    console.error('Get attempt error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/user/:userId', async (req: any, res: any) => {
+  try {
+    const { userId } = req.params;
+    const token = getUserIdFromRequest(req);
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    if (token !== parseInt(userId)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { userId: parseInt(userId) },
+      orderBy: { completedAt: 'desc' },
+      include: {
+        aiContents: true
+      }
+    });
+    
+    res.json({ attempts });
+  } catch (error) {
+    console.error('Get user attempts error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/by-id/:attemptId', async (req: any, res: any) => {
+  try {
+    const { attemptId } = req.params;
+    
+    const attempt = await prisma.quizAttempt.findFirst({
+      where: { quizAttemptId: attemptId },
+      include: {
+        aiContents: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    res.json({ attempt });
+  } catch (error) {
+    console.error('Get attempt by ID error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// AI content routes
+router.get('/attempt/:quizAttemptId', async (req: any, res: any) => {
+  try {
+    const { quizAttemptId } = req.params;
+    
+    const attempt = await prisma.quizAttempt.findFirst({
+      where: { quizAttemptId },
+      include: {
+        aiContents: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    res.json({ attempt });
+  } catch (error) {
+    console.error('Get attempt by quizAttemptId error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
+  try {
+    const { quizAttemptId } = req.params;
+    const { content, contentType = 'business_analysis' } = req.body;
+    
+    const attempt = await prisma.quizAttempt.findUnique({
+      where: { id: parseInt(quizAttemptId) }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    // For authenticated users, verify access
+    const token = getUserIdFromRequest(req);
+    if (token) {
+      if (attempt.userId !== token) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+    } else {
+      // For unauthenticated users, check if this is a temporary user
+      if (attempt.userId) {
+        const user = await prisma.user.findUnique({
+          where: { id: attempt.userId }
+        });
+        
+        if (!user || !user.isTemporary) {
+          return res.status(401).json({ error: 'Authentication required for non-temporary users' });
+        }
+      } else {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+    }
+    
+    const aiContent = await prisma.aiContent.create({
+      data: {
+        quizAttemptId: attempt.id,
+        content,
+        contentType
+      }
+    });
+    
+    res.status(201).json({ aiContent });
+  } catch (error) {
+    console.error('Save AI content error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get AI content for a specific quiz attempt
+router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
+  try {
+    const { quizAttemptId } = req.params;
+    const { contentType } = req.query;
+    
+    // Find the quiz attempt by numeric ID
+    const attempt = await prisma.quizAttempt.findUnique({
+      where: { id: parseInt(quizAttemptId) }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    // For authenticated users, verify access
+    const token = getUserIdFromRequest(req);
+    if (token) {
+      if (attempt.userId !== token) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+    } else {
+      // For unauthenticated users, check if this is a temporary user
+      if (attempt.userId) {
+        const user = await prisma.user.findUnique({
+          where: { id: attempt.userId }
+        });
+        
+        if (!user || !user.isTemporary) {
+          return res.status(401).json({ error: 'Authentication required for non-temporary users' });
+        }
+      } else {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+    }
+    
+    // Get AI content
+    const aiContent = await prisma.aiContent.findFirst({
+      where: { 
+        quizAttemptId: attempt.id, 
+        contentType: contentType as string || 'results-preview' 
+      },
+      orderBy: { generatedAt: 'desc' }
+    });
+    
+    res.json({ success: true, aiContent });
+  } catch (error) {
+    console.error('Get AI content error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+import { EmailService } from '../services/emailService.js';
+
+router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
+  try {
+    const { quizAttemptId } = req.params;
+    const { email, firstName, lastName } = req.body;
+    
+    const attempt = await prisma.quizAttempt.findFirst({
+      where: { quizAttemptId }
+    });
+    
+    if (!attempt) {
+      return res.status(404).json({ error: 'Quiz attempt not found' });
+    }
+    
+    // Update user email if it's a temp user and the email is different
+    if (attempt.userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: attempt.userId }
+      });
+      
+      if (user && user.email !== email) {
+        try {
+          await prisma.user.update({
+            where: { id: attempt.userId },
+            data: { email }
+          });
+        } catch (error: any) {
+          console.log('Could not update user email (might already exist):', error.message);
+          // Continue with the email sending even if we can't update the user email
+        }
+      }
+    }
+    
+    // Check if user has paid for this specific report
+    let hasPaidForReport = false;
+    if (attempt.userId) {
+      // Check if there's a successful payment for this specific quiz attempt
+      const payment = await prisma.payment.findFirst({
+        where: {
+          userId: attempt.userId,
+          quizAttemptId: attempt.id,
+          status: 'completed'
+        }
+      });
+      hasPaidForReport = !!payment;
+    }
+    
+    // Send the actual email
+    const emailService = EmailService.getInstance();
+    const result = await emailService.sendQuizResults(email, attempt.quizData as any, attempt.id, hasPaidForReport);
+    
+    if (result.success) {
+      res.json({ success: true, message: 'Email sent successfully' });
+    } else {
+      res.status(429).json({ 
+        success: false, 
+        error: 'Rate limit exceeded',
+        rateLimitInfo: result.rateLimitInfo 
+      });
+    }
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+export default router; 

@@ -186,9 +186,11 @@ export class EmailService {
     }
   }
 
-  async sendQuizResults(email: string, quizData: QuizData, quizAttemptId?: number): Promise<{ success: boolean; rateLimitInfo?: { remainingTime: number; type: 'cooldown' | 'extended' } }> {
+  async sendQuizResults(email: string, quizData: QuizData, quizAttemptId?: number, hasPaidForReport: boolean = false): Promise<{ success: boolean; rateLimitInfo?: { remainingTime: number; type: 'cooldown' | 'extended' } }> {
     const subject = "Your BizModelAI Quiz Results";
-    const html = this.generateQuizResultsHTML(quizData, quizAttemptId);
+    const html = hasPaidForReport 
+      ? this.ResultsEmailTemplatePaid(quizData, quizAttemptId)
+      : this.ResultsEmailTemplate(quizData, quizAttemptId);
 
     return await this.sendEmail({
       to: email,
@@ -267,10 +269,86 @@ export class EmailService {
   }
 
   private generateQuizResultsHTML(quizData: QuizData, quizAttemptId?: number): string {
-    const topBusinessModel = this.getTopBusinessModel(quizData);
-    const personalizedPaths = this.getPersonalizedPaths(quizData);
-    const top3Paths = personalizedPaths.slice(0, 3);
+    // Use the new ResultsEmailTemplate for consistency
+    return this.ResultsEmailTemplate(quizData, quizAttemptId);
+  }
 
+  private getPersonalizedSnapshot(quizData: QuizData): string[] {
+    if (!quizData) return [
+      'Prefer flexibility with structure',
+      'Thrive on independent projects',
+      'Are motivated by financial freedom',
+      'Learn best by doing',
+      'Adapt quickly to new tools and systems',
+      'Value passion and personal meaning in your work',
+    ];
+    const lines: string[] = [];
+    
+    // 1. Work structure
+    if (quizData.workStructurePreference === 'some-structure' || quizData.workStructurePreference === 'mix-both') {
+      lines.push('Prefer flexibility with structure');
+    } else if (quizData.workStructurePreference === 'full-structure') {
+      lines.push('Prefer clear structure and routines');
+    } else {
+      lines.push('Comfortable with flexible or unstructured work');
+    }
+    
+    // 2. Collaboration
+    if (quizData.workCollaborationPreference === 'mostly-solo' || quizData.workCollaborationPreference === 'solo-flexible') {
+      lines.push('Thrive on independent projects');
+    } else if (quizData.workCollaborationPreference === 'team') {
+      lines.push('Enjoy collaborating with others');
+    } else {
+      lines.push('Open to both solo and team work');
+    }
+    
+    // 3. Motivation
+    if (quizData.mainMotivation === 'financial-freedom') {
+      lines.push('Are motivated by financial freedom');
+    } else if (quizData.mainMotivation === 'passion' || quizData.passionIdentityAlignment >= 4) {
+      lines.push('Driven by passion and personal meaning');
+    } else {
+      lines.push('Motivated by growth and new challenges');
+    }
+    
+    // 4. Learning style
+    if (quizData.learningPreference === 'hands-on') {
+      lines.push('Learn best by doing');
+    } else if (quizData.learningPreference === 'after-some-research') {
+      lines.push('Prefer to research before taking action');
+    } else {
+      lines.push('Adapt learning style to the situation');
+    }
+    
+    // 5. Tech skills/adaptability
+    if (quizData.techSkillsRating >= 4) {
+      lines.push('Confident with technology and new tools');
+    } else if (quizData.techSkillsRating === 3) {
+      lines.push('Comfortable with most digital tools');
+    } else {
+      lines.push('Willing to learn new technology as needed');
+    }
+    
+    // 6. Resilience/self-motivation
+    if (quizData.longTermConsistency >= 4 || quizData.selfMotivationLevel >= 4) {
+      lines.push('Highly self-motivated and consistent');
+    } else if (quizData.longTermConsistency === 3) {
+      lines.push('Stay motivated with clear goals and support');
+    } else {
+      lines.push('Working to build consistency and motivation');
+    }
+    
+    return lines.slice(0, 6);
+  }
+
+  private getTopBusinessPaths(quizData: QuizData) {
+    // Return first 3 business paths from personalized paths
+    return this.getPersonalizedPaths(quizData).slice(0, 3);
+  }
+
+  public ResultsEmailTemplate(quizData: QuizData, quizAttemptId?: number): string {
+    const topPaths = this.getTopBusinessPaths(quizData);
+    const snapshotLines = this.getPersonalizedSnapshot(quizData);
     const resultsLink = quizAttemptId
       ? `${process.env.FRONTEND_URL || "https://bizmodelai.com"}/results?quizAttemptId=${quizAttemptId}`
       : `${process.env.FRONTEND_URL || "https://bizmodelai.com"}/results`;
@@ -284,137 +362,243 @@ export class EmailService {
           <meta name="color-scheme" content="light only">
           <meta name="supported-color-schemes" content="light">
           <title>Your BizModelAI Results</title>
-          <style>
-            ${this.getBrighterStyles()}
-          </style>
         </head>
-        <body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F8FAFC !important; color: #000000 !important;">
-          <div class="email-container" style="max-width: 800px; margin: 0 auto; background: #FFFFFF !important; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #E5E7EB;">
-            <div class="header" style="background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%); color: white !important; padding: 60px 40px; text-align: center; position: relative; overflow: hidden;">
-              <div class="logo" style="width: 80px; height: 80px; margin: 0 auto 32px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;">
-                <img src="https://cdn.builder.io/api/v1/image/assets%2F8eb83e4a630e4b8d86715228efeb581b%2F8de3245c79ad43b48b9a59be9364a64e?format=webp&width=800" alt="BizModelAI Logo" style="width: 70px; height: 70px; object-fit: contain; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);">
-              </div>
-              <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 16px; position: relative; z-index: 1; color: white !important; letter-spacing: -0.025em;">Your AI-Powered Business Blueprint</h1>
-              <p style="font-size: 20px; opacity: 0.95; position: relative; z-index: 1; color: white !important; font-weight: 500;">Personalized recommendations based on your unique goals, skills, and preferences</p>
+        <body style="background: #f4f6fa; min-height: 100vh; padding: 0; font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; margin: 0;">
+          <div style="max-width: 700px; margin: 40px auto 0 auto; border-radius: 24px; box-shadow: 0 8px 32px rgba(37, 99, 235, 0.10); background: #fff; overflow: hidden;">
+            <!-- Gradient Hero with Centered Logo -->
+            <div style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 40%, #7c3aed 100%); padding: 56px 32px 56px 32px; text-align: center; border-radius: 0; margin: 0;">
+              <div style="font-size: 54px; margin-bottom: 10px; margin-top: 0;">🎉</div>
+              <h1 style="font-size: 36px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em; line-height: 1.1;">Your AI-Powered Business Blueprint</h1>
+              <p style="color: #e0e7ef; font-size: 15px; margin: 18px 0 0 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Personalized recommendations based on your unique goals, skills, and preferences</p>
             </div>
-            
-            <div class="content" style="padding: 60px 40px; background: #FFFFFF !important; color: #000000 !important;">
-              <div class="section" style="margin-bottom: 50px;">
-                <h2 class="section-title" style="font-size: 28px; font-weight: 700; color: #111827 !important; margin-bottom: 32px; display: flex; align-items: center; letter-spacing: -0.025em;">Your Best Fit Business Model</h2>
-                
-                <!-- Top Match Card -->
-                <div class="top-match-card" style="background: linear-gradient(135deg, #FEF3C7 0%, #FCD34D 5%, #FFFFFF 10%) !important; border: 3px solid #F59E0B; border-radius: 24px; padding: 40px; margin-bottom: 40px; position: relative; text-align: center; box-shadow: 0 20px 60px rgba(245, 158, 11, 0.15);">
-                  <div class="match-badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white !important; padding: 12px 24px; border-radius: 25px; font-size: 16px; font-weight: 700; display: inline-block; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);">
-                    ⭐ AI RECOMMENDED
+            <div style="padding: 40px 32px 32px 32px; background: #fff; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+              <!-- Add preview/description meta for email (invisible, for inbox snippet) -->
+              <div style="display: none; color: #fff;">Your personalized business model results are ready! See your best fit, AI insights, and how to unlock your full report.</div>
+              
+              ${topPaths[0] ? `
+                <div style="margin-bottom: 32px; border-radius: 16px; border: none; box-shadow: 0 8px 32px rgba(30, 41, 59, 0.18); padding: 40px 40px 24px 40px; background: #f1f5f9; text-align: left; position: relative; transition: box-shadow 0.2s; min-height: 140px; display: flex; flex-direction: column; justify-content: center;">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                      <span style="font-size: 38px; margin-right: 8px;">${topPaths[0].emoji || '💡'}</span>
+                      <h3 style="font-size: 27px; font-weight: 900; color: #18181b; margin: 0; letter-spacing: -0.01em; line-height: 1.1;">${topPaths[0].name}</h3>
+                    </div>
+                    <div style="text-align: center; margin-left: 18px;">
+                      <div style="font-weight: 900; font-size: 32px; color: #6366f1; line-height: 1;">${topPaths[0].fitScore}%</div>
+                      <div style="font-weight: 500; font-size: 15px; color: #64748b; line-height: 1; margin-top: 6px;">AI Match</div>
+                    </div>
                   </div>
-                  <h3 class="match-name" style="font-size: 32px; font-weight: 800; color: #111827 !important; margin-bottom: 16px; letter-spacing: -0.025em;">${topBusinessModel.name}</h3>
-                  <p class="match-description" style="font-size: 18px; color: #4B5563 !important; margin-bottom: 32px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">${topBusinessModel.description}</p>
-                  <div class="match-score" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #2563EB, #7C3AED); color: white !important; padding: 16px 32px; border-radius: 30px; font-weight: 700; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);">
-                    <span class="score-label" style="margin-right: 12px; font-size: 16px; color: white !important;">Fit Score:</span>
-                    <span class="score-value" style="font-size: 24px; font-weight: 800; color: white !important;">${topBusinessModel.fitScore}%</span>
+                  <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 700; color: #6366f1; font-size: 16px; margin-bottom: 6px;">Top Benefits</div>
+                    <ul style="color: #334155; font-size: 15px; margin: 0; padding: 0 0 0 18px; line-height: 1.7; list-style: disc;">
+                      ${(topPaths[0].pros ? topPaths[0].pros.slice(0, 3) : []).map((pro: string) => `<li style="margin-bottom: 6px;">${pro}</li>`).join('')}
+                    </ul>
                   </div>
+                  <p style="color: #18181b; font-size: 16px; margin-bottom: 24px; line-height: 1.7;">${topPaths[0].detailedDescription || topPaths[0].description}</p>
                 </div>
-                
-                <!-- Additional Business Models (Locked) -->
-                ${top3Paths.slice(1).map((path, index) => `
-                <div class="business-card" style="background: #FFFFFF !important; border: 2px solid #E5E7EB; border-radius: 24px; padding: 40px; margin-bottom: 32px; position: relative; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;">
-                  <div class="card-header" style="display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
-                    <div class="rank-badge" style="background: #F3F4F6; color: #6B7280 !important; padding: 8px 20px; border-radius: 25px; font-size: 14px; font-weight: 600; margin-right: 16px;">#${index + 2}</div>
-                    <div class="score-badge" style="background: linear-gradient(135deg, #2563EB, #7C3AED); color: white !important; padding: 10px 20px; border-radius: 25px; font-weight: 600; font-size: 16px; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);">${path.fitScore}% Match</div>
-                  </div>
-                  
-                  <h3 style="font-size: 24px; font-weight: 700; color: #111827 !important; margin-bottom: 16px; letter-spacing: -0.025em;">${path.name}</h3>
-                  <p style="font-size: 16px; color: #6B7280 !important; margin-bottom: 32px; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto;">${path.description}</p>
-                  
-                  <div class="path-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
-                    <div class="detail-item" style="background: #F9FAFB; padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
-                      <div style="font-size: 12px; color: #6B7280 !important; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Difficulty</div>
-                      <div style="font-weight: 700; color: #111827 !important; font-size: 16px;">${path.difficulty}</div>
-                    </div>
-                    <div class="detail-item" style="background: #F9FAFB; padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
-                      <div style="font-size: 12px; color: #6B7280 !important; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Time to Profit</div>
-                      <div style="font-weight: 700; color: #111827 !important; font-size: 16px;">${path.timeToProfit}</div>
-                    </div>
-                    <div class="detail-item" style="background: #F9FAFB; padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
-                      <div style="font-size: 12px; color: #6B7280 !important; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Startup Cost</div>
-                      <div style="font-weight: 700; color: #111827 !important; font-size: 16px;">${path.startupCost}</div>
-                    </div>
-                    <div class="detail-item" style="background: #F9FAFB; padding: 16px; border-radius: 12px; border: 1px solid #E5E7EB;">
-                      <div style="font-size: 12px; color: #6B7280 !important; margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Income Potential</div>
-                      <div style="font-weight: 700; color: #111827 !important; font-size: 16px;">${path.potentialIncome}</div>
-                    </div>
-                  </div>
-                  
-                  <div class="cta-button-container" style="text-align: center; margin-top: 24px;">
-                    <a href="${resultsLink}" style="display: inline-block; background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%); color: white !important; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3); transition: all 0.3s ease;">
-                      Unlock Full Results →
-                    </a>
-                  </div>
-                </div>
-                `).join("")}
+              ` : ''}
+              
+              <!-- Message to unlock more matches -->
+              <div style="background: #f1f5f9; border-radius: 16px; margin: 0 0 32px 0; padding: 14px 32px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); border: none; text-align: center; color: #18181b; font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <span style="margin-right: 8px;">🔒</span>Get more business model matches by purchasing the full report.
               </div>
-
-              <div class="section" style="margin-bottom: 50px;">
-                <h2 class="section-title" style="font-size: 28px; font-weight: 700; color: #111827 !important; margin-bottom: 32px; display: flex; align-items: center; letter-spacing: -0.025em;">Your Business Profile</h2>
-                <div class="profile-card" style="background: #FFFFFF !important; border: 1px solid #E5E7EB; border-radius: 20px; padding: 40px; margin-bottom: 40px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
-                  <div class="profile-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #F3F4F6;">
-                    <span class="profile-label" style="font-weight: 600; color: #6B7280 !important; font-size: 16px;">Main Motivation</span>
-                    <span class="profile-value" style="font-weight: 700; color: #111827 !important; font-size: 16px;">${this.formatMotivation(quizData.mainMotivation)}</span>
-                  </div>
-                  <div class="profile-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #F3F4F6;">
-                    <span class="profile-label" style="font-weight: 600; color: #6B7280 !important; font-size: 16px;">Income Goal</span>
-                    <span class="profile-value" style="font-weight: 700; color: #111827 !important; font-size: 16px;">${getIncomeRangeLabel(quizData.successIncomeGoal)}</span>
-                  </div>
-                  <div class="profile-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #F3F4F6;">
-                    <span class="profile-label" style="font-weight: 600; color: #6B7280 !important; font-size: 16px;">Timeline</span>
-                    <span class="profile-value" style="font-weight: 700; color: #111827 !important; font-size: 16px;">${this.formatTimeline(quizData.firstIncomeTimeline)}</span>
-                  </div>
-                  <div class="profile-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0;">
-                    <span class="profile-label" style="font-weight: 600; color: #6B7280 !important; font-size: 16px;">Investment Budget</span>
-                    <span class="profile-value" style="font-weight: 700; color: #111827 !important; font-size: 16px;">${getInvestmentRangeLabel(quizData.upfrontInvestment)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="section" style="margin-bottom: 50px;">
-                <h2 class="section-title" style="font-size: 28px; font-weight: 700; color: #111827 !important; margin-bottom: 32px; display: flex; align-items: center; letter-spacing: -0.025em;">What's Waiting for You</h2>
-                <ul class="steps-list" style="list-style: none; padding: 0; background: #FFFFFF !important;">
-                  <li style="padding: 20px 0; padding-left: 60px; position: relative; color: #111827 !important; font-size: 18px; line-height: 1.6; font-weight: 500;">View your top-matched business models with personalized fit scores</li>
-                  <li style="padding: 20px 0; padding-left: 60px; position: relative; color: #111827 !important; font-size: 18px; line-height: 1.6; font-weight: 500;">Get detailed step-by-step implementation guides</li>
-                  <li style="padding: 20px 0; padding-left: 60px; position: relative; color: #111827 !important; font-size: 18px; line-height: 1.6; font-weight: 500;">Access curated resources, tools, and templates</li>
-                  <li style="padding: 20px 0; padding-left: 60px; position: relative; color: #111827 !important; font-size: 18px; line-height: 1.6; font-weight: 500;">Download your comprehensive PDF business report</li>
-                  <li style="padding: 20px 0; padding-left: 60px; position: relative; color: #111827 !important; font-size: 18px; line-height: 1.6; font-weight: 500;">Explore income projections and timeline expectations</li>
+              
+              <!-- Personalized Snapshot -->
+              <div style="background: #f1f5f9; border-radius: 16px; margin: 0 0 32px 0; padding: 28px 32px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); border: none; text-align: left;">
+                <div style="font-weight: 700; font-size: 18px; color: #18181b; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;"><span>📝</span>Personalized Snapshot</div>
+                <div style="border-top: 1px solid #e5e7eb; margin: 0 0 18px 0; height: 1px;"></div>
+                <ul style="color: #18181b; font-size: 15px; margin: 0; padding: 0 0 0 18px; line-height: 1.7; list-style: disc;">
+                  ${snapshotLines.map((line: string) => `<li style="margin-bottom: 6px;">${line}</li>`).join('')}
                 </ul>
               </div>
-
-              <div style="text-align: center; margin-top: 40px;">
-                <a href="${resultsLink}" style="display: inline-block; background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%); color: white !important; padding: 20px 40px; text-decoration: none; border-radius: 16px; font-weight: 700; font-size: 18px; text-align: center; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3); transition: all 0.3s ease;">
-                  Unlock Full Results →
-                </a>
+              
+              <!-- Unlock section -->
+              <div style="background: #f1f5f9; border-radius: 16px; margin: 0 0 32px 0; padding: 28px 32px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); border: none; text-align: left; color: #18181b; font-size: 16px;">
+                <div style="font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; color: #18181b; margin-bottom: 10px;"><span>📈</span>Unlock Your Full Report To Access:</div>
+                <div style="border-top: 1px solid #e5e7eb; margin: 0 0 18px 0; height: 1px;"></div>
+                <ul style="color: #18181b; font-size: 15px; margin: 0; padding: 0 0 0 18px; line-height: 1.7; list-style: disc;">
+                  <li>Business model fit scores & reasoning</li>
+                  <li>Projected income & startup costs</li>
+                  <li>AI-generated pros/cons per model</li>
+                  <li>Personalized step-by-step launch plans</li>
+                  <li>Lifetime access to all 25 business guides</li>
+                  <li>30-day action roadmap</li>
+                </ul>
+              </div>
+              
+              <!-- Welcome message -->
+              <div style="background: #f1f5f9; border-radius: 16px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); margin: 0 0 32px 0; padding: 28px 32px; font-size: 16px; color: #18181b; font-style: italic; text-align: left; line-height: 1.7; position: relative;">
+                <div style="margin-bottom: 8px; font-weight: 600;">Dear User,</div>
+                <div>
+                  Thanks for taking the BizModelAI quiz. Based on your responses, our system has carefully analyzed your skills, preferences, and entrepreneurial traits to identify the business models that best align with your goals. This personalized analysis is designed to help you take action with clarity and confidence—so you can stop second-guessing and start building a business that fits who you are and where you want to go.
+                </div>
+                <div style="text-align: right; margin-top: 16px; font-style: italic; font-weight: 500; display: flex; justify-content: flex-end; align-items: center;">
+                  <span style="text-align: right;">With love,<br/>The BizModelAI Team 💌</span>
+                </div>
+              </div>
+              
+              <!-- Unlock button -->
+              <div style="margin: 48px 0 0 0; text-align: center;">
+                <a href="${resultsLink}" style="display: inline-block; background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%); color: #fff; padding: 20px 48px; border-radius: 999px; font-weight: 900; font-size: 22px; text-decoration: none; box-shadow: 0 6px 24px rgba(59,130,246,0.13); letter-spacing: -0.01em; margin-bottom: 14px;">👉 Unlock My Full Report</a>
+                <div style="color: #2563eb; font-weight: 700; font-size: 18px; margin: 18px 0 8px 0;">Only $9.99 — One-time payment for lifetime access</div>
+                <!-- Data Retention Notice -->
+                <div style="color: #64748b; font-size: 14px; margin: 14px auto 32px auto; text-align: center; background: none; max-width: 480px;">
+                  <strong>Data Retention Notice:</strong> Your quiz results and data will be stored securely for 3 months from today. After this period, your data will be automatically deleted from our systems unless you create a paid account.
+                </div>
               </div>
             </div>
-
-                        <div class="footer" style="background: #1E293B !important; padding: 50px 40px; text-align: center; border-top: 1px solid #334155;">
-              <a href="https://bizmodelai.com" style="text-decoration: none;">
-                <div class="footer-logo" style="font-size: 24px; font-weight: 800; color: #FFFFFF !important; margin-bottom: 12px; letter-spacing: -0.025em;">BizModelAI</div>
-              </a>
-              <div class="footer-tagline" style="color: #D1D5DB !important; font-size: 18px; margin-bottom: 32px; font-weight: 500;">Your AI-Powered Business Discovery Platform</div>
-
-                            <div class="footer-disclaimer" style="font-size: 16px; color: #9CA3AF !important; line-height: 1.6; margin-bottom: 24px; font-weight: 500;">
-                This email was sent because you completed our business assessment quiz.<br>
-                We're here to help you discover your perfect business path.
+          </div>
+          
+          <!-- Footer -->
+          <div style="width: 100%; margin: 0 0 0 0; padding: 0; text-align: center;">
+            <div style="background: #1e293b; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; padding: 32px 0 24px 0; color: #fff; margin: 0 auto; box-shadow: 0 2px 12px rgba(30,41,59,0.10); width: 90%; max-width: 700px;">
+              <!-- Centered logo and BizModelAI title -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 0 auto; width: fit-content;">
+                <img src="https://cdn.builder.io/api/v1/image/assets%2F8eb83e4a630e4b8d86715228efeb581b%2F8de3245c79ad43b48b9a59be9364a64e?format=webp&width=60" alt="BizModelAI Logo" style="width: 36px; height: 36px; border-radius: 8px; background: none; margin: 0 0 0 0; display: block;" />
+                <span style="font-weight: 800; font-size: 20px; letter-spacing: -0.01em; color: #fff;">BizModelAI</span>
               </div>
-
-              <div class="data-retention-notice" style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 12px; padding: 20px; margin: 24px 0; font-size: 14px; color: #92400E !important; line-height: 1.5;">
-                <strong> Data Retention Notice:</strong><br>
-                Your quiz results and data will be stored securely for <strong>3 months</strong> from today. After this period, your data will be automatically deleted from our systems unless you create a paid account.<br><br>
-                <strong>Want to keep your results forever?</strong> <a href="${resultsLink}" style="color: #92400E !important; text-decoration: underline;">Upgrade to unlock your full report</a> and your data will be saved permanently.
+              <!-- More space between logo/title and social icons -->
+              <div style="height: 18px;"></div>
+              <div style="color: #cbd5e1; font-size: 14px; margin-top: 18px; margin-bottom: 0;">
+                Need help or have questions? Just reply to this email or contact team@bizmodelai.com.<br />
+                Your preview is saved for the next 90 days.
               </div>
-              <div class="footer-unsubscribe" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #334155;">
-                <a href="${process.env.FRONTEND_URL || "https://bizmodelai.com"}/unsubscribe" class="unsubscribe-link" style="color: #9CA3AF !important; text-decoration: none; font-size: 16px; padding: 12px 24px; border-radius: 8px; font-weight: 500;">
-                  Unsubscribe
+              <!-- Socials: 4 icons, centered, light gray, now below help text -->
+              <div style="margin: 18px 0 18px 0; display: flex; justify-content: center; gap: 22px;">
+                <a href="https://www.tiktok.com/@bizmodelai" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tiktok.svg" alt="TikTok" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://www.instagram.com/bizmodelai/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://twitter.com/bizmodelai" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg" alt="X (Twitter)" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://www.pinterest.com/bizmodelai/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/pinterest.svg" alt="Pinterest" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
                 </a>
               </div>
+              <div style="margin-top: 18px;"></div>
+              
+              <!-- Divider below Unsubscribe -->
+              <div style="border-top: 1px solid #334155; margin: 24px 0 0 0; height: 1px; width: 80%; margin-left: 10%; margin-right: 10%;"></div>
+              <div style="color: #94a3b8; font-size: 13px; margin-top: 18px;">&copy; 2025 BizModelAI. All rights reserved.</div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  public ResultsEmailTemplatePaid(quizData: QuizData, quizAttemptId?: number): string {
+    const topPaths = this.getTopBusinessPaths(quizData);
+    const snapshotLines = this.getPersonalizedSnapshot(quizData);
+    const resultsLink = quizAttemptId
+      ? `${process.env.FRONTEND_URL || "https://bizmodelai.com"}/results?quizAttemptId=${quizAttemptId}`
+      : `${process.env.FRONTEND_URL || "https://bizmodelai.com"}/results`;
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="color-scheme" content="light only">
+          <meta name="supported-color-schemes" content="light">
+          <title>Your Complete BizModelAI Report</title>
+        </head>
+        <body style="background: #f4f6fa; min-height: 100vh; padding: 0; font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; margin: 0;">
+          <div style="max-width: 700px; margin: 40px auto 0 auto; border-radius: 24px; box-shadow: 0 8px 32px rgba(37, 99, 235, 0.10); background: #fff; overflow: hidden;">
+            <!-- Gradient Hero with Centered Logo -->
+            <div style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 40%, #7c3aed 100%); padding: 56px 32px 56px 32px; text-align: center; border-radius: 0; margin: 0;">
+              <div style="font-size: 54px; margin-bottom: 10px; margin-top: 0;">🎉</div>
+              <h1 style="font-size: 36px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em; line-height: 1.1;">Your AI-Powered Business Blueprint</h1>
+              <p style="color: #e0e7ef; font-size: 15px; margin: 18px 0 0 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Personalized recommendations based on your unique goals, skills, and preferences</p>
+            </div>
+            <div style="padding: 40px 32px 32px 32px; background: #fff; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+              <!-- Show all 3 business model cards -->
+              <div style="display: none; color: #fff;">Your personalized business model results are ready! See your best fit, AI insights, and your full report.</div>
+              ${topPaths.map((path, idx) => `
+                <div style="margin-bottom: 32px; border-radius: 16px; border: none; box-shadow: 0 8px 32px rgba(30, 41, 59, 0.18); padding: 40px 40px 24px 40px; background: #f1f5f9; text-align: left; position: relative; transition: box-shadow 0.2s; min-height: 140px; display: flex; flex-direction: column; justify-content: center;">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                      <span style="font-size: 38px; margin-right: 8px;">${path.emoji || '💡'}</span>
+                      <h3 style="font-size: 27px; font-weight: 900; color: #18181b; margin: 0; letter-spacing: -0.01em; line-height: 1.1;">${path.name}</h3>
+                    </div>
+                    <div style="text-align: center; margin-left: 18px;">
+                      <div style="font-weight: 900; font-size: 32px; color: #6366f1; line-height: 1;">${path.fitScore}%</div>
+                      <div style="font-weight: 500; font-size: 15px; color: #64748b; line-height: 1; margin-top: 6px;">AI Match</div>
+                    </div>
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <div style="font-weight: 700; color: #6366f1; font-size: 16px; margin-bottom: 6px;">Top Benefits</div>
+                    <ul style="color: #334155; font-size: 15px; margin: 0; padding: 0 0 0 18px; line-height: 1.7; list-style: disc;">
+                      ${(path.pros ? path.pros.slice(0, 3) : []).map((pro: string) => `<li style="margin-bottom: 6px;">${pro}</li>`).join('')}
+                    </ul>
+                  </div>
+                  <p style="color: #18181b; font-size: 16px; margin-bottom: 24px; line-height: 1.7;">${path.detailedDescription || path.description}</p>
+                </div>
+              `).join('')}
+              
+              <!-- Personalized Snapshot -->
+              <div style="background: #f1f5f9; border-radius: 16px; margin: 0 0 32px 0; padding: 28px 32px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); border: none; text-align: left;">
+                <div style="font-weight: 700; font-size: 18px; color: #18181b; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;"><span>📝</span>Personalized Snapshot</div>
+                <div style="border-top: 1px solid #e5e7eb; margin: 0 0 18px 0; height: 1px;"></div>
+                <ul style="color: #18181b; font-size: 15px; margin: 0; padding: 0 0 0 18px; line-height: 1.7; list-style: disc;">
+                  ${snapshotLines.map((line: string) => `<li style="margin-bottom: 6px;">${line}</li>`).join('')}
+                </ul>
+              </div>
+              
+              <!-- Welcome message -->
+              <div style="background: #f1f5f9; border-radius: 16px; box-shadow: 0 8px 32px rgba(30,41,59,0.18); margin: 0 0 32px 0; padding: 28px 32px; font-size: 16px; color: #18181b; font-style: italic; text-align: left; line-height: 1.7; position: relative;">
+                <div style="margin-bottom: 8px; font-weight: 600;">Dear User,</div>
+                <div>
+                  Thanks for taking the BizModelAI quiz. Based on your responses, our system has carefully analyzed your skills, preferences, and entrepreneurial traits to identify the business models that best align with your goals. This personalized analysis is designed to help you take action with clarity and confidence—so you can stop second-guessing and start building a business that fits who you are and where you want to go.
+                </div>
+                <div style="text-align: right; margin-top: 16px; font-style: italic; font-weight: 500; display: flex; justify-content: flex-end; align-items: center;">
+                  <span style="text-align: right;">With love,<br/>The BizModelAI Team 💌</span>
+                </div>
+              </div>
+              
+              <!-- View Full Results button for paid users -->
+              <div style="text-align: center; margin: 0 0 32px 0;">
+                <a href="${resultsLink}" style="display: inline-block; background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%); color: #fff; padding: 16px 40px; border-radius: 999px; font-weight: 900; font-size: 20px; text-decoration: none; box-shadow: 0 6px 24px rgba(59,130,246,0.13); letter-spacing: -0.01em; margin-top: 0;">View Full Results</a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="width: 100%; margin: 0 0 0 0; padding: 0; text-align: center;">
+            <div style="background: #1e293b; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; padding: 32px 0 24px 0; color: #fff; margin: 0 auto; box-shadow: 0 2px 12px rgba(30,41,59,0.10); width: 90%; max-width: 700px;">
+              <!-- Centered logo and BizModelAI title -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 0 auto; width: fit-content;">
+                <img src="https://cdn.builder.io/api/v1/image/assets%2F8eb83e4a630e4b8d86715228efeb581b%2F8de3245c79ad43b48b9a59be9364a64e?format=webp&width=60" alt="BizModelAI Logo" style="width: 36px; height: 36px; border-radius: 8px; background: none; margin: 0 0 0 0; display: block;" />
+                <span style="font-weight: 800; font-size: 20px; letter-spacing: -0.01em; color: #fff;">BizModelAI</span>
+              </div>
+              <!-- More space between logo/title and social icons -->
+              <div style="height: 18px;"></div>
+              <div style="color: #cbd5e1; font-size: 14px; margin-top: 18px; margin-bottom: 0;">
+                Need help or have questions? Just reply to this email or contact team@bizmodelai.com.
+              </div>
+              <!-- Socials: 4 icons, centered, light gray, now below help text -->
+              <div style="margin: 18px 0 18px 0; display: flex; justify-content: center; gap: 22px;">
+                <a href="https://www.tiktok.com/@bizmodelai" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tiktok.svg" alt="TikTok" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://www.instagram.com/bizmodelai/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://twitter.com/bizmodelai" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg" alt="X (Twitter)" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+                <a href="https://www.pinterest.com/bizmodelai/" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/pinterest.svg" alt="Pinterest" style="width: 26px; height: 26px; filter: brightness(0) invert(0.7);" />
+                </a>
+              </div>
+              <div style="margin-top: 18px;"></div>
+              
+              <!-- Divider below Unsubscribe -->
+              <div style="border-top: 1px solid #334155; margin: 24px 0 0 0; height: 1px; width: 80%; margin-left: 10%; margin-right: 10%;"></div>
+              <div style="color: #94a3b8; font-size: 13px; margin-top: 18px;">&copy; 2025 BizModelAI. All rights reserved.</div>
             </div>
           </div>
         </body>
@@ -445,63 +629,7 @@ export class EmailService {
     return timelineMap[timeline] || timeline;
   }
 
-  private getTopBusinessModel(quizData: QuizData): {
-    name: string;
-    description: string;
-    fitScore: number;
-  } {
-    // Use the same scoring algorithm as the frontend
-    const scoredBusinessModels = calculateAllBusinessModelMatches(quizData);
 
-    // Get the top match (highest score)
-    const topMatch = scoredBusinessModels[0];
-
-    // Map business model descriptions
-    const businessDescriptions: { [key: string]: string } = {
-      "Affiliate Marketing":
-        "Promote other people's products and earn commission on sales",
-      "Content Creation / UGC":
-        "Create valuable content and monetize through multiple channels",
-      "Online Coaching":
-        "Share your expertise through 1-on-1 or group coaching programs",
-      "E-commerce Brand Building":
-        "Sell physical or digital products through your own online store",
-      Freelancing:
-        "Offer your skills and services to clients on a project basis",
-      "Copywriting":
-        "Write persuasive marketing content that drives sales and conversions",
-      "Ghostwriting":
-        "Write content for others who publish under their own name",
-      "Social Media Marketing Agency":
-        "Help businesses grow their social media presence",
-      "Virtual Assistant":
-        "Provide administrative and business support remotely",
-      "High-Ticket Sales / Closing":
-        "Sell high-value products or services for businesses",
-      "AI Marketing Agency": "Leverage AI tools to provide marketing solutions",
-      "Digital Services Agency": "Offer digital marketing and web services",
-      "YouTube Automation": "Create and manage monetized YouTube channels",
-      "Investing / Trading": "Generate income through financial markets",
-      "Online Reselling": "Buy and resell products online for profit",
-      "Handmade Goods": "Create and sell handcrafted products",
-      "Amazon FBA": "Sell products on Amazon using Fulfillment by Amazon",
-      "Podcasting": "Create and monetize audio content through sponsorships",
-      "Blogging": "Create written content to build audience and monetize",
-      "Consulting": "Provide expert advice and strategic guidance",
-      "Real Estate Investing": "Generate income through property investments",
-      "Online Course Creation": "Create and sell educational courses online",
-      "E-commerce": "Build and sell products through your own online store",
-      "Dropshipping": "Sell products online without holding inventory",
-    };
-
-    return {
-      name: topMatch.name,
-      description:
-        businessDescriptions[topMatch.name] ||
-        "A business model tailored to your skills and goals",
-      fitScore: Math.round(topMatch.score),
-    };
-  }
 
   private getPersonalizedPaths(quizData: QuizData): Array<{
     id: string;
@@ -512,6 +640,9 @@ export class EmailService {
     timeToProfit: string;
     startupCost: string;
     potentialIncome: string;
+    emoji?: string;
+    pros?: string[];
+    detailedDescription?: string;
   }> {
     // Use the same scoring algorithm as the frontend
     const scoredBusinessModels = calculateAllBusinessModelMatches(quizData);
@@ -525,6 +656,9 @@ export class EmailService {
         timeToProfit: string;
         startupCost: string;
         potentialIncome: string;
+        emoji?: string;
+        pros?: string[];
+        detailedDescription?: string;
       };
     } = {
       "Affiliate Marketing": {
@@ -535,6 +669,9 @@ export class EmailService {
         timeToProfit: "3-6 months",
         startupCost: "$0-$500",
         potentialIncome: "$500-$10,000+/month",
+        emoji: "💰",
+        pros: ["Low startup costs", "Passive income potential", "No inventory needed"],
+        detailedDescription: "Promote other people's products and earn commission on sales. Build trust with your audience and recommend products you genuinely believe in."
       },
       "Content Creation / UGC": {
         id: "content-creation",
@@ -544,6 +681,9 @@ export class EmailService {
         timeToProfit: "6-12 months",
         startupCost: "$200-$1,500",
         potentialIncome: "$1,000-$50,000+/month",
+        emoji: "📱",
+        pros: ["Creative freedom", "Multiple revenue streams", "Build personal brand"],
+        detailedDescription: "Create valuable content and monetize through multiple channels. Share your expertise, entertain, or educate your audience."
       },
       "Online Coaching": {
         id: "online-coaching",
@@ -553,6 +693,9 @@ export class EmailService {
         timeToProfit: "2-4 months",
         startupCost: "$100-$1,000",
         potentialIncome: "$2,000-$25,000+/month",
+        emoji: "🎯",
+        pros: ["High-value service", "Help others succeed", "Scalable business model"],
+        detailedDescription: "Share your expertise through 1-on-1 or group coaching programs. Help others achieve their goals while building a profitable business."
       },
 
       Freelancing: {
@@ -751,6 +894,9 @@ export class EmailService {
         timeToProfit: modelData?.timeToProfit || "3-6 months",
         startupCost: modelData?.startupCost || "$100-$1,000",
         potentialIncome: modelData?.potentialIncome || "$1,000-$10,000+/month",
+        emoji: modelData?.emoji || "💡",
+        pros: modelData?.pros || ["Flexible schedule", "Low startup costs", "High growth potential"],
+        detailedDescription: modelData?.detailedDescription || modelData?.description || "A business model tailored to your skills and goals",
       };
     });
   }
