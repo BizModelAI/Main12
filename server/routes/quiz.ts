@@ -25,7 +25,7 @@ const quizDataSchema = z.object({
 
 const recordGuestSchema = z.object({
   quizData: quizDataSchema,
-  quizAttemptId: z.string(),
+  quizAttemptId: z.string().optional(),
   tempUserId: z.number().optional()
 });
 
@@ -33,6 +33,9 @@ const recordGuestSchema = z.object({
 router.post('/record-guest', async (req: any, res: any) => {
   try {
     const { quizData, quizAttemptId, tempUserId } = recordGuestSchema.parse(req.body);
+    
+    // Generate quizAttemptId if not provided
+    const finalQuizAttemptId = quizAttemptId || `guest-${Date.now()}-${Math.random().toString(36).substring(2)}`;
     
     // Create or find temp user
     let userId: number;
@@ -54,7 +57,7 @@ router.post('/record-guest', async (req: any, res: any) => {
     // Record quiz attempt
     const quizAttempt = await prisma.quizAttempt.create({
       data: {
-        quizAttemptId,
+        quizAttemptId: finalQuizAttemptId,
         userId,
         quizData,
         completedAt: new Date()

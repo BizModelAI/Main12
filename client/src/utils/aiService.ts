@@ -327,7 +327,16 @@ ${userProfile}`;
         },
         credentials: "include",
         body: JSON.stringify({
-          prompt: promptText,
+          messages: [
+            {
+              role: "system",
+              content: "You are a business consultant specializing in helping people find the perfect business model based on their personality, skills, and goals."
+            },
+            {
+              role: "user",
+              content: promptText
+            }
+          ],
           maxTokens: 1200,
           temperature: 0.7
         }),
@@ -493,7 +502,16 @@ ${userProfile}`;
         },
         credentials: "include",
         body: JSON.stringify({
-          prompt: this.buildPersonalizedInsightsPrompt(quizData, topPaths, bottomPaths),
+          messages: [
+            {
+              role: "system",
+              content: "You are a business consultant specializing in helping people find the perfect business model based on their personality, skills, and goals."
+            },
+            {
+              role: "user",
+              content: this.buildPersonalizedInsightsPrompt(quizData, topPaths, bottomPaths)
+            }
+          ],
         }),
       });
 
@@ -1010,9 +1028,18 @@ ${userProfile}`,
         },
         credentials: "include",
         body: JSON.stringify({
-          prompt: this.buildCharacteristicsPrompt(quizData),
+          messages: [
+            {
+              role: "system",
+              content: "You are a business consultant specializing in helping people find the perfect business model based on their personality, skills, and goals."
+            },
+            {
+              role: "user",
+              content: this.buildCharacteristicsPrompt(quizData)
+            }
+          ],
           maxTokens: 200,
-          responseFormat: { type: "json_object" },
+          temperature: 0.7
         }),
       });
 

@@ -130,6 +130,13 @@ Format as JSON:
 // Routes
 router.post('/openai-chat', async (req: any, res: any) => {
   try {
+    console.log('OpenAI API request received:', {
+      hasBody: !!req.body,
+      promptLength: req.body?.messages?.length || 0,
+      maxTokens: req.body?.maxTokens,
+      responseFormat: req.body?.responseFormat
+    });
+    
     const { messages, maxTokens = 1200, temperature = 0.7 } = openaiChatSchema.parse(req.body);
     
     console.log('🔑 Checking OpenAI API key:', process.env.OPENAI_API_KEY ? 'Present' : 'Missing');
