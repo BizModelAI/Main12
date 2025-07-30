@@ -137,6 +137,9 @@ const EmailResultsModal: React.FC<EmailResultsModalProps> = ({
           setStatus("error");
           setMessage("You already have a paid account with this email. Please log in to access your results.");
           return;
+        } else if (existingAccountData.userType === "unpaid") {
+          // Show info but allow sending
+          setMessage("You have an account with this email. Your new results will be sent to your email.");
         } else if (existingAccountData.userType === "temporary") {
           // Show warning but allow sending
           setMessage("You have existing quiz results with this email. Your new results will update your previous ones.");
@@ -182,9 +185,6 @@ const EmailResultsModal: React.FC<EmailResultsModalProps> = ({
       }
 
       // Always send the email (do not check unsubscribe)
-      // NOTE: /api/send-quiz-results and /api/send-full-report are not implemented in the new backend.
-      // TODO: Implement these endpoints or update this logic if email sending is required.
-      /*
       const endpoint = isUnlocked ? "/api/send-full-report" : "/api/send-quiz-results";
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for email sending
@@ -219,9 +219,6 @@ const EmailResultsModal: React.FC<EmailResultsModalProps> = ({
           setMessage(errorData.error || "Failed to send email. Please try again later.");
         }
       }
-      */
-      setStatus("error");
-      setMessage("Email sending is currently unavailable.");
     } catch (error) {
       setStatus("error");
       if (error instanceof Error && error.name === 'AbortError') {

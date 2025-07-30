@@ -1280,7 +1280,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       // Check for ANY user (paid or temporary) with this email
       const existingUser = await storage.getUserByEmail(email);
       
-      if (existingUser && !existingUser.isTemporary) {
+      if (existingUser && existingUser.isPaid) {
         // Paid user
         const attempts = await storage.getQuizAttemptsByUserId(existingUser.id);
         return res.json({
@@ -1293,12 +1293,16 @@ export async function registerRoutes(app: Express): Promise<void> {
         });
       }
       
-      if (existingUser && existingUser.isTemporary) {
-        // Temporary user - treat as no real account
+      if (existingUser && !existingUser.isPaid) {
+        // Non-paid user (regular account but not paid)
+        const attempts = await storage.getQuizAttemptsByUserId(existingUser.id);
         return res.json({
-          hasAccount: false,
-          userType: "temporary",
-          message: "Temporary user exists, but no real account. You can proceed to payment.",
+          hasAccount: true,
+          userType: "unpaid",
+          userId: existingUser.id,
+          attemptsCount: attempts.length,
+          latestAttempt: attempts.length > 0 ? attempts[0] : null,
+          message: "You have an account but haven't purchased the full report yet. You can proceed to payment.",
         });
       }
 
