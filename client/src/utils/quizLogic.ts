@@ -4,7 +4,7 @@ import { apiPost } from "./apiClient";
 import { businessModelService } from './businessModelService';
 
 // Use absolute path for API_BASE in development
-const API_BASE = process.env.NODE_ENV === 'development' ? "http://localhost:3001" : "";
+import { API_CONFIG } from "./apiConfig";
 
 // AI-powered business fit analysis
 export async function generateAIPersonalizedPaths(
@@ -14,7 +14,7 @@ export async function generateAIPersonalizedPaths(
     console.log("generateAIPersonalizedPaths: Making AI analysis request");
 
     // Use fetch with credentials: 'include' for JWT auth
-    const response = await fetch(`${API_BASE}/api/ai-business-fit-analysis`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/ai-business-fit-analysis`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

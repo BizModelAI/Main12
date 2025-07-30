@@ -1,7 +1,6 @@
 import { QuizData, BusinessPath, AIAnalysis } from "../types";
 import { AICacheManager } from "./aiCacheManager";
-
-const API_BASE = process.env.NODE_ENV === 'development' ? "http://localhost:3001" : "";
+import { API_CONFIG } from "./apiConfig";
 
 // Optimized AI Service with 3 clean calls structure
 export class AIService {
@@ -653,7 +652,7 @@ ${userProfile}`;
     max_tokens?: number;
   }): Promise<{ content: string } | null> {
     try {
-      const response = await fetch(`${API_BASE}/api/openai-chat`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -698,7 +697,7 @@ ${userProfile}`;
         );
 
         const response = await fetch(
-          `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
+          `${API_CONFIG.BASE_URL}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
           {
             method: "POST",
             headers: {
@@ -745,7 +744,7 @@ ${userProfile}`;
   private async shouldSaveToDatabase(): Promise<boolean> {
     try {
       // Check if user is authenticated (paid users always save)
-      const response = await fetch(`${API_BASE}/api/auth/me`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/me`, {
         method: "GET",
         credentials: "include",
       });

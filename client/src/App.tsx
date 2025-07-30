@@ -806,17 +806,7 @@ const QuizWithNavigation: React.FC<{
 
   return (
     <div className="relative">
-      {/* TEMPORARY SKIP BUTTON - REMOVE LATER */}
-      <div className="fixed bottom-4 right-4 z-[9999]">
-        <button
-          type="button"
-          onClick={handleSkipToResults}
-          className="bg-red-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl hover:bg-red-600 transition-all duration-300 transform hover:scale-105 border-2 border-white"
-          style={{ zIndex: 9999 }}
-        >
-           SKIP TO RESULTS (DEV)
-        </button>
-      </div>
+      {/* Development skip button removed for production */}
 
       <Quiz
         onComplete={handleQuizComplete}
