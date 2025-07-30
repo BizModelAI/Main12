@@ -276,6 +276,25 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
         }
       }
 
+      // Link any existing quiz attempts from temporary users to the new permanent account
+      try {
+        const linkResponse = await fetch("/api/link-quiz-attempts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            email: formData.email, 
+            userId: user?.id || null 
+          }),
+        });
+        
+        if (linkResponse.ok) {
+          const linkData = await linkResponse.json();
+          console.log("Quiz attempts linked:", linkData);
+        }
+      } catch (linkErr) {
+        console.error("Error linking quiz attempts:", linkErr);
+      }
+
       console.log("PaymentAccountModal: Signup and quiz save successful, moving to payment");
       
       // Store email in localStorage for payment form access
@@ -376,6 +395,25 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
 
       // Update auth context
       await login(loginEmail, formData.password);
+      
+      // Link any existing quiz attempts from temporary users to the logged-in account
+      try {
+        const linkResponse = await fetch("/api/link-quiz-attempts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            email: loginEmail, 
+            userId: userData.id || userData.userId 
+          }),
+        });
+        
+        if (linkResponse.ok) {
+          const linkData = await linkResponse.json();
+          console.log("Quiz attempts linked on login:", linkData);
+        }
+      } catch (linkErr) {
+        console.error("Error linking quiz attempts on login:", linkErr);
+      }
       
       // Store email in localStorage for payment form access
       localStorage.setItem("userEmail", loginEmail);

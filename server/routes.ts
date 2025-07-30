@@ -1291,6 +1291,57 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Test endpoint removed for production
 
+  // Link existing quiz attempts to new permanent user account
+  app.post("/api/link-quiz-attempts", async (req: Request, res: Response) => {
+    try {
+      const { email, userId } = req.body;
+      
+      if (!email || !userId) {
+        return res.status(400).json({ error: "Email and userId are required" });
+      }
+
+      console.log(`Linking quiz attempts for email: ${email} to userId: ${userId}`);
+
+      // Find all quiz attempts for this email (temporary users)
+      const tempUser = await storage.getUserByEmail(email);
+      
+      if (tempUser && tempUser.isTemporary) {
+        // Get all quiz attempts for the temporary user
+        const tempAttempts = await storage.getQuizAttemptsByUserId(tempUser.id);
+        
+        console.log(`Found ${tempAttempts.length} quiz attempts to link for temporary user ${tempUser.id}`);
+        
+        // Link each attempt to the new permanent user
+        for (const attempt of tempAttempts) {
+          await storage.updateQuizAttempt(attempt.id, { userId: userId });
+          console.log(`Linked quiz attempt ${attempt.id} to permanent user ${userId}`);
+        }
+        
+        // Optionally, we could delete the temporary user here
+        // await storage.deleteUser(tempUser.id);
+        
+        return res.json({
+          success: true,
+          linkedAttempts: tempAttempts.length,
+          message: `Successfully linked ${tempAttempts.length} quiz attempts to your account`
+        });
+      }
+      
+      return res.json({
+        success: true,
+        linkedAttempts: 0,
+        message: "No temporary quiz attempts found to link"
+      });
+      
+    } catch (error) {
+      console.error("Error linking quiz attempts:", error);
+      res.status(500).json({
+        error: "Failed to link quiz attempts",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // Check for existing quiz attempts by email
   app.get("/api/check-existing-attempts/:email", async (req: Request, res: Response) => {
     try {
