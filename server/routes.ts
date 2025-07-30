@@ -1165,7 +1165,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         // Check if ANY user (paid or temporary) already exists for this email
         const existingUser = await storage.getUserByEmail(email);
         
-        if (existingUser && !existingUser.isTemporary) {
+        if (existingUser && existingUser.isPaid) {
           // Found a paid user with this email - store under their account
           console.log(`Save quiz data: Found existing paid user for email: ${email}, storing under their account`);
           
@@ -1188,6 +1188,31 @@ export async function registerRoutes(app: Express): Promise<void> {
             quizAttemptId: attempt.id,
             storageType: "permanent",
             userType: "existing-paid",
+            existingUserId: existingUser.id,
+          });
+        }
+        
+        if (existingUser && !existingUser.isPaid) {
+          // Found an unpaid user with this email - store under their account
+          console.log(`Save quiz data: Found existing unpaid user for email: ${email}, storing under their account`);
+          
+          // Create quiz attempt for the existing unpaid user
+          attempt = await storage.recordQuizAttempt({
+            userId: existingUser.id,
+            quizData,
+          });
+
+          console.log(
+            `Save quiz data: New quiz attempt recorded with ID ${attempt.id} for existing unpaid user ${existingUser.id} (${email})`,
+          );
+
+          return res.json({
+            success: true,
+            attemptId: attempt.id,
+            message: "Quiz data saved to your existing account",
+            quizAttemptId: attempt.id,
+            storageType: "permanent",
+            userType: "existing-unpaid",
             existingUserId: existingUser.id,
           });
         }

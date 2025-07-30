@@ -163,6 +163,9 @@ const EmailResultsModal: React.FC<EmailResultsModalProps> = ({
             setStatus("error");
             setMessage("You already have a paid account with this email. Please log in to access your results.");
             return;
+          } else if (errorData.userType === "existing-unpaid") {
+            // Allow unpaid users to proceed - they can still get email results
+            console.log("Unpaid user found, proceeding with email sending");
           }
           setStatus("error");
           setMessage("Failed to save your email. Please try again.");

@@ -195,6 +195,9 @@ const CongratulationsGuest: React.FC<EmailCaptureProps> = ({
             setEmailError("You already have a paid account with this email. Please log in to access your results.");
             setIsSubmitting(false);
             return;
+          } else if (errorData.userType === "existing-unpaid") {
+            // Allow unpaid users to proceed - they can still get email results
+            console.log("Unpaid user found, proceeding with email sending");
           }
           setEmailError("Failed to save your quiz data. Please try again.");
           setIsSubmitting(false);
