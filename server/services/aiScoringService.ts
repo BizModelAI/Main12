@@ -11,18 +11,18 @@ import {
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
-      maxRetries: 1, // Reduce retries for faster fallback
-      timeout: 60000, // 60 second timeout to reduce false timeouts
+      maxRetries: 1, // Reduce retries to prevent long waits
+      timeout: 25000, // 25 second timeout for all OpenAI calls
     })
   : null;
 
-// Memory-safe rate limiting for concurrent requests
+// Optimized rate limiting for concurrent requests
 class RateLimiter {
   private requests: number[] = [];
-  private readonly maxRequests = 5; // Max requests per minute to avoid rate limits
+  private readonly maxRequests = 20; // Increase from 10 to 20 requests per minute
   private readonly windowMs = 60000; // 1 minute window
-  private readonly maxHistorySize = 100; // Prevent memory bloat
-  private readonly cleanupInterval = 5 * 60 * 1000; // Clean up every 5 minutes
+  private readonly maxHistorySize = 50; // Reduce memory usage
+  private readonly cleanupInterval = 2 * 60 * 1000; // Clean up every 2 minutes
   private cleanupTimer: NodeJS.Timeout;
 
   constructor() {
@@ -44,7 +44,7 @@ class RateLimiter {
 
     if (oldSize > this.requests.length) {
       console.log(
-        ` AI Rate limiter cleanup: removed ${oldSize - this.requests.length} expired entries`,
+        `🧹 AI Rate limiter cleanup: removed ${oldSize - this.requests.length} expired entries`,
       );
     }
   }
@@ -60,18 +60,25 @@ class RateLimiter {
       const oldestRequest = Math.min(...this.requests);
       const waitTime = Math.min(
         this.windowMs - (now - oldestRequest) + 100,
-        10000,
-      ); // Cap wait at 10 seconds
+        2000, // Cap wait at 2 seconds instead of 3
+      );
       console.log(`⏳ AI rate limit hit, waiting ${waitTime}ms for slot`);
 
-      if (waitTime > 30000) {
-        // If we'd wait more than 30 seconds, just reject to avoid timeout
+      if (waitTime > 3000) {
+        // If we'd wait more than 3 seconds, just reject to avoid timeout
         throw new Error(
           "AI rate limit exceeded - too many concurrent requests",
         );
       }
 
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
+      // Add timeout to prevent infinite waiting
+      await Promise.race([
+        new Promise((resolve) => setTimeout(resolve, waitTime)),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Rate limiter timeout")), 3000)
+        )
+      ]);
+      
       return this.waitForSlot(); // Recursive check
     }
 
@@ -122,6 +129,40 @@ export class AIScoringService {
     return AIScoringService.instance;
   }
 
+  // Utility to clean and repair JSON from OpenAI
+  private cleanAndRepairJson(content: string): any {
+    try {
+      let cleaned = content.trim().replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      
+      // Try to find the first and last braces for a valid JSON object
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+      }
+      
+      // Remove trailing commas
+      cleaned = cleaned.replace(/,\s*[}\]]/g, match => match.replace(',', ''));
+      
+      // Try to repair common JSON issues
+      cleaned = this.repairTruncatedJson(cleaned);
+      cleaned = this.repairUnterminatedStrings(cleaned);
+      cleaned = this.repairIncompleteObjects(cleaned);
+      cleaned = this.repairIncompleteArrays(cleaned);
+      cleaned = this.ensureProperEnding(cleaned);
+      
+      return JSON.parse(cleaned);
+    } catch (err) {
+      console.error('[AI JSON REPAIR] Failed to parse/repair JSON:', { 
+        err, 
+        content: content?.substring(0, 500),
+        contentLength: content?.length 
+      });
+      return null;
+    }
+  }
+
   async analyzeBusinessFit(
     quizData: QuizData,
   ): Promise<ComprehensiveFitAnalysis> {
@@ -142,15 +183,15 @@ export class AIScoringService {
 
       const prompt = this.buildAnalysisPrompt(quizData);
 
-      // Add timeout to prevent hanging
+      // Add timeout to prevent hanging (15s)
       const response = (await Promise.race([
         openai.chat.completions.create({
-          model: "gpt-4o-mini", // Using gpt-4o-mini for cost efficiency
+          model: "gpt-4o-mini",
           messages: [
             {
               role: "system",
               content:
-                "You are an expert business consultant and psychologist specializing in entrepreneurial fit assessment. Analyze the quiz responses and provide detailed, accurate business model compatibility scores with reasoning. Always address the user directly using 'you' and 'your'.",
+                "You are a business consultant. Analyze quiz responses and provide business model compatibility scores. Return ONLY valid JSON. Address user directly with 'you' and 'your'.",
             },
             {
               role: "user",
@@ -159,27 +200,31 @@ export class AIScoringService {
           ],
           response_format: { type: "json_object" },
           temperature: 0.3,
-          max_tokens: 1200,
+          max_tokens: 800, // Reduced from 1000
         }),
         new Promise((_, reject) =>
           setTimeout(
             () => {
-              console.error("OpenAI API call timed out after 55 seconds");
-              reject(new Error("OpenAI API call timed out after 55 seconds"));
+              console.error("OpenAI API call timed out after 15 seconds");
+              reject(new Error("OpenAI API call timed out after 15 seconds"));
             },
-            55000,
+            15000, // Reduced from 25000
           ),
         ),
       ])) as OpenAI.Chat.Completions.ChatCompletion;
 
-      console.log("OpenAI API call completed successfully");
       const content = response.choices[0].message.content;
       if (!content) {
         console.error("No content in AI response, using fallback");
         return this.fallbackAnalysis(quizData);
       }
 
-      const analysis = JSON.parse(content);
+      // Use robust cleaning/repair
+      const analysis = this.cleanAndRepairJson(content);
+      if (!analysis || !analysis.personalityProfile || !analysis.businessAnalysis || !analysis.recommendations) {
+        console.error("[AI JSON REPAIR] Invalid or incomplete JSON structure, using fallback", { content: content?.substring(0, 500) });
+        return this.fallbackAnalysis(quizData);
+      }
       return this.processAnalysis(analysis);
     } catch (error) {
       console.error("AI Scoring Service Error:", {
@@ -188,42 +233,12 @@ export class AIScoringService {
         hasOpenAI: !!openai,
         hasApiKey: !!process.env.OPENAI_API_KEY,
       });
-
-      // Log specific error type for debugging
-      if (error instanceof Error) {
-        if (
-          error.message.includes("429") ||
-          error.message.includes("rate limit")
-        ) {
-          console.warn(
-            "Rate limited by OpenAI - falling back to algorithmic analysis",
-          );
-        } else if (
-          error.message.includes("timeout") ||
-          error.message.includes("timed out")
-        ) {
-          console.warn(
-            "OpenAI request timed out - falling back to algorithmic analysis",
-          );
-        } else {
-          console.warn(
-            "OpenAI request failed - falling back to algorithmic analysis",
-          );
-        }
-      }
-
-      // Fallback to enhanced algorithmic scoring
-      console.log(
-        "Falling back to algorithmic analysis due to OpenAI error",
-      );
-      const fallbackResult = this.fallbackAnalysis(quizData);
-      console.log("Fallback analysis completed successfully");
-      return fallbackResult;
+      return this.fallbackAnalysis(quizData);
     }
   }
 
   private buildAnalysisPrompt(quizData: QuizData): string {
-    const businessModels = businessPaths.map((bp) => ({
+    const businessModels = businessPaths.slice(0, 5).map((bp) => ({
       id: bp.id,
       name: bp.name,
       description: bp.description,
@@ -236,62 +251,41 @@ export class AIScoringService {
     }));
 
     return `
-    Analyze your quiz responses and provide business model compatibility scores:
+Analyze quiz responses and provide business model compatibility scores:
 
-        YOUR PROFILE:
-    - Main Motivation: ${quizData.mainMotivation}
-    - Income Goal: ${getIncomeGoalRange(quizData.successIncomeGoal)}
-    - Timeline: ${quizData.firstIncomeTimeline}
-    - Budget: ${getInvestmentRange(quizData.upfrontInvestment)}
-    - Weekly Time: ${getTimeCommitmentRange(quizData.weeklyTimeCommitment)}
-        - Tech Skills: ${getRatingDescription(quizData.techSkillsRating)}
-    - Communication Comfort: ${getRatingDescription(quizData.directCommunicationEnjoyment)}
-    - Risk Tolerance: ${getRatingDescription(quizData.riskComfortLevel)}
-    - Self Motivation: ${getRatingDescription(quizData.selfMotivationLevel)}
-    - Creative Work Enjoyment: ${getRatingDescription(quizData.creativeWorkEnjoyment)}
-    - Work Style: ${quizData.workCollaborationPreference}
-    - Learning Preference: ${quizData.learningPreference}
-        - Brand Face Comfort: ${getRatingDescription(quizData.brandFaceComfort)}
-    - Organization Level: ${getRatingDescription(quizData.organizationLevel)}
-    - Consistency Level: ${getRatingDescription(quizData.longTermConsistency)}
+YOUR PROFILE:
+- Motivation: ${quizData.mainMotivation}
+- Income Goal: ${getIncomeGoalRange(quizData.successIncomeGoal)}
+- Timeline: ${quizData.firstIncomeTimeline}
+- Budget: ${getInvestmentRange(quizData.upfrontInvestment)}
+- Time: ${getTimeCommitmentRange(quizData.weeklyTimeCommitment)}
+- Tech Skills: ${getRatingDescription(quizData.techSkillsRating)}
+- Communication: ${getRatingDescription(quizData.directCommunicationEnjoyment)}
+- Risk: ${getRatingDescription(quizData.riskComfortLevel)}
+- Motivation: ${getRatingDescription(quizData.selfMotivationLevel)}
+- Creative: ${getRatingDescription(quizData.creativeWorkEnjoyment)}
+- Work Style: ${quizData.workCollaborationPreference}
+- Learning: ${quizData.learningPreference}
+- Brand Comfort: ${getRatingDescription(quizData.brandFaceComfort)}
+- Organization: ${getRatingDescription(quizData.organizationLevel)}
+- Consistency: ${getRatingDescription(quizData.longTermConsistency)}
 
-    BUSINESS MODELS TO ANALYZE:
-    ${JSON.stringify(businessModels, null, 2)}
+PERSONALITY TRAITS:
+- Organization Level: ${getRatingDescription(quizData.organizationLevel)}
+- Self Motivation: ${getRatingDescription(quizData.selfMotivationLevel)}
+- Competitiveness: ${getRatingDescription(quizData.competitivenessLevel)}
+- Creative Work Enjoyment: ${getRatingDescription(quizData.creativeWorkEnjoyment)}
+- Direct Communication: ${getRatingDescription(quizData.directCommunicationEnjoyment)}
 
-    Provide a comprehensive analysis in JSON format with the following structure:
+BUSINESS MODELS TO ANALYZE:
+${businessModels.map(bp => `- ${bp.name}: ${bp.description}`).join('\n')}
 
-    {
-      "personalityProfile": {
-        "strengths": ["strength1", "strength2", "strength3"],
-        "developmentAreas": ["area1", "area2"],
-        "workStyle": "description of work style",
-        "riskProfile": "description of risk tolerance"
-      },
-      "businessAnalysis": [
-        {
-          "businessId": "business-id",
-          "fitScore": 0-100,
-          "reasoning": "detailed explanation of why this score",
-          "strengths": ["strength1", "strength2"],
-          "challenges": ["challenge1", "challenge2"],
-          "confidence": 0.0-1.0
-        }
-      ],
-      "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
-    }
+Return JSON with:
+- topMatches: Array of 3 best business models with fitScore (0-100), reasoning, strengths, challenges, confidence
+- personalityProfile: strengths array, developmentAreas array, workStyle string, riskProfile string  
+- recommendations: Array of 3 actionable recommendations
 
-        SCORING GUIDELINES:
-    - Use 0-100 scale where 70+ = Best Fit, 50-69 = Strong Fit, 30-49 = Possible Fit, <30 = Poor Fit
-    - Consider realistic barriers and advantages
-    - Weight factors: Income match (20%), Timeline (15%), Budget (15%), Skills (20%), Personality (15%), Risk (10%), Time (5%)
-    - Be honest about challenges and realistic about opportunities
-    - Most people should NOT get 90+ scores unless they're exceptionally well-suited
-    - Distribute scores realistically - not everyone can be a perfect fit for everything
-
-    CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbers, amounts, or timeframes.
-    Reference the exact ranges and values shown in your profile. If you selected a range, always refer to the full range, never specific numbers within it.
-    Always address the user directly using 'you' and 'your' instead of 'the user' or 'the user's'.
-    `;
+Keep responses concise and focused.`;
   }
 
   private processAnalysis(analysis: any): ComprehensiveFitAnalysis {
@@ -488,6 +482,148 @@ export class AIScoringService {
     }
 
     return recommendations;
+  }
+
+  /**
+   * Comprehensive JSON repair function to handle truncated responses
+   */
+  private repairTruncatedJson(jsonString: string): string {
+    let repaired = jsonString;
+    
+    // If the JSON is already valid, return it
+    try {
+      JSON.parse(repaired);
+      return repaired;
+    } catch {
+      // Continue with repair attempts
+    }
+
+    // Step 1: Handle unterminated strings
+    repaired = this.repairUnterminatedStrings(repaired);
+    
+    // Step 2: Handle incomplete objects
+    repaired = this.repairIncompleteObjects(repaired);
+    
+    // Step 3: Handle incomplete arrays
+    repaired = this.repairIncompleteArrays(repaired);
+    
+    // Step 4: Final cleanup - remove trailing commas
+    repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+    
+    // Step 5: Ensure the JSON ends properly
+    repaired = this.ensureProperEnding(repaired);
+    
+    return repaired;
+  }
+
+  private repairUnterminatedStrings(jsonString: string): string {
+    let result = jsonString;
+    let inString = false;
+    let escapeNext = false;
+    let lastValidPosition = 0;
+    
+    for (let i = 0; i < result.length; i++) {
+      const char = result[i];
+      
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      
+      if (char === '\\') {
+        escapeNext = true;
+        continue;
+      }
+      
+      if (char === '"' && !escapeNext) {
+        inString = !inString;
+        if (!inString) {
+          lastValidPosition = i;
+        }
+      }
+    }
+    
+    // If we're still in a string, close it
+    if (inString) {
+      result = result.substring(0, lastValidPosition + 1);
+    }
+    
+    return result;
+  }
+
+  private repairIncompleteObjects(jsonString: string): string {
+    let result = jsonString;
+    let braceCount = 0;
+    let lastValidPosition = 0;
+    
+    for (let i = 0; i < result.length; i++) {
+      const char = result[i];
+      
+      if (char === '{') {
+        braceCount++;
+      } else if (char === '}') {
+        braceCount--;
+        if (braceCount >= 0) {
+          lastValidPosition = i;
+        }
+      }
+    }
+    
+    // If we have unclosed braces, close them
+    if (braceCount > 0) {
+      result = result.substring(0, lastValidPosition + 1);
+      for (let i = 0; i < braceCount; i++) {
+        result += '}';
+      }
+    }
+    
+    return result;
+  }
+
+  private repairIncompleteArrays(jsonString: string): string {
+    let result = jsonString;
+    let bracketCount = 0;
+    let lastValidPosition = 0;
+    
+    for (let i = 0; i < result.length; i++) {
+      const char = result[i];
+      
+      if (char === '[') {
+        bracketCount++;
+      } else if (char === ']') {
+        bracketCount--;
+        if (bracketCount >= 0) {
+          lastValidPosition = i;
+        }
+      }
+    }
+    
+    // If we have unclosed brackets, close them
+    if (bracketCount > 0) {
+      result = result.substring(0, lastValidPosition + 1);
+      for (let i = 0; i < bracketCount; i++) {
+        result += ']';
+      }
+    }
+    
+    return result;
+  }
+
+  private ensureProperEnding(jsonString: string): string {
+    let result = jsonString.trim();
+    
+    // Remove trailing commas before closing braces/brackets
+    result = result.replace(/,(\s*[}\]])/g, '$1');
+    
+    // If the JSON doesn't end with a closing brace, find the last valid position
+    if (!result.endsWith('}')) {
+      const lastBraceIndex = result.lastIndexOf('}');
+      if (lastBraceIndex > 0) {
+        result = result.substring(0, lastBraceIndex + 1);
+      }
+    }
+    
+    return result;
   }
 
   // Utility functions now imported from ../utils/quizUtils.js

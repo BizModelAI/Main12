@@ -17,6 +17,7 @@ import { QuizData, BusinessPath } from "../types";
 import { reportViewManager } from "../utils/reportViewManager";
 import { AICacheManager } from "../utils/aiCacheManager";
 import { useAIInsights } from '../contexts/AIInsightsContext';
+import { cleanAndRepairJson } from '../utils/aiService';
 
 // Hook to detect mobile devices
 const useIsMobile = () => {
@@ -73,6 +74,7 @@ const AIReportLoading: React.FC<AIReportLoadingProps> = ({
   const isMobile = useIsMobile();
   const [currentMobileStep, setCurrentMobileStep] = useState(0);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { setAIInsights } = useAIInsights();
 
   // Restore targetProgress and smooth animation logic
@@ -370,7 +372,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
 
       // Add timeout wrapper for the fetch request
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout to match server
 
       let data: any;
       try {
@@ -405,7 +407,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         if (fetchError?.name === "AbortError") {
-          console.error("API request timed out after 15 seconds");
+          console.error("API request timed out after 30 seconds");
           throw new Error("API request timed out");
         }
         throw fetchError;
@@ -428,13 +430,11 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
           .replace(/```/g, "");
       }
 
-      const parsed = JSON.parse(cleanContent);
-      if (
-        parsed &&
-        parsed.characteristics &&
-        Array.isArray(parsed.characteristics) &&
-        parsed.characteristics.length === 6
-      ) {
+      try {
+        const parsed = cleanAndRepairJson(cleanContent);
+        if (!parsed || !parsed.characteristics || !Array.isArray(parsed.characteristics) || parsed.characteristics.length !== 6) {
+          throw new Error('Invalid characteristics JSON');
+        }
         // Store the characteristics in database
         const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
         if (quizAttemptId) {
@@ -458,11 +458,35 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
         }
 
         return parsed.characteristics;
-      } else {
-        console.error("Invalid response format:", parsed);
-        throw new Error(
-          `Invalid response format - expected 6 characteristics, got: ${parsed?.characteristics?.length || "none"}`,
+      } catch (error) {
+        console.error('[AI JSON REPAIR] Fallback for characteristics:', error);
+        // Robust fallback characteristics based on quiz data
+        const fallbackCharacteristics = [
+          quizData.selfMotivationLevel >= 4
+            ? "Highly self-motivated"
+            : "Moderately self-motivated",
+          quizData.riskComfortLevel >= 4
+            ? "High risk tolerance"
+            : "Moderate risk tolerance",
+          quizData.techSkillsRating >= 4
+            ? "Strong tech skills"
+            : "Adequate tech skills",
+          quizData.directCommunicationEnjoyment >= 4
+            ? "Excellent communicator"
+            : "Good communicator",
+          quizData.organizationLevel >= 4
+            ? "Highly organized planner"
+            : "Flexible approach to planning",
+          quizData.creativeWorkEnjoyment >= 4
+            ? "Creative problem solver"
+            : "Analytical approach to challenges",
+        ];
+
+        console.log(
+          "Generated fallback characteristics:",
+          fallbackCharacteristics,
         );
+        return fallbackCharacteristics;
       }
     } catch (error) {
       console.error("Error generating all characteristics:", error);
@@ -584,22 +608,38 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
         };
       });
 
-      const response = await fetch(
-        "/api/generate-business-avoid-descriptions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            quizData: quizData,
-            businessMatches: businessMatches,
-          }),
-        },
-      );
+      // Add timeout wrapper for the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout to match server
 
-      if (!response.ok) {
-        throw new Error("Failed to generate business avoid descriptions");
+      let response;
+      try {
+        response = await fetch(
+          "/api/generate-business-avoid-descriptions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              quizData: quizData,
+              businessMatches: businessMatches,
+            }),
+            signal: controller.signal,
+          },
+        );
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error("Failed to generate business avoid descriptions");
+        }
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError?.name === "AbortError") {
+          console.error("Business avoid descriptions API request timed out after 30 seconds");
+          throw new Error("API request timed out");
+        }
+        throw fetchError;
       }
 
       const data = await response.json();
@@ -1121,53 +1161,14 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
           //   businessAvoidDescriptions:
           //     (currentResults as any).businessAvoidDescriptions || {},
           // });
-        } catch (error) {
-          console.error("Error generating report:", error);
-
-          // Ensure minimum 25 seconds duration even on error
-          const elapsedTime = Date.now() - aiStartTime;
-          const minimumDuration = 25000; // 25 seconds
-
-          if (elapsedTime < minimumDuration) {
-            const remainingTime = minimumDuration - elapsedTime;
-            await new Promise((resolve) => setTimeout(resolve, remainingTime));
+        } catch (error: any) {
+          if (error?.name === 'AbortError') {
+            console.error('Request timed out after 15 seconds');
+            setError('Request timed out. Please try again.');
+          } else {
+            console.error('Error generating AI report:', error);
+            setError('Failed to generate AI report. Please try again.');
           }
-
-          // Set target progress to 100% when complete (even with errors)
-          // setTargetProgress(100); // Removed
-          setIsLoadingComplete(true);
-
-          // Clear the generation flag even on error
-          localStorage.removeItem("ai-generation-in-progress");
-          localStorage.removeItem("ai-generation-timestamp");
-
-          // Mark this report as viewed even on error (user saw the loading process)
-          const quizAttemptId = parseInt(
-            localStorage.getItem("currentQuizAttemptId") || "0",
-          );
-          if (quizAttemptId && quizData) {
-            reportViewManager.markReportAsViewed(
-              quizAttemptId,
-              quizData,
-              userEmail,
-            );
-            console.log(
-              `Report for quiz attempt ${quizAttemptId} marked as viewed after AI loading completion (with errors)`,
-            );
-          }
-
-          // In case of error, still complete with current data
-          onComplete({
-            personalizedPaths:
-              (currentAiResults as any).personalizedPaths || [],
-            aiInsights: (currentAiResults as any).aiInsights || null,
-            allCharacteristics:
-              (currentAiResults as any).allCharacteristics || [],
-            businessFitDescriptions:
-              (currentAiResults as any).businessFitDescriptions || {},
-            businessAvoidDescriptions:
-              (currentAiResults as any).businessAvoidDescriptions || {},
-          });
         }
       })();
 
@@ -1216,7 +1217,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
       stepTimeouts.forEach(clearTimeout);
       if (progressInterval) clearInterval(progressInterval);
     };
-  }, [quizData]);
+  }, [quizData, progress, loadingSteps, onComplete]);
 
   const executeStep = async (
     stepIndex: number,

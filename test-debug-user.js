@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const BASE_URL = 'http://localhost:9000';
+const BASE_URL = 'http://localhost:3001';
 
 async function testDebugUser() {
   console.log('🔍 DEBUGGING USER DATA\n');

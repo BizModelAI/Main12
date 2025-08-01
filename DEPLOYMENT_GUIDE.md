@@ -13,7 +13,7 @@ This guide covers deploying the Business Model Finder application to Render.
 Set these environment variables in your Render dashboard:
 
 ### Required Variables
-- `DATABASE_URL` - PostgreSQL connection string
+- `DATABASE_URL` - Supabase connection string
 - `SESSION_SECRET` - Secret key for session management
 - `OPENAI_API_KEY` - OpenAI API key for AI features
 - `STRIPE_SECRET_KEY` - Stripe secret key for payments

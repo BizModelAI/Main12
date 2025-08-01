@@ -5,7 +5,7 @@ const EMAIL = 'caseyedunham@gmail.com';
 const PASSWORD = 'TestPassword123!'; // <-- Set a valid test password for this user
 
 async function loginAndGetSessionCookie() {
-  const res = await fetch('http://localhost:9000/api/auth/login', {
+  const res = await fetch('http://localhost:3001/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: EMAIL, password: PASSWORD }),
@@ -13,7 +13,7 @@ async function loginAndGetSessionCookie() {
   });
   if (res.status === 401) {
     // Try to create the user
-    const signupRes = await fetch('http://localhost:9000/api/auth/signup', {
+    const signupRes = await fetch('http://localhost:3001/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: EMAIL, password: PASSWORD, firstName: 'Test', lastName: 'User' }),
@@ -22,7 +22,7 @@ async function loginAndGetSessionCookie() {
       throw new Error(`Signup failed: ${signupRes.status} ${await signupRes.text()}`);
     }
     // Mark user as paid (test-only endpoint)
-    await fetch('http://localhost:9000/api/admin/mark-user-paid', {
+    await fetch('http://localhost:3001/api/admin/mark-user-paid', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: EMAIL }),
@@ -58,7 +58,7 @@ async function runE2EAIStorageTest() {
 
   // 1. Fetch latest quiz data
   console.log('\n📊 Step 1: Fetching latest quiz data...');
-  const quizRes = await fetch('http://localhost:9000/api/auth/latest-quiz-data', {
+  const quizRes = await fetch('http://localhost:3001/api/auth/latest-quiz-data', {
     credentials: 'include',
     headers: { 'Cookie': SESSION_COOKIE },
   });
@@ -88,7 +88,7 @@ async function runE2EAIStorageTest() {
 
   // 3. Fetch AI content for this attempt (preview type)
   console.log('\n🤖 Step 2: Fetching AI content for quiz attempt...');
-  const aiRes = await fetch(`http://localhost:9000/api/quiz-attempts/${quizAttemptId}/ai-content?type=preview`, {
+  const aiRes = await fetch(`http://localhost:3001/api/quiz-attempts/${quizAttemptId}/ai-content?type=preview`, {
     credentials: 'include',
     headers: { 'Cookie': SESSION_COOKIE },
   });

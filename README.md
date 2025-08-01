@@ -30,7 +30,7 @@ In your Vercel project dashboard, go to Settings → Environment Variables and a
 
 **Required:**
 
-- `DATABASE_URL` - Your PostgreSQL database connection string
+- `DATABASE_URL` - Your Supabase database connection string
 - `SESSION_SECRET` - A random secret for session management
 
 **Optional (for full functionality):**
@@ -50,7 +50,7 @@ In your Vercel project dashboard, go to Settings → Environment Variables and a
 The app uses PostgreSQL. You can use:
 
 - **Supabase** (recommended): Free tier available
-- **Neon**: Serverless PostgreSQL
+- **Supabase**: PostgreSQL with real-time features
 - **PlanetScale**: MySQL-compatible option
 - **Railway**: Simple database hosting
 

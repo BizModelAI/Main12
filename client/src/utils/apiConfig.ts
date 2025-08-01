@@ -62,7 +62,7 @@ export const API_CONFIG = {
       EMAIL_LINK: '/api/email-link',
       BUSINESS_RESOURCES: '/api/business-resources',
       AI_INSIGHTS: '/api/ai-insights',
-      ANALYZE_SKILLS: '/api/analyze-skills',
+      // Skills analysis endpoint removed - not used
     }
   }
 };

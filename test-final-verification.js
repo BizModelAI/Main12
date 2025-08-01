@@ -3,7 +3,7 @@ import 'dotenv/config';
 async function testFinalVerification() {
   console.log('🔍 FINAL SYSTEM VERIFICATION\n');
   
-  const baseUrl = 'http://localhost:9000';
+  const baseUrl = 'http://localhost:3001';
   const testEmail = `final-test-${Date.now()}@example.com`;
   
   const results = {

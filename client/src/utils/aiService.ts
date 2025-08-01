@@ -318,9 +318,9 @@ ${userProfile}`;
       const { APIClient } = await import('./apiClient');
       const promptText = this.buildResultsPreviewPrompt(quizData, topPaths);
       console.log("🤖 Making OpenAI API call with prompt length:", promptText.length);
-      console.log("🔗 API endpoint:", `${API_BASE}/api/openai-chat`);
+      console.log("🔗 API endpoint:", `${API_CONFIG.BASE_URL}/api/openai-chat`);
 
-      const response = await APIClient.fetchWithTimeout(`${API_BASE}/api/openai-chat`, {
+      const response = await APIClient.fetchWithTimeout(`${API_CONFIG.BASE_URL}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -495,7 +495,7 @@ ${userProfile}`;
       console.log(` Generating fresh full report insights for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
-      const response = await fetch(`${API_BASE}/api/openai-chat`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -622,26 +622,13 @@ ${userProfile}`;
             content: `Generate personalized AI content for the business model \"${modelName}\" based on your quiz data and fit type \"${fitType}\".\n\n${fitPrompt}\n\nReturn exactly this JSON structure:\n{\n  \"modelFitReason\": \"Single paragraph explaining fit\"\n}\n\nCRITICAL RULES:\n- Use existing profile data only\n- Do not generate markdown or formatted code blocks\n- Keep modelFitReason a single paragraph\n- Return clean, JSON-parsed output\n- Max 400 tokens total\n- Always use \"you\" and \"your\" instead of \"the user\" or \"the user's\"\n\nYOUR PROFILE:\n${userProfile}`,
           },
         ],
-        temperature: 0.7,
         max_tokens: 400,
       });
 
       if (response && response.content) {
         try {
-          // Clean up the response content to ensure valid JSON
-          let cleanContent = response.content.trim();
-          cleanContent = cleanContent
-            .replace(/```json\s*/g, "")
-            .replace(/```\s*/g, "");
-
-          const firstBrace = cleanContent.indexOf("{");
-          const lastBrace = cleanContent.lastIndexOf("}");
-
-          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            cleanContent = cleanContent.substring(firstBrace, lastBrace + 1);
-          }
-
-          const insights = JSON.parse(cleanContent);
+          const insights = cleanAndRepairJson(response.content);
+          if (!insights || !insights.modelFitReason) throw new Error('Missing modelFitReason');
 
           // Save the generated content intelligently
           if (quizAttemptId) {
@@ -649,9 +636,8 @@ ${userProfile}`;
           }
 
           return insights;
-        } catch (parseError) {
-          console.error("JSON parse error in generateModelInsights:", response.content);
-          console.error("Parse error details:", parseError);
+        } catch (err) {
+          console.error('[AI JSON REPAIR] Fallback for model insights:', err);
           return this.getFallbackModelInsights(modelName, fitType);
         }
       }
@@ -669,6 +655,10 @@ ${userProfile}`;
     temperature?: number;
     max_tokens?: number;
   }): Promise<{ content: string } | null> {
+    // Add timeout wrapper for the fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/openai-chat`, {
         method: "POST",
@@ -680,7 +670,10 @@ ${userProfile}`;
           temperature: params.temperature || 0.7,
           max_tokens: params.max_tokens || 800,
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`OpenAI API request failed: ${response.status}`);
@@ -690,7 +683,12 @@ ${userProfile}`;
       console.log("OpenAI request successful");
 
       return { content: data.content || data.message || data.response };
-    } catch (error) {
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      if (error?.name === "AbortError") {
+        console.error("OpenAI API request timed out after 15 seconds");
+        throw new Error("OpenAI API request timed out");
+      }
       console.error("Error in OpenAI request:", error);
       throw error;
     }
@@ -931,23 +929,7 @@ ${userProfile}`,
 
       if (response && response.content) {
         try {
-          // Clean up the response content to ensure valid JSON
-          let cleanContent = response.content.trim();
-
-          // Remove any potential markdown code blocks
-          cleanContent = cleanContent
-            .replace(/```json\s*/g, "")
-            .replace(/```\s*/g, "");
-
-          // Find the JSON object (between first { and last })
-          const firstBrace = cleanContent.indexOf("{");
-          const lastBrace = cleanContent.lastIndexOf("}");
-
-          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            cleanContent = cleanContent.substring(firstBrace, lastBrace + 1);
-          }
-
-          const result = JSON.parse(cleanContent);
+          const result = cleanAndRepairJson(response.content);
           console.log(
             "Full report content generated successfully",
           );
@@ -1021,7 +1003,7 @@ ${userProfile}`,
       console.log(` Generating fresh characteristics for quiz attempt ${quizAttemptId || 'unknown'}`);
       
       // Generate fresh content
-      const response = await fetch(`${API_BASE}/api/openai-chat`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/openai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1154,6 +1136,25 @@ Success in ${topPath.name} will ultimately depend on systematically developing t
       ],
       isFallback: true
     };
+  }
+}
+
+// Utility to clean and repair JSON from OpenAI
+export function cleanAndRepairJson(content: string): any {
+  try {
+    let cleaned = content.trim().replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    // Try to find the first and last braces for a valid JSON object
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
+    // Remove trailing commas
+    cleaned = cleaned.replace(/,\s*[}\]]/g, match => match.replace(',', ''));
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error('[AI JSON REPAIR] Failed to parse/repair JSON:', { err, content: content?.substring(0, 500) });
+    return null;
   }
 }
 

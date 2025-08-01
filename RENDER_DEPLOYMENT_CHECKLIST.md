@@ -26,7 +26,7 @@
 
 ### Required Variables (Set in Render Dashboard)
 ```
-DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
+DATABASE_URL=postgresql://postgres.sxykykqlikvzaeugbavt:[password]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true
 SESSION_SECRET=your-super-secret-session-key-at-least-32-characters
 OPENAI_API_KEY=sk-your-openai-api-key
 STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key

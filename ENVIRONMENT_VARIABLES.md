@@ -19,9 +19,9 @@ FRONTEND_URL=https://bizmodelai.com
 
 ### 🗄️ **Database**
 ```env
-DATABASE_URL=your_neon_database_connection_string
+DATABASE_URL=your_supabase_database_connection_string
 ```
-**Format**: `postgresql://username:password@host:port/database?sslmode=require`
+**Format**: `postgresql://postgres.sxykykqlikvzaeugbavt:[password]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true`
 
 ### 🤖 **AI Services**
 ```env

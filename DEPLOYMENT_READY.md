@@ -110,7 +110,7 @@ services:
 ```
 
 ### **Environment Variables Required**
-- `DATABASE_URL` - PostgreSQL connection string
+- `DATABASE_URL` - Supabase connection string
 - `SESSION_SECRET` - Secure session secret
 - `OPENAI_API_KEY` - OpenAI API key
 - `STRIPE_SECRET_KEY` - Stripe secret key

@@ -44,7 +44,6 @@ export const useReportUnlock = (
 
   useEffect(() => {
     checkUnlockStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, quizAttemptId, resolvedPaymentId]);
 
   return {

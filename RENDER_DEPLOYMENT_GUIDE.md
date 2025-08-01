@@ -48,7 +48,7 @@ Add these environment variables in the Render dashboard:
 ### Required Variables
 ```
 NODE_ENV=production
-DATABASE_URL=your_postgresql_connection_string
+DATABASE_URL=your_supabase_connection_string
 SESSION_SECRET=your_session_secret_key
 OPENAI_API_KEY=your_openai_api_key
 STRIPE_SECRET_KEY=your_stripe_secret_key

@@ -27,7 +27,7 @@ Keep the most recent dependency versions and remove duplicates:
 {
   "dependencies": {
     "@fontsource/noto-emoji": "^5.2.6",
-    "@neondatabase/serverless": "^1.0.1",
+    "@supabase/supabase-js": "^2.0.0",
     "@stripe/stripe-js": "^7.4.0",
     // ... other dependencies
   },

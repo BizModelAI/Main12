@@ -44,7 +44,7 @@ import { usePaywall } from "../contexts/PaywallContext";
 import { useAuth } from "../contexts/AuthContext";
 import { PaywallModal } from "./PaywallModals";
 import { PaymentAccountModal } from "./PaymentAccountModal";
-import { SkillsAnalysisService, SkillsAnalysis } from "../utils/skillsAnalysis";
+// Skills analysis removed - not used
 import {
   businessTools,
   defaultBusinessTools,
@@ -138,9 +138,7 @@ const BusinessModelDetail: React.FC<BusinessModelDetailProps> = ({
   const [activeSection, setActiveSection] = useState("overview");
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [skillsAnalysis, setSkillsAnalysis] = useState<SkillsAnalysis | null>(
-    null,
-  );
+  // Skills analysis removed - not used
   const [isLoadingSkills, setIsLoadingSkills] = useState(false);
   const [quizData, setQuizData] = useState<QuizData | null>(
     propQuizData || null,
@@ -245,38 +243,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
     [businessId, fitCategory],
   );
 
-  // Generate skills analysis for paid users
-  const generateSkillsAnalysis = useCallback(
-    async (data: QuizData, model: any) => {
-      if (!businessId || !model) return;
-
-      const aiCacheManager = AICacheManager.getInstance();
-      const cachedSkills = aiCacheManager.getCachedSkillsAnalysis(businessId);
-
-      if (cachedSkills) {
-        setSkillsAnalysis(cachedSkills);
-        setIsLoadingSkills(false);
-        return;
-      }
-
-      setIsLoadingSkills(true);
-      try {
-        const skillsService = SkillsAnalysisService.getInstance();
-        const skills = skillsService.getFallbackSkillsAnalysis(
-          model.requiredSkills || []
-        );
-
-        const aiCacheManager = AICacheManager.getInstance();
-        aiCacheManager.cacheSkillsAnalysis(businessId, skills);
-        setSkillsAnalysis(skills);
-      } catch (error) {
-        console.error("Error generating skills analysis:", error);
-      } finally {
-        setIsLoadingSkills(false);
-      }
-    },
-    [businessId],
-  );
+  // Skills analysis generation removed - not used
 
   // Fetch quiz data for authenticated users
   useEffect(() => {
@@ -343,7 +310,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
     // User has paid access - generate model insights and skills analysis if quiz data is available
     if (quizData && path) {
       generateModelInsights(quizData, path);
-      generateSkillsAnalysis(quizData, model);
+              // Skills analysis removed
     } else if (isRealUser && path) {
       // Fallback for paid users when quiz data API fails: create mock quiz data
       const mockQuizData: QuizData = {
@@ -405,7 +372,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
         meaningfulContributionImportance: 4,
       };
       generateModelInsights(mockQuizData, path);
-      generateSkillsAnalysis(mockQuizData, model);
+              // Skills analysis removed
     } else {
       setIsLoadingModelInsights(false);
       setIsLoadingSkills(false);
@@ -416,7 +383,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
     hasCompletedQuiz,
     canAccessBusinessModel,
     generateModelInsights,
-    generateSkillsAnalysis,
+    // Skills analysis removed
   ]);
 
   // Handle scroll to section
@@ -1370,7 +1337,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
                     Analyzing your skills...
                   </span>
                 </div>
-              ) : skillsAnalysis ? (
+              ) : (
                 <div className="space-y-8">
                   {/* Skills You Have - from quiz data */}
                   {quizData &&
@@ -1417,106 +1384,7 @@ ${fitCategory === "Best Fit" ? "This represents an excellent match for your curr
                       </div>
                     )}
 
-                  {/* Skills You Need to Work On */}
-                  {skillsAnalysis.workingOn.length > 0 && (
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                        <Clock className="h-6 w-6 text-orange-500 mr-3" />
-                        Skills to Work On
-                      </h3>
-                      <div className="flex flex-wrap gap-3 mb-4">
-                        {skillsAnalysis.workingOn.map(
-                          (skillAssessment, index) => (
-                            <span
-                              key={index}
-                              className="px-4 py-2 bg-orange-100 text-orange-800 rounded-full font-medium border border-orange-200 flex items-center"
-                              title={skillAssessment.reasoning}
-                            >
-                              <Clock className="h-4 w-4 mr-2" />
-                              {skillAssessment.skill}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Skills You Need to Learn */}
-                  {skillsAnalysis.need.length > 0 && (
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                        <BookOpen className="h-6 w-6 text-red-500 mr-3" />
-                        Skills You Need to Learn
-                      </h3>
-                      <div className="flex flex-wrap gap-3 mb-4">
-                        {skillsAnalysis.need.map((skillAssessment, index) => (
-                          <span
-                            key={index}
-                            className="px-4 py-2 bg-red-100 text-red-800 rounded-full font-medium border border-red-200 flex items-center"
-                            title={skillAssessment.reasoning}
-                          >
-                            <BookOpen className="h-4 w-4 mr-2" />
-                            {skillAssessment.skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  {/* Skills You Have - from quiz data (fallback when no AI analysis) */}
-                  {quizData &&
-                  quizData.familiarTools &&
-                  quizData.familiarTools.length > 0 ? (
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                        <CheckCircle className="h-6 w-6 text-green-500 mr-3" />
-                        Skills You Have
-                      </h3>
-                      <div className="flex flex-wrap gap-3 mb-4">
-                        {quizData.familiarTools.map((toolValue, index) => {
-                          // Map tool values to display labels
-                          const toolLabels: Record<string, string> = {
-                            "google-docs-sheets": "Google Docs/Sheets",
-                            canva: "Canva",
-                            notion: "Notion",
-                            "shopify-wix-squarespace":
-                              "Shopify/Wix/Squarespace",
-                            "zoom-streamyard": "Zoom/StreamYard",
-                            figma: "Figma",
-                            airtable: "Airtable",
-                            wordpress: "WordPress",
-                            chatgpt: "ChatGPT",
-                            capcut: "CapCut",
-                            "meta-ads-manager": "Meta Ads Manager",
-                            zapier: "Zapier",
-                          };
-
-                          const displayLabel =
-                            toolLabels[toolValue] || toolValue;
-
-                          return (
-                            <span
-                              key={index}
-                              className="px-4 py-2 bg-green-100 text-green-800 rounded-full font-medium border border-green-200 flex items-center"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              {displayLabel}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">
-                        Complete the quiz to see your personalized skill
-                        analysis
-                      </p>
-                    </div>
-                  )}
+                  {/* Skills analysis removed - not used */}
                 </div>
               )}
             </section>

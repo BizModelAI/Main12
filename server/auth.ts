@@ -8,7 +8,7 @@ type Request = express.Request;
 type Response = express.Response;
 
 // Temporary session cache as fallback for cookie issues
-const tempSessionCache = new Map<
+export const tempSessionCache = new Map<
   string,
   { userId: number; timestamp: number }
 >();

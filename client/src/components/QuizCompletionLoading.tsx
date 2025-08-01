@@ -17,6 +17,7 @@ import { QuizData, BusinessPath } from "../types";
 import { reportViewManager } from "../utils/reportViewManager";
 import { AICacheManager } from "../utils/aiCacheManager";
 import { useAIInsights } from '../contexts/AIInsightsContext';
+import { cleanAndRepairJson } from '../utils/aiService';
 
 // Hook to detect mobile devices
 const useIsMobile = () => {
@@ -135,91 +136,14 @@ const QuizCompletionLoading: React.FC<QuizCompletionLoadingProps> = ({
   ];
 
   // --- REFACTORED LOGIC START ---
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
   const [isComplete, setIsComplete] = useState(false);
 
   // Remove duplicate steps state
   // const [steps, setSteps] = useState<LoadingStep[]>(loadingSteps);
   const [steps, setSteps] = useState<LoadingStep[]>(loadingSteps.map((s) => ({ ...s, completed: false })));
 
-  useEffect(() => {
-    let cleanup: (() => void) | null = null;
-    let isUnmounted = false;
 
-    const runSteps = async () => {
-      if (isComplete) return;
-      for (let stepIndex = 0; stepIndex < loadingSteps.length; stepIndex++) {
-        if (isUnmounted || isComplete) return;
-        setCurrentStepIndex(stepIndex);
-        setSteps((prev) =>
-          prev.map((step, index) => ({
-            ...step,
-            status: index === stepIndex ? "active" : index < stepIndex ? "completed" : "pending",
-            completed: index < stepIndex,
-          }))
-        );
-        // Animate progress for this step
-        const stepStartProgress = (stepIndex / loadingSteps.length) * 100;
-        const stepEndProgress = ((stepIndex + 1) / loadingSteps.length) * 100;
-        const stepDuration = 3500; // 3.5 seconds per card
-        const stepStartTime = Date.now();
-        let animationFrame: number;
-        const animateStepProgress = () => {
-          if (isUnmounted || isComplete) return;
-          const stepElapsed = Date.now() - stepStartTime;
-          const stepProgressRatio = Math.min(stepElapsed / stepDuration, 1);
-          // Ease in-out
-          const easedRatio = stepProgressRatio - ((Math.cos(stepProgressRatio * Math.PI) - 1) / 2) * 0.1;
-          const currentProgress = stepStartProgress + (stepEndProgress - stepStartProgress) * easedRatio;
-          setProgress(currentProgress);
-          if (stepProgressRatio < 1 && !isComplete) {
-            animationFrame = requestAnimationFrame(animateStepProgress);
-          }
-        };
-        animationFrame = requestAnimationFrame(animateStepProgress);
-        cleanup = () => {
-          if (animationFrame) cancelAnimationFrame(animationFrame);
-        };
-        await new Promise((resolve) => setTimeout(resolve, stepDuration));
-        setSteps((prev) =>
-          prev.map((step, index) => ({
-            ...step,
-            completed: index <= stepIndex,
-            status: index < stepIndex + 1 ? "completed" : index === stepIndex + 1 ? "active" : "pending",
-          }))
-        );
-        cancelAnimationFrame(animationFrame);
-      }
-      // Final progress animation to 100%
-      let finalAnimationFrame: number;
-      const animateFinalProgress = () => {
-        setProgress((prev) => {
-          const remaining = 100 - prev;
-          const increment = remaining * 0.1;
-          const newProgress = Math.min(prev + increment, 100);
-          if (newProgress < 100) {
-            finalAnimationFrame = requestAnimationFrame(animateFinalProgress);
-          }
-          return newProgress;
-        });
-      };
-      finalAnimationFrame = requestAnimationFrame(animateFinalProgress);
-      setTimeout(() => {
-        if (finalAnimationFrame) cancelAnimationFrame(finalAnimationFrame);
-        setProgress(100);
-        setSteps((prev) => prev.map((step) => ({ ...step, completed: true, status: "completed" })));
-        setCurrentStepIndex(loadingSteps.length - 1);
-        setIsComplete(true);
-        if (typeof onComplete === "function") onComplete(loadingResults);
-      }, 1000);
-    };
-    runSteps();
-    return () => {
-      isUnmounted = true;
-      if (cleanup) cleanup();
-    };
-  }, [quizData]);
-// --- REFACTORED LOGIC END ---
 
   // Clear any potentially stuck state on component mount and handle mobile detection
   useEffect(() => {
@@ -367,7 +291,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
 
       // Add timeout wrapper for the fetch request
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout to match server
 
       let data: any;
       try {
@@ -402,7 +326,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         if (fetchError?.name === "AbortError") {
-          console.error("API request timed out after 30 seconds");
+          console.error("API request timed out after 15 seconds");
           throw new Error("API request timed out");
         }
         throw fetchError;
@@ -425,13 +349,11 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
           .replace(/```/g, "");
       }
 
-      const parsed = JSON.parse(cleanContent);
-      if (
-        parsed &&
-        parsed.characteristics &&
-        Array.isArray(parsed.characteristics) &&
-        parsed.characteristics.length === 6
-      ) {
+      try {
+        const parsed = cleanAndRepairJson(cleanContent);
+        if (!parsed || !parsed.characteristics || !Array.isArray(parsed.characteristics) || parsed.characteristics.length !== 6) {
+          throw new Error('Invalid characteristics JSON');
+        }
         // Store the characteristics in database
         const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
         if (quizAttemptId) {
@@ -455,11 +377,35 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
         }
 
         return parsed.characteristics;
-      } else {
-        console.error("Invalid response format:", parsed);
-        throw new Error(
-          `Invalid response format - expected 6 characteristics, got: ${parsed?.characteristics?.length || "none"}`,
+      } catch (error) {
+        console.error('[AI JSON REPAIR] Fallback for characteristics:', error);
+        // Robust fallback characteristics based on quiz data
+        const fallbackCharacteristics = [
+          quizData.selfMotivationLevel >= 4
+            ? "Highly self-motivated"
+            : "Moderately self-motivated",
+          quizData.riskComfortLevel >= 4
+            ? "High risk tolerance"
+            : "Moderate risk tolerance",
+          quizData.techSkillsRating >= 4
+            ? "Strong tech skills"
+            : "Adequate tech skills",
+          quizData.directCommunicationEnjoyment >= 4
+            ? "Excellent communicator"
+            : "Good communicator",
+          quizData.organizationLevel >= 4
+            ? "Highly organized planner"
+            : "Flexible approach to planning",
+          quizData.creativeWorkEnjoyment >= 4
+            ? "Creative problem solver"
+            : "Analytical approach to challenges",
+        ];
+
+        console.log(
+          "Generated fallback characteristics:",
+          fallbackCharacteristics,
         );
+        return fallbackCharacteristics;
       }
     } catch (error) {
       console.error("Error generating all characteristics:", error);
@@ -1209,7 +1155,7 @@ Examples: {"characteristics": ["Highly self-motivated", "Strategic risk-taker", 
       stepTimeouts.forEach(clearTimeout);
       if (progressInterval) clearInterval(progressInterval);
     };
-  }, [quizData]);
+  }, [quizData, progress, loadingSteps, onComplete]);
 
   const executeStep = async (
     stepIndex: number,

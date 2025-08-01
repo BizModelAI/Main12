@@ -1144,14 +1144,7 @@ function App() {
                       </Layout>
                     }
                   />
-                  <Route
-                    path="/business-guide"
-                    element={
-                      <Layout>
-                        <BusinessGuide />
-                      </Layout>
-                    }
-                  />
+                  
                   <Route
                     path="/guide/:businessId"
                     element={

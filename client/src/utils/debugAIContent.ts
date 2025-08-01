@@ -1,7 +1,5 @@
 // Debugging utilities for AI content system
-const API_BASE = process.env.NODE_ENV === 'production'
-  ? window.location.origin
-  : "http://localhost:9000";
+import { API_CONFIG } from "./apiConfig";
 
 export const debugAIContent = {
   // Test AI content endpoints
@@ -12,7 +10,7 @@ export const debugAIContent = {
       // Test getting AI content
       console.log("1. Testing GET endpoint...");
       const getResponse = await fetch(
-        `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
+        `${API_CONFIG.BASE_URL}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
         {
           credentials: "include",
         },
@@ -35,7 +33,7 @@ export const debugAIContent = {
       };
 
       const postResponse = await fetch(
-        `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
+        `${API_CONFIG.BASE_URL}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
         {
           method: "POST",
           credentials: "include",
@@ -55,7 +53,7 @@ export const debugAIContent = {
         // Verify by getting again
         console.log("3. Verifying saved data...");
         const verifyResponse = await fetch(
-          `${API_BASE}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
+          `${API_CONFIG.BASE_URL}/api/quiz-attempts/attempt/${quizAttemptId}/ai-content`,
           {
             credentials: "include",
           },
@@ -78,7 +76,7 @@ export const debugAIContent = {
 
     // Get quiz attempts
     try {
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/user/5`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/quiz-attempts/user/5`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -102,83 +100,57 @@ export const debugAIContent = {
 
   // Simulate clicking on a quiz attempt
   async simulateQuizAttemptClick(attemptId: number) {
-    console.log(` Simulating click on quiz attempt ${attemptId}...`);
+    console.log(` Simulating click on attempt ${attemptId}...`);
 
-    // This mimics what happens when user clicks on a quiz attempt
     try {
-      // Get quiz attempts to find the one we want
-      const response = await fetch(`${API_BASE}/api/quiz-attempts/user/5`, {
-        credentials: "include",
-      });
+      // Get AI content for this attempt
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}/api/quiz-attempts/attempt/${attemptId}/ai-content`,
+        {
+          credentials: "include",
+        },
+      );
+
       if (response.ok) {
-        const attempts = await response.json();
-        const attempt = attempts.find((a: any) => a.id === attemptId);
-
-        if (attempt) {
-          console.log(" Selected attempt:", attempt);
-
-          // Store quiz data
-          localStorage.setItem("quizData", JSON.stringify(attempt.quizData));
-          localStorage.setItem("currentQuizAttemptId", attempt.id.toString());
-
-          // Fetch AI content
-          const aiResponse = await fetch(
-            `${API_BASE}/api/quiz-attempts/attempt/${attempt.id}/ai-content`,
-            {
-              credentials: "include",
-            },
-          );
-          let aiContent = null;
-
-          if (aiResponse.ok) {
-            const aiData = await aiResponse.json();
-            aiContent = aiData.aiContent;
-
-            if (aiContent) {
-              localStorage.setItem(
-                "loadedReportData",
-                JSON.stringify(aiContent),
-              );
-              console.log(" AI content loaded and stored");
-            } else {
-              localStorage.removeItem("loadedReportData");
-              console.log("️ No AI content available");
-            }
-          } else {
-            console.log("⚠️ AI content fetch failed:", aiResponse.status);
-          }
-
-          console.log("✅ Quiz attempt switch simulation complete");
-          return { attempt, aiContent };
-        } else {
-          console.log("❌ Attempt not found");
-        }
+        const data = await response.json();
+        console.log("✅ Successfully loaded AI content for attempt:", data);
+        return data;
+      } else {
+        console.log("❌ Failed to load AI content:", response.status);
+        const errorText = await response.text();
+        console.log("Error details:", errorText);
       }
     } catch (error) {
-      console.error(" Simulation failed:", error);
+      console.error(" Quiz attempt click simulation failed:", error);
     }
   },
 
-  // Check current localStorage state
+  // Check localStorage for AI content
   checkLocalStorage() {
-    console.log(" Current localStorage state:");
-    const quizData = localStorage.getItem("quizData");
-    const loadedReportData = localStorage.getItem("loadedReportData");
-    const quizAttemptId = localStorage.getItem("currentQuizAttemptId");
+    console.log(" Checking localStorage for AI content...");
 
-    console.log("  quizData:", quizData ? "Present" : "Missing");
-    console.log(
-      "  loadedReportData:",
-      loadedReportData ? "Present" : "Missing",
-    );
-    console.log("  currentQuizAttemptId:", quizAttemptId || "Missing");
+    const aiContentKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('ai-content-')) {
+        aiContentKeys.push(key);
+      }
+    }
 
-    return {
-      quizData: !!quizData,
-      loadedReportData: !!loadedReportData,
-      quizAttemptId,
-    };
-  },
+    console.log(" Found AI content keys:", aiContentKeys);
+
+    aiContentKeys.forEach(key => {
+      try {
+        const data = localStorage.getItem(key);
+        if (data) {
+          const parsed = JSON.parse(data);
+          console.log(`  ${key}:`, parsed);
+        }
+      } catch (error) {
+        console.error(` Error parsing ${key}:`, error);
+      }
+    });
+  }
 };
 
 // Make it available globally for browser console testing

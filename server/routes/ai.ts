@@ -26,10 +26,7 @@ const businessFitAnalysisSchema = z.object({
   quizAttemptId: z.string()
 });
 
-const incomeProjectionsSchema = z.object({
-  businessId: z.string(),
-  quizData: z.any()
-});
+// Income projections schema removed - no longer needed since we use hardcoded data
 
 // Helper function to generate business fit analysis
 async function generateBusinessFitAnalysis(quizData: any) {
@@ -63,69 +60,36 @@ Format the response as structured JSON with the following structure:
 }
 `;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      {
-        role: "system",
-        content: "You are a business consultant specializing in helping people find the perfect business model based on their personality, skills, and goals."
-      },
-      {
-        role: "user",
-        content: prompt
-      }
-    ],
-    max_tokens: 2000,
-    temperature: 0.7
-  });
+  // Add timeout to prevent hanging
+  const response = await Promise.race([
+    openai.chat.completions.create({
+      model: "gpt-4o-mini", // Use gpt-4o-mini for faster responses
+      messages: [
+        {
+          role: "system",
+          content: "You are a business consultant specializing in helping people find the perfect business model based on their personality, skills, and goals."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 1500, // Reduced to prevent timeouts
+      temperature: 0.7
+    }),
+          new Promise((_, reject) =>
+        setTimeout(() => {
+          console.error("Business fit analysis OpenAI API call timed out after 15 seconds");
+          reject(new Error("Business fit analysis OpenAI API call timed out after 15 seconds"));
+        }, 15000)
+      )
+  ]) as any;
 
   return response.choices[0]?.message?.content || 'Analysis failed';
 }
 
-// Helper function to generate income projections
-async function generateIncomeProjections(businessId: string, quizData: any) {
-  const prompt = `
-Based on the business model "${businessId}" and the following quiz data, provide realistic income projections for the first 12 months:
-
-Quiz Data: ${JSON.stringify(quizData, null, 2)}
-
-Please provide monthly income projections that are realistic and achievable. Consider:
-- Startup costs and time
-- Market conditions
-- Skill level and experience
-- Competition
-- Seasonal factors
-
-Format as JSON:
-{
-  "projections": [
-    {"month": 1, "income": number, "notes": "string"},
-    {"month": 2, "income": number, "notes": "string"},
-    ...
-  ],
-  "assumptions": "string",
-  "riskFactors": ["string"]
-}
-`;
-
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      {
-        role: "system",
-        content: "You are a financial analyst specializing in startup income projections. Provide realistic, achievable projections."
-      },
-      {
-        role: "user",
-        content: prompt
-      }
-    ],
-    max_tokens: 1500,
-    temperature: 0.5
-  });
-
-  return response.choices[0]?.message?.content || 'Projections failed';
-}
+// Income projections should NOT be AI generated - they should be hardcoded data
+// This function is removed to prevent AI generation of income projections
 
 // Routes
 router.post('/openai-chat', async (req: any, res: any) => {
@@ -143,12 +107,21 @@ router.post('/openai-chat', async (req: any, res: any) => {
     console.log('🤖 Making OpenAI API call with messages count:', messages.length);
     console.log('🎛️ Request parameters:', { maxTokens, temperature });
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages,
-      max_tokens: maxTokens,
-      temperature: temperature
-    });
+    // Add timeout to prevent hanging
+    const response = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-4o-mini", // Use gpt-4o-mini for faster responses
+        messages,
+        max_tokens: maxTokens,
+        temperature: temperature
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => {
+          console.error("OpenAI API call timed out after 15 seconds");
+          reject(new Error("OpenAI API call timed out after 15 seconds"));
+        }, 15000)
+      )
+    ]) as any;
     
     console.log('📡 OpenAI API response status:', response.usage ? '200 OK' : 'Error');
     console.log('✅ OpenAI API success, response data keys:', Object.keys(response));
@@ -197,64 +170,70 @@ router.post('/ai-business-fit-analysis', async (req: any, res: any) => {
   }
 });
 
-router.post('/generate-income-projections', async (req: any, res: any) => {
-  try {
-    const { businessId, quizData } = incomeProjectionsSchema.parse(req.body);
-    
-    // Generate projections
-    const projections = await generateIncomeProjections(businessId, quizData);
-    
-    res.json({
-      businessId,
-      projections: JSON.parse(projections)
-    });
-  } catch (error) {
-    console.error('Income projections error:', error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input data', details: error.errors });
-    }
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// Income projections endpoint removed - should use hardcoded data from server/routes.ts instead
+// This prevents AI generation of income projections which should be consistent and reliable
 
 router.post('/generate-business-fit-descriptions', async (req: any, res: any) => {
   try {
-    const { businessModels } = req.body;
+    const { businessMatches, quizData } = req.body;
+    
+    if (!businessMatches || !Array.isArray(businessMatches)) {
+      return res.status(400).json({ error: 'businessMatches array is required' });
+    }
     
     const descriptions = await Promise.all(
-      businessModels.map(async (model: any) => {
+      businessMatches.map(async (match: any) => {
         const prompt = `
-Generate a detailed description for the business model: ${model.name}
+Generate a detailed "Why This Fits You" description for the business model: ${match.name}
 
-Include:
-- What this business model entails
-- Typical day-to-day activities
-- Required skills and personality traits
-- Pros and cons
-- Ideal customer types
-- Startup costs and timeline
+Based on the user's quiz data:
+${JSON.stringify(quizData, null, 2)}
 
-Make it engaging and informative for someone considering this business model.
+Business Match Details:
+- Name: ${match.name}
+- Fit Score: ${match.fitScore}%
+- Description: ${match.description}
+- Time to Profit: ${match.timeToProfit}
+- Startup Cost: ${match.startupCost}
+- Potential Income: ${match.potentialIncome}
+
+Generate a detailed personalized analysis explaining why this business model specifically fits this user. Be specific about:
+1. How their personality traits, goals, and preferences align with this business model
+2. What specific aspects of their quiz responses make them well-suited for this path
+3. How their skills, time availability, and risk tolerance match the requirements
+4. What unique advantages they bring to this business model
+5. How their learning style and work preferences complement this business approach
+
+Write in a supportive, consultative tone that demonstrates deep understanding of their profile.
 `;
 
-        const response = await openai.chat.completions.create({
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: "You are a business consultant helping people understand different business models."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          max_tokens: 800,
-          temperature: 0.7
-        });
+        // Add timeout to prevent hanging
+        const response = await Promise.race([
+          openai.chat.completions.create({
+            model: "gpt-4o-mini", // Use gpt-4o-mini for faster responses
+            messages: [
+              {
+                role: "system",
+                content: "You are a business consultant helping people understand why specific business models fit their unique profile."
+              },
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            max_tokens: 600, // Reduced to prevent timeouts
+            temperature: 0.7
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => {
+              console.error("Business fit descriptions OpenAI API call timed out after 15 seconds");
+              reject(new Error("Business fit descriptions OpenAI API call timed out after 15 seconds"));
+            }, 15000)
+          )
+        ]) as any;
 
         return {
-          ...model,
+          businessId: match.id,
           description: response.choices[0]?.message?.content || 'Description unavailable'
         };
       })
@@ -266,6 +245,8 @@ Make it engaging and informative for someone considering this business model.
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Skills analysis endpoint removed - not used in frontend
 
 router.post('/clear-business-model-ai-content', async (req: any, res: any) => {
   try {
@@ -286,12 +267,20 @@ router.get('/openai-status', async (req: any, res: any) => {
       return res.status(500).json({ error: 'OpenAI API key not configured' });
     }
     
-    // Test API call
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [{ role: "user", content: "Hello" }],
-      max_tokens: 10
-    });
+    // Test API call with timeout
+    const response = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-4o-mini", // Use gpt-4o-mini for faster responses
+        messages: [{ role: "user", content: "Hello" }],
+        max_tokens: 10
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => {
+          console.error("OpenAI status check timed out after 10 seconds");
+          reject(new Error("OpenAI status check timed out after 10 seconds"));
+        }, 10000)
+      )
+    ]) as any;
     
     res.json({ 
       status: 'ok',

@@ -29,7 +29,7 @@ You have several options for the database:
 #### Option B: Free Cloud Database (Recommended)
 
 - **Supabase**: Go to [supabase.com](https://supabase.com), create a project, and get the connection string
-- **Neon**: Go to [neon.tech](https://neon.tech), create a database, and get the connection string
+- **Supabase**: Go to [supabase.com](https://supabase.com), create a project, and get the connection string
 - Update the `DATABASE_URL` in `.env` file
 
 ### 3. Environment Variables
@@ -38,7 +38,7 @@ The `.env` file has been created with all necessary variables. Update these:
 
 **Required:**
 
-- `DATABASE_URL`: Your PostgreSQL connection string
+- `DATABASE_URL`: Your Supabase connection string
 - `SESSION_SECRET`: Any random string for session security
 
 **Optional (for full functionality):**
@@ -86,7 +86,7 @@ The application will be available at:
 ### Database Connection Issues
 
 - Make sure PostgreSQL is running
-- Verify the `DATABASE_URL` format: `postgresql://username:password@host:port/database`
+- Verify the `DATABASE_URL` format: `postgresql://postgres.sxykykqlikvzaeugbavt:[password]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true`
 - Check firewall settings if using a remote database
 
 ### Missing Features
@@ -110,7 +110,7 @@ The application will be available at:
 
 For enhanced development experience, you can connect to these MCP servers in Cursor:
 
-- **Neon**: For database management if using Neon as your database
+- **Supabase**: For database management if using Supabase as your database
 - **Sentry**: For error monitoring and debugging
 - **Context7**: For up-to-date documentation on the frameworks used
 - **Netlify**: For deployment when ready

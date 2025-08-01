@@ -122,14 +122,7 @@ export class AICacheManager {
     }
   }
 
-  getCachedSkillsAnalysis(businessId: string) {
-    // Stub: return null or implement as needed
-    return null;
-  }
-
-  cacheSkillsAnalysis(businessId: string, skills: any) {
-    // Stub: no-op or implement as needed
-  }
+  // Skills analysis caching removed - not used
 
   getCacheStatus() {
     // Stub: return a summary of cache keys

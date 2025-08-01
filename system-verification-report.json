@@ -1,0 +1,525 @@
+{
+  "timestamp": "2025-07-30T13:00:49.689Z",
+  "summary": {
+    "passed": 8,
+    "failed": 26,
+    "successRate": "23.5%"
+  },
+  "details": {
+    "Health endpoint responds": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Server environment configured": {
+      "passed": false,
+      "details": {
+        "error": "Health endpoint not responding"
+      }
+    },
+    "Database connected": {
+      "passed": false,
+      "details": {
+        "error": "Health endpoint not responding"
+      }
+    },
+    "CORS headers present": {
+      "passed": null,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "User registration works": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "User login works": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Session management works": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Logout works": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Protected routes require authentication": {
+      "passed": true,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Anonymous quiz data saving": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Email-based quiz data saving": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "AI business fit analysis": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Income projections generation": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Stripe configuration endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "User pricing endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Payment status endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "PDF generation endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "PDF report page accessible": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Contact form endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Unsubscribe endpoint": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Admin routes require authentication": {
+      "passed": true,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Admin routes require valid admin key": {
+      "passed": true,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Frontend accessible": {
+      "passed": false,
+      "details": {
+        "error": "fetch is not a function"
+      }
+    },
+    "Database write operations": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Session storage working": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "404 error handling": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Invalid JSON handling": {
+      "passed": true,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Missing required fields handling": {
+      "passed": true,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "Health endpoint response time < 1s": {
+      "passed": true,
+      "details": {
+        "time": 0
+      }
+    },
+    "Quiz save response time < 2s": {
+      "passed": true,
+      "details": {
+        "time": 0
+      }
+    },
+    "AI analysis response time < 30s": {
+      "passed": true,
+      "details": {
+        "time": 0
+      }
+    },
+    "CORS protection": {
+      "passed": null,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "SQL injection protection": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    "XSS protection": {
+      "passed": false,
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    }
+  },
+  "errors": [
+    {
+      "test": "Health endpoint responds",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Server environment configured",
+      "details": {
+        "error": "Health endpoint not responding"
+      }
+    },
+    {
+      "test": "Database connected",
+      "details": {
+        "error": "Health endpoint not responding"
+      }
+    },
+    {
+      "test": "CORS headers present",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "User registration works",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "User login works",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Session management works",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Logout works",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Anonymous quiz data saving",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Email-based quiz data saving",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "AI business fit analysis",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Income projections generation",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Stripe configuration endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "User pricing endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Payment status endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "PDF generation endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "PDF report page accessible",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Contact form endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Unsubscribe endpoint",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Frontend accessible",
+      "details": {
+        "error": "fetch is not a function"
+      }
+    },
+    {
+      "test": "Database write operations",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "Session storage working",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "404 error handling",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "CORS protection",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "SQL injection protection",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    },
+    {
+      "test": "XSS protection",
+      "details": {
+        "ok": false,
+        "error": "fetch is not a function",
+        "data": null,
+        "headers": null
+      }
+    }
+  ]
+}

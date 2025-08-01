@@ -301,6 +301,20 @@ class Storage {
     return !!(quizAttempt && quizAttempt.isReportUnlocked);
   }
 
+  async hasUserPaidForReport(userId: number, quizAttemptId: number) {
+    // Check if the quiz attempt belongs to the user
+    const quizAttempt = await this.prisma.quizAttempt.findUnique({ 
+      where: { id: quizAttemptId } 
+    });
+    
+    if (!quizAttempt || quizAttempt.userId !== userId) {
+      return false;
+    }
+    
+    // Check if the report is unlocked (paid)
+    return !!(quizAttempt && quizAttempt.isReportUnlocked);
+  }
+
   async createPasswordResetToken(userId: number, token: string, expiresAt: Date) {
     return await this.prisma.passwordResetToken.create({ data: { userId, token, expiresAt } });
   }

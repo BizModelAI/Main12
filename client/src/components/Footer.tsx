@@ -22,7 +22,7 @@ function Footer() {
 
   const handlePrivacyPolicyClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate("/privacy");
+            navigate("/privacy-policy");
     // Scroll to top after navigation
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });

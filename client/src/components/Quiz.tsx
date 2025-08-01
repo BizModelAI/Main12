@@ -861,17 +861,6 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
       setTimeout(async () => {
         console.log("Quiz completed with data:", formData);
 
-        // Generate a temporary quiz attempt ID if not present
-        let quizAttemptId = localStorage.getItem("currentQuizAttemptId");
-        if (!quizAttemptId) {
-          if (window.crypto && window.crypto.randomUUID) {
-            quizAttemptId = window.crypto.randomUUID();
-          } else {
-            quizAttemptId = `temp-${Date.now()}`;
-          }
-          localStorage.setItem("currentQuizAttemptId", quizAttemptId);
-        }
-
         // Save quiz data to database for all users
         try {
           if (userId) {
@@ -888,6 +877,10 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
             if (response.ok) {
               const data = await response.json();
               console.log("Quiz data saved for authenticated user:", data);
+              // Store the numeric quiz attempt ID for AI content access
+              if (data.attemptId) {
+                localStorage.setItem("currentQuizAttemptId", data.attemptId.toString());
+              }
               toast({
                 title: "Quiz Completed!",
                 description: "Your responses have been saved to your account.",
@@ -901,14 +894,17 @@ const Quiz: React.FC<QuizProps> = ({ onComplete, onBack, userId }) => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                quizData: formData,
-                quizAttemptId: quizAttemptId
+                quizData: formData
               }),
             });
 
             if (response.ok) {
               const data = await response.json();
               console.log("Quiz data saved for guest user:", data);
+              // Store the numeric quiz attempt ID for AI content access
+              if (data.attemptId) {
+                localStorage.setItem("currentQuizAttemptId", data.attemptId.toString());
+              }
               // Store the user ID for later reference
               if (data.userId) {
                 localStorage.setItem("tempUserId", data.userId.toString());

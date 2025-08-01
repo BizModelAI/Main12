@@ -25,17 +25,21 @@ const quizDataSchema = z.object({
 
 const recordGuestSchema = z.object({
   quizData: quizDataSchema,
-  quizAttemptId: z.string().optional(),
   tempUserId: z.number().optional()
 });
 
 // Routes
 router.post('/record-guest', async (req: any, res: any) => {
   try {
-    const { quizData, quizAttemptId, tempUserId } = recordGuestSchema.parse(req.body);
+    // Validate request body exists
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: 'Request body is required' });
+    }
+
+    const { quizData, tempUserId } = recordGuestSchema.parse(req.body);
     
-    // Generate quizAttemptId if not provided
-    const finalQuizAttemptId = quizAttemptId || `guest-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    // Generate quizAttemptId for guest users
+    const finalQuizAttemptId = `guest-${Date.now()}-${Math.random().toString(36).substring(2)}`;
     
     // Create or find temp user
     let userId: number;
@@ -85,7 +89,10 @@ router.post('/record', async (req: any, res: any) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    const { quizData, quizAttemptId } = req.body;
+    const { quizData } = req.body;
+    
+    // Generate quizAttemptId for authenticated users
+    const quizAttemptId = `auth-${Date.now()}-${Math.random().toString(36).substring(2)}`;
     
     const quizAttempt = await prisma.quizAttempt.create({
       data: {
