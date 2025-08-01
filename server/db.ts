@@ -12,14 +12,14 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
     }
   },
   // Disable prepared statements for Supabase pooler compatibility
-  __internal: {
-    engine: {
-      enableEngineDebugMode: false,
-      enableQueryLogging: false,
-      enableMetrics: false,
-      enablePreparedStatements: false
-    }
-  }
+  // __internal: {
+  //   engine: {
+  //     enableEngineDebugMode: false,
+  //     enableQueryLogging: false,
+  //     enableMetrics: false,
+  //     enablePreparedStatements: false
+  //   }
+  // }
 });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

@@ -14,6 +14,7 @@ git add scripts/fix-deployment-issues.js
 git add scripts/fix-all-deployment-issues.js
 git add scripts/final-deployment-fixes.js
 git add scripts/ultimate-deployment-fixes.js
+git add scripts/fix-typescript-errors.js
 git add DEPLOYMENT_ISSUES_CHECKLIST.md
 git add FINAL_DEPLOYMENT_CHECKLIST.md
 git add GIT_PUSH_COMMANDS.md
@@ -23,6 +24,7 @@ git add start.sh
 git add validate-build.sh
 git add deploy.sh
 git add monitor.sh
+git add deploy-simple.sh
 ```
 
 ## Step 2: Add any modified files
@@ -36,6 +38,8 @@ git add server/middleware/adminAuth.ts
 git add server/services/emailService.ts
 git add server/services/aiScoringService.ts
 git add shared/businessPaths.ts
+git add server/db.ts
+git add server/middleware/adminAuth.ts
 git add package.json
 git add client/package.json
 git add client/vite.config.ts
@@ -44,7 +48,7 @@ git add render.yaml
 
 ## Step 3: Commit the changes
 ```bash
-git commit -m "Ultimate deployment preparation - enterprise-grade ready
+git commit -m "Fix TypeScript errors and deployment issues - production ready
 
 - Fix all remaining .js import extensions to .ts for TypeScript files
 - Add --legacy-peer-deps flag to npm install commands
@@ -75,7 +79,11 @@ git commit -m "Ultimate deployment preparation - enterprise-grade ready
 - Add performance optimization and caching
 - Add production deployment and monitoring scripts
 - Add new security dependencies
-- All deployment issues resolved - enterprise ready"
+- Fix TypeScript compilation errors
+- Remove problematic imports and dependencies
+- Add simplified production optimizations
+- Create simple deployment script
+- All deployment issues resolved - production ready"
 ```
 
 ## Step 4: Push to your repository
