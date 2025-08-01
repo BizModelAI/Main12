@@ -5,12 +5,12 @@ type Express = express.Express;
 type Request = express.Request;
 type Response = express.Response;
 import { createServer, type Server } from "http";
-import { storage } from './storage.js';
-import { getUserIdFromRequest, getSessionKey } from "./auth.js";
-import { requireAdminAuth } from "./middleware/adminAuth.js";
-import { generateBusinessResources } from "./services/resourceService.js";
-import { pdfService } from "./services/pdfService.js";
-import { emailService } from "./services/emailService.js";
+import { storage } from './storage';
+import { getUserIdFromRequest, getSessionKey } from "./auth";
+import { requireAdminAuth } from "./middleware/adminAuth";
+import { generateBusinessResources } from "./services/resourceService";
+import { pdfService } from "./services/pdfService";
+import { emailService } from "./services/emailService";
 
 // Function to generate PDF report HTML with clean, simple design
 function generatePDFReportHTML(data: any): string {
@@ -488,9 +488,9 @@ function generatePDFReportHTML(data: any): string {
     </html>
   `;
 }
-import { aiScoringService } from "./services/aiScoringService.js";
+import { aiScoringService } from "./services/aiScoringService";
 // Personality analysis service removed - not used in frontend
-import { db } from "./db.js";
+import { db } from "./db";
 import Stripe from "stripe";
 // PayPal SDK imports removed - using mocks only
 import { 
@@ -498,8 +498,8 @@ import {
   getIncomeGoalRange, 
   getTimeCommitmentRange, 
   getInvestmentRange 
-} from "./utils/quizUtils.js";
-// import { registerDebugRoutes } from './debug-routes.js';
+} from "./utils/quizUtils";
+// import { registerDebugRoutes } from './debug-routes';
 
 // Secure session/user-based rate limiter for OpenAI requests
 class OpenAIRateLimiter {
@@ -3680,7 +3680,7 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
       const { email, password } = req.body;
       if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
       try {
-        const bcrypt = require('bcryptjs');
+        const bcrypt = await import('bcryptjs');
         const passwordHash = await bcrypt.hash(password, 10);
         let user = await storage.prisma.user.findUnique({ where: { email } });
         if (user) {

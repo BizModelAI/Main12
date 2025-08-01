@@ -1,4 +1,4 @@
-import { BusinessPath } from "./types.js";
+import { BusinessPath } from "./types";
 
 export const businessPaths: BusinessPath[] = [
   {

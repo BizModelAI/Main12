@@ -1,5 +1,5 @@
 import express from "express";
-import { storage } from "./storage.js";
+import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -691,7 +691,7 @@ export function setupAuthRoutes(app: Express) {
 
       // Send email with reset link
       try {
-        const { emailService } = await import("./services/emailService.js");
+        const { emailService } = await import("./services/emailService");
         const baseUrl = req.get("host")?.includes("localhost")
           ? `${req.protocol}://${req.get("host")}`
           : "https://bizmodelai.com";
@@ -902,7 +902,7 @@ export function setupAuthRoutes(app: Express) {
 
       console.log(`New contact form submission from: ${email}`);
 
-      const { emailService } = await import("./services/emailService.js");
+      const { emailService } = await import("./services/emailService");
 
       // Send notification to team@bizmodelai.com
       let notificationSent = false;

@@ -1,10 +1,10 @@
 import { Resend } from "resend";
-import type { QuizData } from "../../shared/types.js";
-import { calculateAllBusinessModelMatches } from "../../shared/scoring.js";
+import type { QuizData } from "../../shared/types";
+import { calculateAllBusinessModelMatches } from "../../shared/scoring";
 import {
   calculatePersonalityScores,
   getPersonalityDescription,
-} from "../../shared/personalityScoring.js";
+} from "../../shared/personalityScoring";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -20,7 +20,7 @@ const getIncomeRangeLabel = (value: number): string => {
 };
 
 // Import centralized utility functions
-import { getInvestmentRange, getTimeCommitmentRange } from "../utils/quizUtils.js";
+import { getInvestmentRange, getTimeCommitmentRange } from "../utils/quizUtils";
 
 const getInvestmentRangeLabel = (value: number): string => {
   return getInvestmentRange(value);
@@ -177,7 +177,7 @@ export class EmailService {
 
   private async checkUnsubscribeStatus(email: string): Promise<boolean> {
     try {
-      const { storage } = await import("../storage.js");
+      const { storage } = await import("../storage");
       const user = await storage.getUserByEmail(email);
       return user?.isUnsubscribed || false;
     } catch (error) {

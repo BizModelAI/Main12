@@ -18,6 +18,7 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: 'dist',
     chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
     rollupOptions: {
       output: {
@@ -27,9 +28,6 @@ export default defineConfig({
           router: ['react-router-dom'],
           ui: ['framer-motion', 'lucide-react', 'react-icons'],
           charts: ['recharts'],
-          // Business logic chunks
-          business: ['@shared/businessPaths', '@shared/businessModelTraits'],
-          utils: ['@shared/utils', '@shared/scoring'],
         },
       },
     },

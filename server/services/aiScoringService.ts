@@ -1,12 +1,12 @@
 import OpenAI from "openai";
-import { QuizData, BusinessPath } from "../../shared/types.js";
-import { businessPaths } from "../../shared/businessPaths.js";
+import { QuizData, BusinessPath } from "../../shared/types";
+import { businessPaths } from "../../shared/businessPaths";
 import { 
   getRatingDescription, 
   getIncomeGoalRange, 
   getTimeCommitmentRange, 
   getInvestmentRange 
-} from "../utils/quizUtils.js";
+} from "../utils/quizUtils";
 
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({

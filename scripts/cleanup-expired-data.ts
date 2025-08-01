@@ -9,7 +9,7 @@
  * - Paid users: Forever (no expiration)
  */
 
-import { storage } from '../server/storage.js';
+import { storage } from '../server/storage';
 
 async function main() {
   console.log('🧹 Starting cleanup of expired quiz data...');

@@ -43,7 +43,7 @@ Since terminal commands aren't working, follow this manual checklist to deploy y
 - [ ] Configure:
   - **Name**: `business-model-finder`
   - **Environment**: `Node`
-  - **Build Command**: `npm install && npm run build`
+  - **Build Command**: `npm install && cd client && npm install && cd .. && npm run build`
   - **Start Command**: `npm start`
   - **Plan**: Starter (Free)
 

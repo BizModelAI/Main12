@@ -2,7 +2,7 @@ import express from 'express';
 
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { getUserIdFromRequest } from '../auth.js';
+import { getUserIdFromRequest } from '../auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -366,7 +366,7 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
   }
 });
 
-import { EmailService } from '../services/emailService.js';
+import { EmailService } from '../services/emailService';
 
 router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
   try {

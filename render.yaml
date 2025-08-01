@@ -3,7 +3,7 @@ services:
     name: business-model-finder
     env: node
     plan: starter
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && cd client && npm install --legacy-peer-deps && cd .. && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -41,5 +41,4 @@ databases:
     user: businessmodelfinder
     plan: starter 
     healthCheckPath: /api/health
-    autoDeploy: true 
     autoDeploy: true 

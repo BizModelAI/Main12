@@ -98,7 +98,7 @@ router.get("/payment/:paymentId", async (req: express.Request, res: express.Resp
 
     // If not found in database, try to get from Stripe
     if (process.env.STRIPE_SECRET_KEY) {
-      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  const stripe = new (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
       
       try {
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);

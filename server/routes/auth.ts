@@ -3,7 +3,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-import { getUserIdFromRequest as getUserIdFromRequestMain, getSessionKey, tempSessionCache } from '../auth.js';
+import { getUserIdFromRequest as getUserIdFromRequestMain, getSessionKey, tempSessionCache } from '../auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();

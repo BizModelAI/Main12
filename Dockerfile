@@ -10,7 +10,7 @@ COPY client/package*.json ./client/
 
 # Install dependencies
 RUN npm install
-RUN cd client && npm install
+RUN cd client && npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
