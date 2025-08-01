@@ -9,22 +9,37 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: business-model-finder-db
+          property: connectionString
       - key: SESSION_SECRET
-        sync: false
-      - key: OPENAI_API_KEY
+        generateValue: true
+      - key: FRONTEND_URL
         sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
-      - key: FRONTEND_URL
-        value: https://business-model-finder.onrender.com
-      - key: ADMIN_SECRET
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
         sync: false
       - key: RESEND_API_KEY
         sync: false
-      - key: PORT
-        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+
+databases:
+  - name: business-model-finder-db
+    databaseName: businessmodelfinder
+    user: businessmodelfinder
+    plan: starter 
     healthCheckPath: /api/health
+    autoDeploy: true 
     autoDeploy: true 

@@ -24,12 +24,12 @@ app.use(cookieParser());
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: true,
-  saveUninitialized: false,
+  saveUninitialized: true, // Allow saving uninitialized sessions
   store: new session.MemoryStore(),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Secure cookies in production
+    secure: false, // Allow HTTP in development
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    sameSite: 'lax', // More permissive for development
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -40,7 +40,7 @@ app.use(cors({
     process.env.FRONTEND_URL || 'http://localhost:5174',
     'http://localhost:5175', // Allow the current frontend port
     'http://localhost:5173',  // Allow common Vite dev server port
-    'https://business-model-finder.onrender.com' // Production URL
+    // Production URL will be set via environment variable
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -59,9 +59,6 @@ import pricingRoutes from './routes/pricing';
 // Import main routes (includes PDF generation)
 import { registerRoutes } from './routes';
 
-// Register main routes (includes PDF generation)
-registerRoutes(app);
-
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quiz-attempts', quizRoutes);
@@ -71,21 +68,84 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api', pricingRoutes);
 
+// Register main routes (includes PDF generation) - after specific routes to avoid conflicts
+registerRoutes(app);
+
+
+
 // Serve static files from client build
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Catch-all handler for SPA routing
+// 404 handler for API routes (must come before catch-all)
+app.all('/api/*', (req: any, res: any) => {
+  res.status(404).json({ error: 'API endpoint not found', path: req.path });
+});
+
+// Catch-all handler for SPA routing (only for non-API routes)
 app.get('*', (req: any, res: any) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
-// Error handling middleware
+// JSON parsing error handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err instanceof SyntaxError && (err as any).status === 400 && 'body' in err) {
+    console.error('JSON parsing error:', err);
+    return res.status(400).json({ 
+      error: 'Invalid JSON format',
+      message: 'The request body contains invalid JSON'
+    });
+  }
+  next(err);
+});
+
+// General error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
+  
+  // Don't crash the server on errors
+  if (res.headersSent) {
+    return next(err);
+  }
+  
   res.status(500).json({ 
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
+});
+
+// Add this at the end, before app.listen
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('[EXPRESS ERROR]', {
+    message: err?.message,
+    stack: err?.stack,
+    path: req?.path,
+    body: req?.body,
+    query: req?.query,
+  });
+  res.status(500).json({ error: 'Internal server error', details: err?.message });
+});
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  process.exit(0);
+});
+
+// Unhandled promise rejection handler
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit the process, just log the error
+});
+
+// Uncaught exception handler
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Don't exit the process, just log the error
 });
 
 app.listen(PORT, () => {
