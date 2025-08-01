@@ -3,7 +3,7 @@ services:
     name: business-model-finder
     env: node
     plan: starter
-    buildCommand: npm install && cd client && npm install --legacy-peer-deps && cd .. && npm run build
+    buildCommand: npm install && cd client && npm install --legacy-peer-deps && npm run build && cd .. && echo "✅ Build completed successfully"
     startCommand: npm start
     envVars:
       - key: NODE_ENV

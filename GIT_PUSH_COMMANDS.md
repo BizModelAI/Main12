@@ -17,6 +17,7 @@ git add scripts/ultimate-deployment-fixes.js
 git add scripts/fix-typescript-errors.js
 git add scripts/fix-final-typescript-errors.js
 git add scripts/ultimate-deployment-optimization.js
+git add scripts/final-build-fix.js
 git add DEPLOYMENT_ISSUES_CHECKLIST.md
 git add FINAL_DEPLOYMENT_CHECKLIST.md
 git add GIT_PUSH_COMMANDS.md
@@ -30,6 +31,9 @@ git add deploy-simple.sh
 git add build-skip-ts.sh
 git add deploy-ultimate.sh
 git add monitor-ultimate.sh
+git add build-simple.sh
+git add start-production.sh
+git add DEPLOYMENT_CHECKLIST.md
 ```
 
 ## Step 2: Add any modified files

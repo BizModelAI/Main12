@@ -77,17 +77,17 @@ registerRoutes(app);
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // 404 handler for API routes (must come before catch-all)
-app.all('/api/*', (req: any, res: any) => {
+app.all('/api/*', (req: express.Request, res: express.Response) => {
   res.status(404).json({ error: 'API endpoint not found', path: req.path });
 });
 
 // Catch-all handler for SPA routing (only for non-API routes)
-app.get('*', (req: any, res: any) => {
+app.get('*', (req: express.Request, res: express.Response) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // JSON parsing error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (err instanceof SyntaxError && (err as any).status === 400 && 'body' in err) {
     console.error('JSON parsing error:', err);
     return res.status(400).json({ 
@@ -99,7 +99,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // General error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
   
   // Don't crash the server on errors
@@ -114,7 +114,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Add this at the end, before app.listen
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('[EXPRESS ERROR]', {
     message: err?.message,
     stack: err?.stack,

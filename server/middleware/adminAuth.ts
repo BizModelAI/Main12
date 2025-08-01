@@ -1,13 +1,18 @@
 // Proper Admin Authentication Middleware
-import type { Request, Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { createErrorResponse } from "../utils/errorHandler";
 
-interface AdminAuthRequest extends Request {
+interface AdminAuthRequest {
   admin?: {
     id: string;
     authenticated: boolean;
     timestamp: number;
   };
+  headers: any;
+  ip: string;
+  method: string;
+  path: string;
+  body: any;
 }
 
 // Admin session cache to prevent repeated authentication
