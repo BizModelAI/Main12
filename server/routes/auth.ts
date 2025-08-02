@@ -26,8 +26,8 @@ function getUserIdFromRequest(req: any): number | undefined {
   console.log("Latest quiz data: Session debug", {
     sessionUserId: (req as any).session?.userId,
     sessionKey: (req as any).sessionID,
-    userAgent: (req.headers as any)["user-agent"]?.substring(0, 50) + "...",
-    ip: req.ip || req.connection.remoteAddress || "unknown"
+    userAgent: ((req.headers as any) as any)["user-agent"]?.substring(0, 50) + "...",
+    ip: (req.ip as any) || req.connection.remoteAddress || "unknown"
   });
 
   // First try normal session
@@ -59,14 +59,14 @@ function getUserIdFromRequest(req: any): number | undefined {
 }
 
 // Routes
-router.post('/signup', async (req: any, res: any) => {
+(router as any).post('/signup', async (req: any, res: any) => {
   try {
     // Validate request body exists
-    if (!req.body || typeof req.body !== 'object') {
+    if (!(req.body as any) || typeof (req.body as any) !== 'object') {
       return (res as any).status(400).json({ error: 'Request body is required' });
     }
 
-    const { email, password, firstName, lastName } = signupSchema.parse(req.body);
+    const { email, password, firstName, lastName } = signupSchema.parse((req.body as any));
     
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -119,7 +119,7 @@ router.post('/signup', async (req: any, res: any) => {
       firstName: user.firstName,
       lastName: user.lastName
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error);
     if (error instanceof z.ZodError) {
       return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
@@ -128,14 +128,14 @@ router.post('/signup', async (req: any, res: any) => {
   }
 });
 
-router.post('/login', async (req: any, res: any) => {
+(router as any).post('/login', async (req: any, res: any) => {
   try {
     // Validate request body exists
-    if (!req.body || typeof req.body !== 'object') {
+    if (!(req.body as any) || typeof (req.body as any) !== 'object') {
       return (res as any).status(400).json({ error: 'Request body is required' });
     }
 
-    const { email, password } = loginSchema.parse(req.body);
+    const { email, password } = loginSchema.parse((req.body as any));
     
     // Find user
     const user = await prisma.user.findUnique({
@@ -181,7 +181,7 @@ router.post('/login', async (req: any, res: any) => {
       firstName: user.firstName,
       lastName: user.lastName
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
     if (error instanceof z.ZodError) {
       return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
@@ -190,7 +190,7 @@ router.post('/login', async (req: any, res: any) => {
   }
 });
 
-router.get('/me', async (req: any, res: any) => {
+(router as any).get('/me', async (req: any, res: any) => {
   try {
     const userId = getUserIdFromRequest(req);
     if (!userId) {
@@ -213,13 +213,13 @@ router.get('/me', async (req: any, res: any) => {
     }
     
     (res as any).json(user);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Me endpoint error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.post('/logout', (req: any, res: any) => {
+(router as any).post('/logout', (req: any, res: any) => {
   (req as any).session.destroy((err: any) => {
     if (err) {
       console.error("Logout: Failed to destroy session:", err);
@@ -232,23 +232,23 @@ router.post('/logout', (req: any, res: any) => {
 });
 
 // Debug endpoint to check session state
-router.get('/session-debug', async (req: any, res: any) => {
+(router as any).get('/session-debug', async (req: any, res: any) => {
   (res as any).json({
     sessionId: (req as any).sessionID,
     userId: (req as any).session?.userId,
     testValue: (req as any).session?.testValue || "none",
     sessionExists: !!(req as any).session,
-    cookieHeader: (req.headers as any).cookie?.substring(0, 100) + "..." || "none",
-    userAgent: (req.headers as any)["user-agent"]?.substring(0, 50) + "..." || "none",
+    cookieHeader: ((req.headers as any) as any).cookie?.substring(0, 100) + "..." || "none",
+    userAgent: ((req.headers as any) as any)["user-agent"]?.substring(0, 50) + "..." || "none",
   });
 });
 
-router.get('/latest-quiz-data', async (req: any, res: any) => {
+(router as any).get('/latest-quiz-data', async (req: any, res: any) => {
   console.log("LATEST QUIZ DATA: Endpoint called!");
   console.log("API: GET /api/auth/latest-quiz-data", {
     sessionId: (req as any).sessionID,
     userId: (req as any).session?.userId,
-    hasCookie: !!(req.headers as any).cookie
+    hasCookie: !!((req.headers as any) as any).cookie
   });
   
   try {
@@ -275,13 +275,13 @@ router.get('/latest-quiz-data', async (req: any, res: any) => {
     console.log("Latest quiz data: Found attempt:", latestAttempt ? "yes" : "no");
     
     (res as any).json({ quizData: latestAttempt });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Latest quiz data error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/latest-paid-quiz-data', async (req: any, res: any) => {
+(router as any).get('/latest-paid-quiz-data', async (req: any, res: any) => {
   try {
     const userId = getUserIdFromRequest(req);
     if (!userId) {
@@ -307,16 +307,16 @@ router.get('/latest-paid-quiz-data', async (req: any, res: any) => {
       quizAttemptId: latestAttempt.id,
       isUnlocked: true
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Latest paid quiz data error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Contact form endpoint
-router.post('/contact', async (req: any, res: any) => {
+(router as any).post('/contact', async (req: any, res: any) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, message } = (req.body as any);
     
     if (!name || !email || !message) {
       return (res as any).status(400).json({ error: 'Name, email, and message are required' });
@@ -327,16 +327,16 @@ router.post('/contact', async (req: any, res: any) => {
     console.log('Contact form submission:', { name, email, message });
     
     (res as any).json({ message: 'Contact form submitted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Unsubscribe endpoint
-router.post('/unsubscribe', async (req: any, res: any) => {
+(router as any).post('/unsubscribe', async (req: any, res: any) => {
   try {
-    const { email } = req.body;
+    const { email } = (req.body as any);
     
     if (!email) {
       return (res as any).status(400).json({ error: 'Email is required' });
@@ -347,7 +347,7 @@ router.post('/unsubscribe', async (req: any, res: any) => {
     console.log('Unsubscribe request:', { email });
     
     (res as any).json({ message: 'Unsubscribed successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unsubscribe error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }

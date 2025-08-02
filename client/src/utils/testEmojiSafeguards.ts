@@ -110,7 +110,14 @@ export function testEmojiSafeguards() {
   // Check if data was cleaned
   const cleanedData = localStorage.getItem('testEmojiData');
   if (cleanedData) {
-    const parsed = JSON.parse(cleanedData);
+    const parsed = (() => {
+        try {
+          return JSON.parse(cleanedData);
+        } catch (error) {
+          console.error('Error parsing cleaned data:', error);
+          return null;
+        }
+      })();
     const wasCleaned = parsed.businessModels.every((model: any) => isValidEmoji(model.emoji));
     console.log(`localStorage corruption cleaned: ${wasCleaned ? 'PASS' : 'FAIL'}`);
   }

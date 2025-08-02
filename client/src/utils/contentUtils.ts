@@ -191,7 +191,14 @@ export function cleanCorruptedEmojisFromStorage(): void {
     const value = localStorage.getItem(key);
     if (value && typeof value === 'string') {
       try {
-        const parsed = JSON.parse(value);
+        const parsed = (() => {
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          console.error('Error parsing value:', error);
+          return null;
+        }
+      })();
         let needsUpdate = false;
         
         // Recursively check and fix emojis

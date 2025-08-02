@@ -92,16 +92,16 @@ Format the response as structured JSON with the following structure:
 // This function is removed to prevent AI generation of income projections
 
 // Routes
-router.post('/openai-chat', async (req: any, res: any) => {
+(router as any).post('/openai-chat', async (req: any, res: any) => {
   try {
     console.log('OpenAI API request received:', {
-      hasBody: !!req.body,
-      promptLength: (req.body as any)?.messages?.length || 0,
-      maxTokens: (req.body as any)?.maxTokens,
-      responseFormat: (req.body as any)?.responseFormat
+      hasBody: !!(req.body as any),
+      promptLength: ((req.body as any) as any)?.messages?.length || 0,
+      maxTokens: ((req.body as any) as any)?.maxTokens,
+      responseFormat: ((req.body as any) as any)?.responseFormat
     });
     
-    const { messages, maxTokens = 1200, temperature = 0.7 } = openaiChatSchema.parse(req.body);
+    const { messages, maxTokens = 1200, temperature = 0.7 } = openaiChatSchema.parse((req.body as any));
     
     console.log('🔑 Checking OpenAI API key:', process.env.OPENAI_API_KEY ? 'Present' : 'Missing');
     console.log('🤖 Making OpenAI API call with messages count:', messages.length);
@@ -132,15 +132,15 @@ router.post('/openai-chat', async (req: any, res: any) => {
       usage: response.usage,
       model: response.model
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('OpenAI chat error:', error);
     (res as any).status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
-router.post('/ai-business-fit-analysis', async (req: any, res: any) => {
+(router as any).post('/ai-business-fit-analysis', async (req: any, res: any) => {
   try {
-    const { quizData, quizAttemptId } = businessFitAnalysisSchema.parse(req.body);
+    const { quizData, quizAttemptId } = businessFitAnalysisSchema.parse((req.body as any));
     
     // Generate analysis
     const analysis = await generateBusinessFitAnalysis(quizData);
@@ -161,7 +161,7 @@ router.post('/ai-business-fit-analysis', async (req: any, res: any) => {
     }
     
     (res as any).json({ analysis });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Business fit analysis error:', error);
     if (error instanceof z.ZodError) {
       return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
@@ -173,9 +173,9 @@ router.post('/ai-business-fit-analysis', async (req: any, res: any) => {
 // Income projections endpoint removed - should use hardcoded data from server/routes.ts instead
 // This prevents AI generation of income projections which should be consistent and reliable
 
-router.post('/generate-business-fit-descriptions', async (req: any, res: any) => {
+(router as any).post('/generate-business-fit-descriptions', async (req: any, res: any) => {
   try {
-    const { businessMatches, quizData } = req.body;
+    const { businessMatches, quizData } = (req.body as any);
     
     if (!businessMatches || !Array.isArray(businessMatches)) {
       return (res as any).status(400).json({ error: 'businessMatches array is required' });
@@ -240,7 +240,7 @@ Write in a supportive, consultative tone that demonstrates deep understanding of
     );
     
     (res as any).json({ descriptions });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Generate descriptions error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
@@ -248,20 +248,20 @@ Write in a supportive, consultative tone that demonstrates deep understanding of
 
 // Skills analysis endpoint removed - not used in frontend
 
-router.post('/clear-business-model-ai-content', async (req: any, res: any) => {
+(router as any).post('/clear-business-model-ai-content', async (req: any, res: any) => {
   try {
     // Clear all AI content
     await prisma.aiContent.deleteMany({});
     
     (res as any).json({ message: 'AI content cleared successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Clear AI content error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Health check for OpenAI
-router.get('/openai-status', async (req: any, res: any) => {
+(router as any).get('/openai-status', async (req: any, res: any) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return (res as any).status(500).json({ error: 'OpenAI API key not configured' });
@@ -287,7 +287,7 @@ router.get('/openai-status', async (req: any, res: any) => {
       model: response.model,
       usage: response.usage
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('OpenAI status check error:', error);
     (res as any).status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
   }

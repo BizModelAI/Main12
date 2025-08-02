@@ -1,9 +1,7 @@
 // @ts-nocheck
 import express from "express";
 
-type Express = express.Express;
-type Request = express.Request;
-type Response = express.Response;
+// Express types will be inferred
 import { createServer, type Server } from "http";
 import { storage } from './storage';
 import { getUserIdFromRequest, getSessionKey } from "./auth";
@@ -658,7 +656,7 @@ async function claimAnonymousQuizAttemptsForUser(user, sessionId) {
   }
 }
 
-export async function registerRoutes(app: Express): Promise<void> {
+export async function registerRoutes(app: any): Promise<void> {
   // registerDebugRoutes(app);
   console.log("[DEBUG] registerRoutes called - registering main API routes");
 
@@ -666,27 +664,27 @@ export async function registerRoutes(app: Express): Promise<void> {
 
 
   // AI-powered business fit scoring endpoint
-  app.post(
+  (app as any).post(
     "/api/ai-business-fit-analysis",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       console.log(" AI business fit analysis request received");
 
       try {
         // Rate limiting for concurrent quiz takers
-        const clientIP = req.ip || req.connection.remoteAddress || "unknown";
+        const clientIP = (req.ip as any) || req.connection.remoteAddress || "unknown";
         if (!openaiRateLimiter.canMakeRequest(undefined, clientIP)) {
           console.log("❌ Rate limit exceeded for IP:", clientIP);
-          return res.status(429).json({
+          return (res as any).status(429).json({
             error:
               "Too many requests. Please wait a moment before trying again.",
           });
         }
 
-        const { quizData } = req.body;
+        const { quizData } = (req.body as any);
 
         if (!quizData) {
           console.log("❌ No quiz data provided");
-          return res.status(400).json({ error: "Quiz data is required" });
+          return (res as any).status(400).json({ error: "Quiz data is required" });
         }
 
         // Add timeout to prevent hanging requests
@@ -699,15 +697,15 @@ export async function registerRoutes(app: Express): Promise<void> {
         );
         const analysis = await Promise.race([analysisPromise, timeoutPromise]);
         console.log("AI business fit analysis completed successfully");
-        res.json(analysis);
-      } catch (error) {
+        (res as any).json(analysis);
+      } catch (error: any) {
         console.error("Error in AI business fit analysis:", {
           message: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : "No stack trace",
         });
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        res.status(500).json({
+        (res as any).status(500).json({
           error: "Failed to analyze business fit",
           details: errorMessage,
         });
@@ -716,14 +714,14 @@ export async function registerRoutes(app: Express): Promise<void> {
   );
 
   // Income projections endpoint using hardcoded data
-  app.post(
+  (app as any).post(
     "/api/generate-income-projections",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { businessId, businessModel } = req.body;
+        const { businessId, businessModel } = (req.body as any);
 
         if (!businessId && !businessModel) {
-          return res.status(400).json({ error: "Business ID or Business Model is required" });
+          return (res as any).status(400).json({ error: "Business ID or Business Model is required" });
         }
 
         // Use businessId if provided, otherwise use businessModel
@@ -731,8 +729,8 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Use hardcoded projections based on business model
         const projections = getFallbackProjections(identifier);
-        res.json(projections);
-      } catch (error) {
+        (res as any).json(projections);
+      } catch (error: any) {
         console.error("Error generating income projections:", error);
         res
           .status(500)
@@ -868,12 +866,12 @@ export async function registerRoutes(app: Express): Promise<void> {
 
 
   // Get a specific quiz attempt by ID
-  app.get("/api/quiz-attempts/attempt/:quizAttemptId", async (req: Request, res: Response) => {
+  (app as any).get("/api/quiz-attempts/attempt/:quizAttemptId", async (req: any, res: any) => {
     try {
-      const { userId, quizData } = req.body;
+      const { userId, quizData } = (req.body as any);
 
       if (!userId || !quizData) {
-        return res.status(400).json({ error: "Missing required fields" });
+        return (res as any).status(400).json({ error: "Missing required fields" });
       }
 
       let user = await storage.getUser(userId);
@@ -902,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       // No retake decrements in the new system
       console.log("Pay-per-quiz model - no retakes to decrement");
 
-      res.json({
+      (res as any).json({
         success: true,
         attemptId: attempt.id,
         message: isPaid
@@ -911,115 +909,115 @@ export async function registerRoutes(app: Express): Promise<void> {
         isPaidUser: isPaid,
         dataRetentionPolicy: isPaid ? "permanent" : "24_hours",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error recording quiz attempt:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Get quiz attempts history for a user
-  app.get("/api/quiz-attempts/user/:userId", async (req: Request, res: Response) => {
+  (app as any).get("/api/quiz-attempts/user/:userId", async (req: any, res: any) => {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = parseInt((req.params as any).userId);
       const currentUserId = await getUserIdFromRequest(req);
 
       // Check if user is authenticated
       if (!currentUserId) {
         console.log("Quiz attempts: Not authenticated", {
-          sessionUserId: req.session?.userId,
+          sessionUserId: (req.session as any)?.userId,
           cacheUserId: currentUserId,
           sessionKey: getSessionKey(req),
         });
-        return res.status(401).json({ error: "Not authenticated" });
+        return (res as any).status(401).json({ error: "Not authenticated" });
       }
 
       // Check if user is requesting their own data
       if (currentUserId !== userId) {
-        return res.status(403).json({ error: "Access denied" });
+        return (res as any).status(403).json({ error: "Access denied" });
       }
 
       const attempts = await storage.getQuizAttemptsByUserId(userId);
 
       console.log(`Quiz attempts retrieved for user ${userId}: ${attempts.length} attempts`);
-      res.json(attempts);
-    } catch (error) {
+      (res as any).json(attempts);
+    } catch (error: any) {
       console.error("Error getting quiz attempts:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
 
 
   // Check report unlock status for a specific quiz attempt
-  app.get(
+  (app as any).get(
     "/api/report-unlock-status/:userId/:quizAttemptId",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const userId = parseInt(req.params.userId);
-        const quizAttemptId = parseInt(req.params.quizAttemptId);
+        const userId = parseInt((req.params as any).userId);
+        const quizAttemptId = parseInt((req.params as any).quizAttemptId);
         const currentUserId = await getUserIdFromRequest(req);
 
         // Check if user is authenticated
         if (!currentUserId) {
-          return res.status(401).json({ error: "Not authenticated" });
+          return (res as any).status(401).json({ error: "Not authenticated" });
         }
 
         // Check if user is requesting their own data
         if (currentUserId !== userId) {
-          return res.status(403).json({ error: "Access denied" });
+          return (res as any).status(403).json({ error: "Access denied" });
         }
 
         // Check if quiz attempt exists and belongs to user
         const quizAttempt = await storage.getQuizAttempt(quizAttemptId);
         if (!quizAttempt) {
-          return res.status(404).json({ error: "Quiz attempt not found" });
+          return (res as any).status(404).json({ error: "Quiz attempt not found" });
         }
 
         if (quizAttempt.userId !== userId) {
-          return res.status(403).json({ error: "Access denied" });
+          return (res as any).status(403).json({ error: "Access denied" });
         }
 
         // Check if the user has paid for this specific report
         const hasPaid = await storage.hasUserPaidForReport(userId, quizAttemptId);
 
-        res.json({
+        (res as any).json({
           success: true,
           isUnlocked: hasPaid,
           hasPaid,
           quizAttemptId,
           userId
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error checking report unlock status:", error);
-        res.status(500).json({ error: "Failed to check unlock status" });
+        (res as any).status(500).json({ error: "Failed to check unlock status" });
       }
     }
   );
 
   // Save email for quiz attempt and create user account
-  app.post(
+  (app as any).post(
     "/api/quiz-attempts/attempt/:quizAttemptId/email",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const quizAttemptId = parseInt(req.params.quizAttemptId);
-        const { email } = req.body;
-        const sessionId = req.sessionID;
+        const quizAttemptId = parseInt((req.params as any).quizAttemptId);
+        const { email } = (req.body as any);
+        const sessionId = (req.sessionID as any);
 
         console.log("Email collection endpoint called:", {
           quizAttemptId,
           email,
           sessionId,
-          sessionExists: !!req.session
+          sessionExists: !!(req.session as any)
         });
 
         if (!email) {
-          return res.status(400).json({ error: "Email is required" });
+          return (res as any).status(400).json({ error: "Email is required" });
         }
 
         // Get the quiz attempt to verify it exists and get session info
         const quizAttempt = await storage.getQuizAttempt(quizAttemptId);
         if (!quizAttempt) {
-          return res.status(404).json({ error: "Quiz attempt not found" });
+          return (res as any).status(404).json({ error: "Quiz attempt not found" });
         }
 
         // Check if this is an anonymous attempt (has sessionId but no userId)
@@ -1046,9 +1044,9 @@ export async function registerRoutes(app: Express): Promise<void> {
           await claimAnonymousQuizAttemptsForUser(user, sessionId);
 
           // Set user ID in session for future requests
-          req.session.userId = user.id;
+          (req.session as any).userId = user.id;
           await new Promise<void>((resolve, reject) => {
-            req.session.save((err: any) => {
+            (req.session as any).save((err: any) => {
               if (err) reject(err);
               else resolve();
             });
@@ -1056,7 +1054,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
           console.log("Session updated with userId:", user.id);
 
-          res.json({ 
+          (res as any).json({ 
             success: true, 
             userId: user.id,
             message: "Email saved and quiz attempts linked to your account"
@@ -1074,15 +1072,15 @@ export async function registerRoutes(app: Express): Promise<void> {
             }
           }
 
-          res.json({ 
+          (res as any).json({ 
             success: true, 
             userId: quizAttempt.userId,
             message: "Email updated successfully"
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error saving email:", error);
-        res.status(500).json({ error: "Failed to save email" });
+        (res as any).status(500).json({ error: "Failed to save email" });
       }
     }
   );
@@ -1090,18 +1088,18 @@ export async function registerRoutes(app: Express): Promise<void> {
 
 
   // Save quiz data with 3-tier caching system
-  app.post("/api/save-quiz-data", async (req: Request, res: Response) => {
+  (app as any).post("/api/save-quiz-data", async (req: any, res: any) => {
     console.log("API: POST /api/save-quiz-data", {
-      sessionId: req.sessionID,
-      userId: req.session?.userId,
-      hasCookie: !!req.headers.cookie,
+      sessionId: (req.sessionID as any),
+      userId: (req.session as any)?.userId,
+      hasCookie: !!(req.headers as any).cookie,
     });
 
     try {
-      const { quizData, email, paymentId } = req.body;
+      const { quizData, email, paymentId } = (req.body as any);
       if (!quizData) {
         console.log("Save quiz data: No quiz data provided");
-        return res.status(400).json({ error: "Quiz data is required" });
+        return (res as any).status(400).json({ error: "Quiz data is required" });
       }
 
       const sessionKey = getSessionKey(req);
@@ -1139,7 +1137,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           `Save quiz data: Quiz attempt recorded with ID ${attempt.id} for authenticated user ${userId}`,
         );
 
-        return res.json({
+        return (res as any).json({
           success: true,
           attemptId: attempt.id,
           message: "Quiz data saved permanently",
@@ -1176,7 +1174,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             `Save quiz data: New quiz attempt recorded with ID ${attempt.id} for existing paid user ${existingUser.id} (${email})`,
           );
 
-          return res.json({
+          return (res as any).json({
             success: true,
             attemptId: attempt.id,
             message: "Quiz data saved to your existing account",
@@ -1201,7 +1199,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             `Save quiz data: New quiz attempt recorded with ID ${attempt.id} for existing unpaid user ${existingUser.id} (${email})`,
           );
 
-          return res.json({
+          return (res as any).json({
             success: true,
             attemptId: attempt.id,
             message: "Quiz data saved to your existing account",
@@ -1239,7 +1237,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           `Save quiz data: New quiz attempt recorded with ID ${attempt.id} for temporary user ${tempUser.id} (${email})`,
         );
 
-        return res.json({
+        return (res as any).json({
           success: true,
           attemptId: attempt.id,
           message: "New quiz attempt saved for 3 months",
@@ -1257,7 +1255,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       console.log(
         `Save quiz data: Anonymous user - quiz attempt recorded with ID ${anonymousAttempt.id} (session: ${sessionKey})`,
       );
-      return res.json({
+      return (res as any).json({
         success: true,
         attemptId: anonymousAttempt.id,
         message: "Quiz data saved anonymously in database",
@@ -1267,9 +1265,9 @@ export async function registerRoutes(app: Express): Promise<void> {
         sessionId: sessionKey,
         warning: "Your data is stored anonymously in our database and will be deleted after 24 hours unless you provide an email or pay."
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving quiz data:", error);
-      res.status(500).json({
+      (res as any).status(500).json({
         error: "Failed to save quiz data",
         details: error instanceof Error ? error.message : "Unknown error",
       });
@@ -1287,12 +1285,12 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Test endpoint removed for production
 
   // Link existing quiz attempts to new permanent user account
-  app.post("/api/link-quiz-attempts", async (req: Request, res: Response) => {
+  (app as any).post("/api/link-quiz-attempts", async (req: any, res: any) => {
     try {
-      const { email, userId } = req.body;
+      const { email, userId } = (req.body as any);
       
       if (!email || !userId) {
-        return res.status(400).json({ error: "Email and userId are required" });
+        return (res as any).status(400).json({ error: "Email and userId are required" });
       }
 
       console.log(`Linking quiz attempts for email: ${email} to userId: ${userId}`);
@@ -1315,22 +1313,22 @@ export async function registerRoutes(app: Express): Promise<void> {
         // Optionally, we could delete the temporary user here
         // await storage.deleteUser(tempUser.id);
         
-        return res.json({
+        return (res as any).json({
           success: true,
           linkedAttempts: tempAttempts.length,
           message: `Successfully linked ${tempAttempts.length} quiz attempts to your account`
         });
       }
       
-      return res.json({
+      return (res as any).json({
         success: true,
         linkedAttempts: 0,
         message: "No temporary quiz attempts found to link"
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error linking quiz attempts:", error);
-      res.status(500).json({
+      (res as any).status(500).json({
         error: "Failed to link quiz attempts",
         details: error instanceof Error ? error.message : "Unknown error",
       });
@@ -1338,12 +1336,12 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   // Check for existing quiz attempts by email
-  app.get("/api/check-existing-attempts/:email", async (req: Request, res: Response) => {
+  (app as any).get("/api/check-existing-attempts/:email", async (req: any, res: any) => {
     try {
-      const { email } = req.params;
+      const { email } = (req.params as any);
       
       if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+        return (res as any).status(400).json({ error: "Email is required" });
       }
 
       console.log(`Checking existing attempts for email: ${email}`);
@@ -1354,7 +1352,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (existingUser && existingUser.isPaid) {
         // Paid user
         const attempts = await storage.getQuizAttemptsByUserId(existingUser.id);
-        return res.json({
+        return (res as any).json({
           hasAccount: true,
           userType: "paid",
           userId: existingUser.id,
@@ -1367,7 +1365,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (existingUser && !existingUser.isPaid) {
         // Non-paid user (regular account but not paid)
         const attempts = await storage.getQuizAttemptsByUserId(existingUser.id);
-        return res.json({
+        return (res as any).json({
           hasAccount: true,
           userType: "unpaid",
           userId: existingUser.id,
@@ -1378,15 +1376,15 @@ export async function registerRoutes(app: Express): Promise<void> {
       }
 
       // No existing account
-      return res.json({
+      return (res as any).json({
         hasAccount: false,
         userType: "new",
         message: "No existing account found for this email.",
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking existing attempts:", error);
-      res.status(500).json({
+      (res as any).status(500).json({
         error: "Failed to check existing attempts",
         details: error instanceof Error ? error.message : "Unknown error",
       });
@@ -1398,17 +1396,17 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Access pass concept removed - use report unlock payments instead
 
   // Get pricing for user without creating payment intent
-  app.get("/api/user-pricing/:userId", async (req: Request, res: Response) => {
+  (app as any).get("/api/user-pricing/:userId", async (req: any, res: any) => {
     try {
-      const { userId } = req.params;
+      const { userId } = (req.params as any);
 
       if (!userId) {
-        return res.status(400).json({ error: "Missing userId" });
+        return (res as any).status(400).json({ error: "Missing userId" });
       }
 
       const pricingUser = await storage.getUser(parseInt(userId));
       if (!pricingUser) {
-        return res.status(404).json({ error: "User not found" });
+        return (res as any).status(404).json({ error: "User not found" });
       }
       // Determine pricing: $9.99 for new users, $4.99 for paid users
       const payments = await storage.getPaymentsByUser(parseInt(userId));
@@ -1421,22 +1419,22 @@ export async function registerRoutes(app: Express): Promise<void> {
         amountDollar = "9.99";
       }
 
-      res.json({
+      (res as any).json({
         success: true,
         amount: amountDollar
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting user pricing:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Create Stripe payment intent for report unlock
-  app.post(
+  (app as any).post(
     "/api/create-report-unlock-payment",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        let { userId, quizAttemptId, email, quizData } = req.body;
+        let { userId, quizAttemptId, email, quizData } = (req.body as any);
 
         console.log("Payment endpoint called with:", { userId, quizAttemptId, email, hasQuizData: !!quizData });
 
@@ -1466,7 +1464,7 @@ export async function registerRoutes(app: Express): Promise<void> {
               console.info(`[INFO] Payment: User with email ${email} already exists, reusing existing user (non-fatal)`);
             } else {
               console.error("Error creating temporary user for anonymous payment:", createError);
-              return res.status(500).json({ 
+              return (res as any).status(500).json({ 
                 error: "Failed to process anonymous payment",
                 details: "Could not create temporary account"
               });
@@ -1495,17 +1493,17 @@ export async function registerRoutes(app: Express): Promise<void> {
                 console.log(`Reusing existing temporary user for email: ${email}`);
               } else {
                 console.error(`Failed to fetch existing user after unique constraint error for email: ${email}`);
-                return res.status(500).json({ error: "Failed to fetch existing user after unique constraint error" });
+                return (res as any).status(500).json({ error: "Failed to fetch existing user after unique constraint error" });
               }
             } else {
               console.error("Error creating temporary user for anonymous payment:", err);
-              return res.status(500).json({ error: "Failed to create or fetch temporary user", details: err.message });
+              return (res as any).status(500).json({ error: "Failed to create or fetch temporary user", details: err.message });
             }
           }
           // Always link the quiz attempt to the user
           if (!tempUserObj) {
             console.error("No temporary user object available after storeTemporaryUser");
-            return res.status(500).json({ error: "No temporary user object available after storeTemporaryUser" });
+            return (res as any).status(500).json({ error: "No temporary user object available after storeTemporaryUser" });
           }
           let attempt = await storage.recordQuizAttempt({ quizData });
           await storage.updateQuizAttempt(attempt.id, { userId: tempUserObj.id });
@@ -1528,7 +1526,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           }
           if (!quizAttemptResult) {
             console.error(`Quiz attempt ${quizAttemptId} not found in database after retries`);
-            return res.status(404).json({ 
+            return (res as any).status(404).json({ 
               error: "Quiz attempt not found",
               details: `Quiz attempt ID ${quizAttemptId} does not exist`
             });
@@ -1552,7 +1550,7 @@ export async function registerRoutes(app: Express): Promise<void> {
               var paymentUser = tempUser;
             } catch (createError) {
               console.error("Error creating temporary user for existing quiz attempt:", createError);
-              return res.status(500).json({ 
+              return (res as any).status(500).json({ 
                 error: "Failed to process anonymous payment",
                 details: "Could not create temporary account"
               });
@@ -1566,7 +1564,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
         // Improved error handling for missing or invalid quizAttemptId
         if (!quizAttemptId || isNaN(parseInt(quizAttemptId))) {
-          return res.status(400).json({ error: "Missing or invalid quizAttemptId. Please retake the quiz or contact support." });
+          return (res as any).status(400).json({ error: "Missing or invalid quizAttemptId. Please retake the quiz or contact support." });
         }
         const parsedQuizAttemptId = parseInt(quizAttemptId.toString());
 
@@ -1574,7 +1572,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Direct database query to find the quiz attempt
         if (!db) {
-          return res.status(500).json({ error: "Database not available" });
+          return (res as any).status(500).json({ error: "Database not available" });
         }
         
         console.log(`Looking for quiz attempt ${parsedQuizAttemptId} in database...`);
@@ -1583,7 +1581,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         if (!quizAttemptResult) {
           console.error(`Quiz attempt ${quizAttemptId} not found in database`);
-          return res.status(404).json({ 
+          return (res as any).status(404).json({ 
             error: "Quiz attempt not found",
             details: `Quiz attempt ID ${quizAttemptId} does not exist`
           });
@@ -1594,7 +1592,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Now find the user who created this quiz attempt
         if (!quizAttempt.userId) {
-          return res.status(400).json({ 
+          return (res as any).status(400).json({ 
             error: "Quiz attempt has no associated user",
             details: "Cannot process payment for anonymous quiz attempt"
           });
@@ -1606,7 +1604,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         if (!userResult) {
           console.error(`User ${quizAttempt.userId} not found for quiz attempt ${quizAttemptId}`);
-          return res.status(404).json({ 
+          return (res as any).status(404).json({ 
             error: "User not found",
             details: `User ID ${quizAttempt.userId} does not exist`
           });
@@ -1625,7 +1623,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             p.status === "completed",
         );
         if (existingPayment) {
-          return res.status(400).json({
+          return (res as any).status(400).json({
             error: "Report is already unlocked for this quiz attempt"
           });
         }
@@ -1662,7 +1660,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           });
         } catch (stripeError) {
           console.error("[STRIPE ERROR] PaymentIntent creation failed:", stripeError);
-          return res.status(500).json({
+          return (res as any).status(500).json({
             error: "Stripe payment intent creation failed",
             details: stripeError instanceof Error ? stripeError.message : String(stripeError)
           });
@@ -1707,7 +1705,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           console.log('DEBUG: storage.createPayment result:', payment);
           if (!payment || !payment.id) {
             console.error('Payment creation failed or returned undefined:', payment);
-            return res.status(500).json({ error: 'Payment creation failed or returned undefined', details: payment });
+            return (res as any).status(500).json({ error: 'Payment creation failed or returned undefined', details: payment });
           }
           // Log the response object
           const paymentResponse = {
@@ -1718,27 +1716,27 @@ export async function registerRoutes(app: Express): Promise<void> {
             quizAttemptId: quizAttemptId, // Return the quiz attempt ID for frontend
           };
           console.log('DEBUG: Payment response to client:', paymentResponse);
-          res.json(paymentResponse);
+          (res as any).json(paymentResponse);
         } catch (paymentError: any) {
           console.error("Error creating payment record:", paymentError);
           // If it's a foreign key constraint error, provide a more helpful message
           if (paymentError.message && paymentError.message.includes('foreign key constraint')) {
             console.error("Foreign key constraint error - quiz attempt may not exist");
-            return res.status(400).json({
+            return (res as any).status(400).json({
               error: "Quiz attempt not found",
               details: `The quiz attempt (ID: ${quizAttemptId}) could not be found. Please try again or contact support.`
             });
           }
-          return res.status(500).json({ error: 'Payment creation failed', details: paymentError?.message || paymentError });
+          return (res as any).status(500).json({ error: 'Payment creation failed', details: paymentError?.message || paymentError });
         }
       } catch (error: any) {
         if (error.code === 'P2002') {
           console.error('Unique constraint error (P2002) in payment endpoint:', error);
           // Try to fetch and return the existing user for debugging
-          if (req.body && req.body.email) {
-            const user = await storage.prisma.user.findUnique({ where: { email: req.body.email } });
+          if ((req.body as any) && (req.body as any).email) {
+            const user = await storage.prisma.user.findUnique({ where: { email: (req.body as any).email } });
             if (user) {
-              return res.status(409).json({ error: 'User with this email already exists', user });
+              return (res as any).status(409).json({ error: 'User with this email already exists', user });
             }
           }
         }
@@ -1749,7 +1747,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           code: error?.code,
           stack: error?.stack
         });
-        res.status(500).json({ 
+        (res as any).status(500).json({ 
           error: "Internal server error",
           details: error?.message || "Unknown error"
         });
@@ -1759,26 +1757,26 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register payment status route first for debugging
   console.log('[DEBUG] Registering /api/payment-status/:paymentId route...');
-  app.get(
+  (app as any).get(
     "/api/payment-status/:paymentId",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { paymentId } = req.params;
+        const { paymentId } = (req.params as any);
         const paymentIdInt = parseInt(paymentId);
 
         if (!paymentIdInt) {
-          return res.status(400).json({ error: "Invalid payment ID" });
+          return (res as any).status(400).json({ error: "Invalid payment ID" });
         }
 
         // Get payment from database
         if (!db) {
-          return res.status(500).json({ error: "Database not available" });
+          return (res as any).status(500).json({ error: "Database not available" });
         }
         
         const paymentResult = await storage.getPaymentById(paymentIdInt);
         
         if (!paymentResult) {
-          return res.status(404).json({ error: "Payment not found" });
+          return (res as any).status(404).json({ error: "Payment not found" });
         }
 
         const payment = paymentResult;
@@ -1787,7 +1785,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         if (payment.stripePaymentIntentId && stripe) {
           try {
             const paymentIntent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
-            return res.json({
+            return (res as any).json({
               paymentId: payment.id,
               status: paymentIntent.status,
               amount: payment.amount,
@@ -1799,7 +1797,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             });
           } catch (stripeError) {
             console.error("Error retrieving Stripe payment intent:", stripeError);
-            return res.json({
+            return (res as any).json({
               paymentId: payment.id,
               status: payment.status,
               amount: payment.amount,
@@ -1812,7 +1810,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         }
 
         // For PayPal payments or if Stripe is not configured
-        res.json({
+        (res as any).json({
           paymentId: payment.id,
           status: payment.status,
           amount: payment.amount,
@@ -1822,35 +1820,35 @@ export async function registerRoutes(app: Express): Promise<void> {
           paypalOrderId: payment.paypalOrderId,
           completedAt: payment.completedAt,
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error getting payment status:", error);
-        res.status(500).json({ error: "Internal server error" });
+        (res as any).status(500).json({ error: "Internal server error" });
       }
     },
   );
   console.log('[DEBUG] Registered /api/payment-status/:paymentId route.');
 
   // Get payment status by payment ID
-  app.get(
+  (app as any).get(
     "/api/payment-status/:paymentId",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { paymentId } = req.params;
+        const { paymentId } = (req.params as any);
         const paymentIdInt = parseInt(paymentId);
 
         if (!paymentIdInt) {
-          return res.status(400).json({ error: "Invalid payment ID" });
+          return (res as any).status(400).json({ error: "Invalid payment ID" });
         }
 
         // Get payment from database
         if (!db) {
-          return res.status(500).json({ error: "Database not available" });
+          return (res as any).status(500).json({ error: "Database not available" });
         }
         
         const paymentResult = await db.select().from(payments).where(eq(payments.id, paymentIdInt));
         
         if (!paymentResult || paymentResult.length === 0) {
-          return res.status(404).json({ error: "Payment not found" });
+          return (res as any).status(404).json({ error: "Payment not found" });
         }
 
         const payment = paymentResult[0];
@@ -1859,7 +1857,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         if (payment.stripePaymentIntentId && stripe) {
           try {
             const paymentIntent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
-            return res.json({
+            return (res as any).json({
               paymentId: payment.id,
               status: paymentIntent.status,
               amount: payment.amount,
@@ -1871,7 +1869,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             });
           } catch (stripeError) {
             console.error("Error retrieving Stripe payment intent:", stripeError);
-            return res.json({
+            return (res as any).json({
               paymentId: payment.id,
               status: payment.status,
               amount: payment.amount,
@@ -1884,7 +1882,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         }
 
         // For PayPal payments or if Stripe is not configured
-        res.json({
+        (res as any).json({
           paymentId: payment.id,
           status: payment.status,
           amount: payment.amount,
@@ -1894,27 +1892,27 @@ export async function registerRoutes(app: Express): Promise<void> {
           paypalOrderId: payment.paypalOrderId,
           completedAt: payment.completedAt,
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error getting payment status:", error);
-        res.status(500).json({ error: "Internal server error" });
+        (res as any).status(500).json({ error: "Internal server error" });
       }
     },
   );
 
   // PayPal payment creation endpoint for report unlock
-  app.post(
+  (app as any).post(
     "/api/create-paypal-payment",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
         // PayPal is now mocked (ignoring PayPal as requested)
 
-        let { userId, quizAttemptId, email } = req.body;
+        let { userId, quizAttemptId, email } = (req.body as any);
 
         console.log("PayPal endpoint called with:", { userId, quizAttemptId, email });
 
         // First, verify that the quiz attempt exists
         if (!quizAttemptId) {
-          return res.status(400).json({ error: "Missing quizAttemptId" });
+          return (res as any).status(400).json({ error: "Missing quizAttemptId" });
         }
 
         const parsedQuizAttemptId = parseInt(quizAttemptId.toString());
@@ -1922,7 +1920,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Direct database query to find the quiz attempt
         if (!db) {
-          return res.status(500).json({ error: "Database not available" });
+          return (res as any).status(500).json({ error: "Database not available" });
         }
         
         console.log(`Looking for quiz attempt ${parsedQuizAttemptId} in database...`);
@@ -1931,7 +1929,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         if (!quizAttemptResult) {
           console.error(`Quiz attempt ${quizAttemptId} not found in database`);
-          return res.status(404).json({ 
+          return (res as any).status(404).json({ 
             error: "Quiz attempt not found",
             details: `Quiz attempt ID ${quizAttemptId} does not exist`
           });
@@ -1942,7 +1940,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Now find the user who created this quiz attempt
         if (!quizAttempt.userId) {
-          return res.status(400).json({ 
+          return (res as any).status(400).json({ 
             error: "Quiz attempt has no associated user",
             details: "Cannot process payment for anonymous quiz attempt"
           });
@@ -1954,7 +1952,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         if (!userResult) {
           console.error(`User ${quizAttempt.userId} not found for quiz attempt ${quizAttemptId}`);
-          return res.status(404).json({ 
+          return (res as any).status(404).json({ 
             error: "User not found",
             details: `User ID ${quizAttempt.userId} does not exist`
           });
@@ -1975,7 +1973,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         );
 
         if (existingPayment) {
-          return res.status(400).json({
+          return (res as any).status(400).json({
             error: "Report is already unlocked for this quiz attempt"
           });
         }
@@ -2036,7 +2034,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           version: 1,
         });
 
-        res.json({
+        (res as any).json({
           success: true,
           orderID: mockOrderId,
           paymentId: payment.id,
@@ -2051,20 +2049,20 @@ export async function registerRoutes(app: Express): Promise<void> {
         
         // Provide more specific error messages
         if (error?.message?.includes('authentication')) {
-          return res.status(500).json({ 
+          return (res as any).status(500).json({ 
             error: "PayPal authentication failed",
             details: "Please check PayPal credentials"
           });
         }
         
         if (error?.message?.includes('network') || error?.message?.includes('timeout')) {
-          return res.status(500).json({ 
+          return (res as any).status(500).json({ 
             error: "PayPal service temporarily unavailable",
             details: "Please try again later"
           });
         }
         
-        res.status(500).json({ 
+        (res as any).status(500).json({ 
           error: "PayPal payment creation failed",
           details: error?.message || "Unknown error"
         });
@@ -2073,14 +2071,14 @@ export async function registerRoutes(app: Express): Promise<void> {
   );
 
   // PayPal payment capture endpoint (MOCK - ignoring PayPal as requested)
-  app.post(
+  (app as any).post(
     "/api/capture-paypal-payment",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { orderID, paymentID, payerID, quizAttemptId, email } = req.body;
+        const { orderID, paymentID, payerID, quizAttemptId, email } = (req.body as any);
         
         if (!orderID || !paymentID || !payerID) {
-          return res.status(400).json({ error: 'PayPal payment details are required' });
+          return (res as any).status(400).json({ error: 'PayPal payment details are required' });
         }
 
               // Mock successful PayPal capture
@@ -2110,14 +2108,14 @@ export async function registerRoutes(app: Express): Promise<void> {
         // Continue with mock response even if DB update fails
       }
 
-      res.json({
+      (res as any).json({
         success: true,
         captureID: 'mock-capture-' + Date.now(),
         message: 'PayPal payment captured successfully (mock)'
       });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Mock PayPal capture error:', error);
-        res.status(500).json({ 
+        (res as any).status(500).json({ 
           error: 'Payment processing error',
           message: 'Please try again or contact support if the problem persists'
         });
@@ -2126,26 +2124,26 @@ export async function registerRoutes(app: Express): Promise<void> {
   );
 
   // Stripe webhook endpoint
-  app.post("/api/stripe/webhook", async (req: Request, res: Response) => {
-    const sig = req.headers["stripe-signature"] as string;
+  (app as any).post("/api/stripe/webhook", async (req: any, res: any) => {
+    const sig = (req.headers as any)["stripe-signature"] as string;
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
       console.error("Stripe webhook secret not configured");
-      return res.status(400).send("Webhook secret not configured");
+      return (res as any).status(400).send("Webhook secret not configured");
     }
 
     let event: Stripe.Event;
 
     try {
       if (!stripe) {
-        return res.status(400).send("Payment processing not configured");
+        return (res as any).status(400).send("Payment processing not configured");
       }
 
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      event = stripe.webhooks.constructEvent((req.body as any), sig, webhookSecret);
     } catch (err) {
       console.error("Webhook signature verification failed:", err);
-      return res.status(400).send(`Webhook Error: ${err}`);
+      return (res as any).status(400).send(`Webhook Error: ${err}`);
     }
 
     try {
@@ -2261,7 +2259,7 @@ export async function registerRoutes(app: Express): Promise<void> {
               console.log(
                 `Payment completed: ${type} for temporary user converted to user ${user.id}`,
               );
-            } catch (error) {
+            } catch (error: any) {
               console.error("Error converting temporary user:", error);
             }
           } else {
@@ -2300,23 +2298,23 @@ export async function registerRoutes(app: Express): Promise<void> {
           console.log(`Unhandled event type: ${event.type}`);
       }
 
-      res.json({ received: true });
-    } catch (error) {
+      (res as any).json({ received: true });
+    } catch (error: any) {
       console.error("Error processing webhook:", error);
-      res.status(500).json({ error: "Webhook processing failed" });
+      (res as any).status(500).json({ error: "Webhook processing failed" });
     }
   });
 
   // Admin refund endpoints
   // Get all payments with optional pagination (admin only)
-  app.get("/api/admin/payments", requireAdminAuth, async (req: Request, res: Response) => {
+  (app as any).get("/api/admin/payments", requireAdminAuth, async (req: any, res: any) => {
     try {
       // Admin authentication is handled by requireAdminAuth middleware
 
       // Get query parameters for pagination and filtering
-      const limit = Math.min(parseInt(req.query.limit as string) || 100, 1000); // Max 1000 records
-      const offset = parseInt(req.query.offset as string) || 0;
-      const status = req.query.status as string;
+      const limit = Math.min(parseInt((req.query as any).limit as string) || 100, 1000); // Max 1000 records
+      const offset = parseInt((req.query as any).offset as string) || 0;
+      const status = (req.query as any).status as string;
 
       // Use optimized query that JOINs payments with users (fixes N+1 problem)
       const paymentsWithUsers = await storage.getPaymentsWithUsers({
@@ -2325,7 +2323,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         status,
       });
 
-      res.json({
+      (res as any).json({
         payments: paymentsWithUsers,
         pagination: {
           limit,
@@ -2336,21 +2334,21 @@ export async function registerRoutes(app: Express): Promise<void> {
               : paymentsWithUsers.length + offset,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching payments:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Convert temporary user to permanent (admin only - for development/testing)
-  app.post("/api/admin/convert-temp-user", requireAdminAuth, async (req: Request, res: Response) => {
+  (app as any).post("/api/admin/convert-temp-user", requireAdminAuth, async (req: any, res: any) => {
     try {
       // Admin authentication is handled by requireAdminAuth middleware
 
-      const { userId } = req.body;
+      const { userId } = (req.body as any);
 
       if (!userId) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "User ID is required",
         });
       }
@@ -2359,11 +2357,11 @@ export async function registerRoutes(app: Express): Promise<void> {
       const user = await storage.getUser(userId);
 
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return (res as any).status(404).json({ error: "User not found" });
       }
 
       if (!user.isTemporary) {
-        return res.status(400).json({ error: "User is already permanent" });
+        return (res as any).status(400).json({ error: "User is already permanent" });
       }
 
       // Convert to permanent user by updating the database
@@ -2371,26 +2369,26 @@ export async function registerRoutes(app: Express): Promise<void> {
 
       console.log(`Admin converted temporary user ${userId} to permanent`);
 
-      res.json({
+      (res as any).json({
         success: true,
         message: "User converted to permanent successfully",
         userId: userId,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error converting temporary user:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Complete a payment (admin only - for development/testing)
-  app.post("/api/admin/complete-payment", requireAdminAuth, async (req: Request, res: Response) => {
+  (app as any).post("/api/admin/complete-payment", requireAdminAuth, async (req: any, res: any) => {
     try {
       // Admin authentication is handled by requireAdminAuth middleware
 
-      const { paymentId } = req.body;
+      const { paymentId } = (req.body as any);
 
       if (!paymentId) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "Payment ID is required",
         });
       }
@@ -2399,11 +2397,11 @@ export async function registerRoutes(app: Express): Promise<void> {
       const payment = await storage.getPaymentById(paymentId);
 
       if (!payment) {
-        return res.status(404).json({ error: "Payment not found" });
+        return (res as any).status(404).json({ error: "Payment not found" });
       }
 
       if (payment.status === "completed") {
-        return res.status(400).json({ error: "Payment is already completed" });
+        return (res as any).status(400).json({ error: "Payment is already completed" });
       }
 
       // Complete the payment
@@ -2411,7 +2409,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
       console.log(`Admin completed payment ${paymentId} for user ${payment.userId}`);
 
-      res.json({
+      (res as any).json({
         success: true,
         message: `Payment ${paymentId} completed successfully`,
         payment: {
@@ -2422,21 +2420,21 @@ export async function registerRoutes(app: Express): Promise<void> {
           status: "completed",
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error completing payment:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Process a refund (admin only)
-  app.post("/api/admin/refund", requireAdminAuth, async (req: Request, res: Response) => {
+  (app as any).post("/api/admin/refund", requireAdminAuth, async (req: any, res: any) => {
     try {
       // Admin authentication is handled by requireAdminAuth middleware
 
-      const { paymentId, amount, reason, adminNote } = req.body;
+      const { paymentId, amount, reason, adminNote } = (req.body as any);
 
       if (!paymentId || !amount || !reason) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "Payment ID, amount, and reason are required",
         });
       }
@@ -2445,7 +2443,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       const payment = await storage.getPaymentById(paymentId);
 
       if (!payment) {
-        return res.status(404).json({ error: "Payment not found" });
+        return (res as any).status(404).json({ error: "Payment not found" });
       }
 
       // Check if payment is already fully refunded
@@ -2458,7 +2456,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       const requestedAmount = parseFloat(amount);
 
       if (totalRefunded + requestedAmount > paymentAmount) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: `Cannot refund $${requestedAmount}. Payment amount: $${paymentAmount}, already refunded: $${totalRefunded}`,
         });
       }
@@ -2521,7 +2519,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           throw new Error("No payment provider ID found");
         }
 
-        res.json({
+        (res as any).json({
           success: true,
           refund,
           providerRefundId,
@@ -2533,7 +2531,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         // Update refund status to failed
         await storage.updateRefundStatus(refund.id, "failed", new Date());
 
-        res.status(500).json({
+        (res as any).status(500).json({
           error: "Refund failed",
           details:
             providerError instanceof Error
@@ -2542,25 +2540,25 @@ export async function registerRoutes(app: Express): Promise<void> {
           refundId: refund.id,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing refund:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Get all refunds (admin only)
-  app.get("/api/admin/refunds", requireAdminAuth, async (req: Request, res: Response) => {
+  (app as any).get("/api/admin/refunds", requireAdminAuth, async (req: any, res: any) => {
     try {
       // Admin authentication is handled by requireAdminAuth middleware
 
       // Get query parameters for pagination
-      const limit = Math.min(parseInt(req.query.limit as string) || 100, 1000); // Max 1000 records
-      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = Math.min(parseInt((req.query as any).limit as string) || 100, 1000); // Max 1000 records
+      const offset = parseInt((req.query as any).offset as string) || 0;
 
       const refunds = await storage.getAllRefunds(limit + offset);
       const paginatedRefunds = refunds.slice(offset, offset + limit);
 
-      res.json({
+      (res as any).json({
         refunds: paginatedRefunds,
         pagination: {
           limit,
@@ -2571,19 +2569,19 @@ export async function registerRoutes(app: Express): Promise<void> {
               : refunds.length,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching refunds:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Clear business model AI content for new paid quiz attempts
-  app.post("/api/clear-business-model-ai-content", async (req: Request, res: Response) => {
+  (app as any).post("/api/clear-business-model-ai-content", async (req: any, res: any) => {
     try {
-      const { userId } = req.body;
+      const { userId } = (req.body as any);
 
       if (!userId) {
-        return res.status(400).json({ error: "User ID is required" });
+        return (res as any).status(400).json({ error: "User ID is required" });
       }
 
       console.log(`Clearing business model AI content for user ${userId} due to new paid quiz attempt`);
@@ -2609,23 +2607,23 @@ export async function registerRoutes(app: Express): Promise<void> {
 
       console.log(`Cleared ${deletedCount} business model AI content entries for user ${userId}`);
       
-      res.json({ 
+      (res as any).json({ 
         success: true, 
         message: `Cleared ${deletedCount} business model AI content entries`,
         deletedCount 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error clearing business model AI content:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // PDF report page endpoint (for Playwright to render)
-  app.get("/pdf-report", async (req: Request, res: Response) => {
+  (app as any).get("/pdf-report", async (req: any, res: any) => {
     try {
-      const dataParam = req.query.data as string;
+      const dataParam = (req.query as any).data as string;
       if (!dataParam) {
-        return res.status(400).send("No data provided");
+        return (res as any).status(400).send("No data provided");
       }
 
       // Decode the base64 data
@@ -2639,38 +2637,38 @@ export async function registerRoutes(app: Express): Promise<void> {
         data = JSON.parse(decodedData);
       } catch (decodeError) {
         console.error("PDF data decoding error:", decodeError);
-        return res.status(400).send("Invalid data format - unable to decode PDF data");
+        return (res as any).status(400).send("Invalid data format - unable to decode PDF data");
       }
 
       if (!data.quizData) {
-        return res.status(400).send("Invalid data format");
+        return (res as any).status(400).send("Invalid data format");
       }
 
       // Generate HTML for the PDF report
       const htmlContent = generatePDFReportHTML(data);
       
       res.setHeader('Content-Type', 'text/html');
-      res.send(htmlContent);
-    } catch (error) {
+      (res as any).send(htmlContent);
+    } catch (error: any) {
       console.error("PDF report generation error:", error);
-      res.status(500).send("Failed to generate PDF report");
+      (res as any).status(500).send("Failed to generate PDF report");
     }
   });
 
   // PDF generation endpoint - PAID FEATURE ONLY
-  app.post("/api/generate-pdf", async (req: Request, res: Response) => {
+  (app as any).post("/api/generate-pdf", async (req: any, res: any) => {
     console.log('[PDF DEBUG] /api/generate-pdf route handler called');
     try {
       // AUTHENTICATION CHECK - PDF generation requires login
       const userId = await getUserIdFromRequest(req);
       if (!userId) {
-        return res.status(401).json({ 
+        return (res as any).status(401).json({ 
           error: "Authentication required",
           message: "You must create an account to generate PDF reports"
         });
       }
 
-      const { quizData, userEmail, aiAnalysis, topBusinessPath, businessScores, quizAttemptId } = req.body;
+      const { quizData, userEmail, aiAnalysis, topBusinessPath, businessScores, quizAttemptId } = (req.body as any);
 
       console.log("PDF generation request received", {
         hasQuizData: !!quizData,
@@ -2682,14 +2680,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       });
 
       if (!quizData) {
-        return res.status(400).json({ error: "Quiz data is required" });
+        return (res as any).status(400).json({ error: "Quiz data is required" });
       }
 
       // PAYMENT CHECK - Verify user has paid for this report
       if (quizAttemptId) {
         const hasPaid = await storage.hasUserPaidForReport(userId, parseInt(quizAttemptId.toString()));
         if (!hasPaid) {
-          return res.status(402).json({ 
+          return (res as any).status(402).json({ 
             error: "Payment required",
             message: "You must purchase the report to generate PDF"
           });
@@ -2697,8 +2695,8 @@ export async function registerRoutes(app: Express): Promise<void> {
       }
 
       // Get the base URL from the request, fallback to current domain
-      const baseUrl = req.get("host")?.includes("localhost")
-        ? `${req.protocol}://${req.get("host")}`
+      const baseUrl = (req.get as any)("host")?.includes("localhost")
+        ? `${(req.protocol as any)}://${(req.get as any)("host")}`
         : "https://bizmodelai.com";
       console.log("Base URL:", baseUrl);
 
@@ -2725,10 +2723,10 @@ export async function registerRoutes(app: Express): Promise<void> {
         `attachment; filename="${filename}.pdf"`,
       );
       res.setHeader("Content-Length", pdfBuffer.length);
-      res.send(pdfBuffer);
-    } catch (error) {
+      (res as any).send(pdfBuffer);
+    } catch (error: any) {
       console.error("PDF generation failed:", error);
-      res.status(500).json({
+      (res as any).status(500).json({
         error: "Failed to generate PDF",
         details: error instanceof Error ? error.message : "Unknown error",
       });
@@ -2737,42 +2735,42 @@ export async function registerRoutes(app: Express): Promise<void> {
 
 
   // Check rate limit status for an email
-  app.post("/api/check-rate-limit", async (req: Request, res: Response) => {
+  (app as any).post("/api/check-rate-limit", async (req: any, res: any) => {
     try {
-      const { email } = req.body;
+      const { email } = (req.body as any);
 
       if (!email) {
-        return res.status(400).json({ error: "Missing email" });
+        return (res as any).status(400).json({ error: "Missing email" });
       }
 
       // Check rate limit without actually sending an email
       const rateLimitCheck = await emailService.checkEmailRateLimitWithInfo(email);
       
       if (!rateLimitCheck.allowed) {
-        res.status(429).json({ 
+        (res as any).status(429).json({ 
           error: "Rate limit exceeded", 
           rateLimitInfo: rateLimitCheck.info 
         });
       } else {
-        res.json({ success: true, message: "No rate limit active" });
+        (res as any).json({ success: true, message: "No rate limit active" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking rate limit:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Skills analysis endpoint removed - not used in frontend
 
   // Generate detailed "Why This Fits You" descriptions for top 3 business matches
-  app.post(
+  (app as any).post(
     "/api/generate-business-fit-descriptions",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { quizData, businessMatches } = req.body;
+        const { quizData, businessMatches } = (req.body as any);
 
         if (!quizData || !businessMatches || !Array.isArray(businessMatches)) {
-          return res.status(400).json({
+          return (res as any).status(400).json({
             error: "Missing or invalid quiz data or business matches",
           });
         }
@@ -2898,17 +2896,17 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
           });
         }
 
-        res.json({ descriptions });
-      } catch (error) {
+        (res as any).json({ descriptions });
+      } catch (error: any) {
         console.error("Error generating business fit descriptions:", error);
 
         // Return fallback descriptions
-        const fallbackDescriptions = req.body.businessMatches.map(
+        const fallbackDescriptions = (req.body as any).businessMatches.map(
           (match: any, index: number) => ({
             businessId: match.id,
-            description: `This business model aligns well with your ${req.body.quizData.selfMotivationLevel >= 4 ? "high self-motivation" : "self-driven nature"} and ${req.body.quizData.weeklyTimeCommitment} hours/week availability. Your ${req.body.quizData.techSkillsRating >= 4 ? "strong" : "adequate"} technical skills and ${req.body.quizData.riskComfortLevel >= 4 ? "high" : "moderate"} risk tolerance make this a ${index === 0 ? "perfect" : index === 1 ? "excellent" : "good"} match for your entrepreneurial journey.
+            description: `This business model aligns well with your ${(req.body as any).quizData.selfMotivationLevel >= 4 ? "high self-motivation" : "self-driven nature"} and ${(req.body as any).quizData.weeklyTimeCommitment} hours/week availability. Your ${(req.body as any).quizData.techSkillsRating >= 4 ? "strong" : "adequate"} technical skills and ${(req.body as any).quizData.riskComfortLevel >= 4 ? "high" : "moderate"} risk tolerance make this a ${index === 0 ? "perfect" : index === 1 ? "excellent" : "good"} match for your entrepreneurial journey.
 
-${index === 0 ? "As your top match, this path offers the best alignment with your goals and preferences." : index === 1 ? "This represents a strong secondary option that complements your primary strengths." : "This provides a solid alternative path that matches your core capabilities."} Your ${req.body.quizData.learningPreference?.replace("-", " ")} learning style and ${req.body.quizData.workStructurePreference?.replace("-", " ")} work preference make this business model particularly suitable for your success.`,
+${index === 0 ? "As your top match, this path offers the best alignment with your goals and preferences." : index === 1 ? "This represents a strong secondary option that complements your primary strengths." : "This provides a solid alternative path that matches your core capabilities."} Your ${(req.body as any).quizData.learningPreference?.replace("-", " ")} learning style and ${(req.body as any).quizData.workStructurePreference?.replace("-", " ")} work preference make this business model particularly suitable for your success.`,
           }),
         );
 
@@ -2943,20 +2941,20 @@ ${index === 0 ? "As your top match, this path offers the best alignment with you
           });
         }
 
-        res.json({ descriptions: fallbackDescriptions });
+        (res as any).json({ descriptions: fallbackDescriptions });
       }
     },
   );
 
   // Generate detailed "Why This Doesn't Fit Your Current Profile" descriptions for bottom 3 business matches
-  app.post(
+  (app as any).post(
     "/api/generate-business-avoid-descriptions",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { quizData, businessMatches } = req.body;
+        const { quizData, businessMatches } = (req.body as any);
 
         if (!quizData || !businessMatches || !Array.isArray(businessMatches)) {
-          return res.status(400).json({
+          return (res as any).status(400).json({
             error: "Missing or invalid quiz data or business matches",
           });
         }
@@ -3082,12 +3080,12 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
           });
         }
 
-        res.json({ descriptions });
-      } catch (error) {
+        (res as any).json({ descriptions });
+      } catch (error: any) {
         console.error("Error generating business avoid descriptions:", error);
 
         // Return fallback descriptions
-        const fallbackDescriptions = req.body.businessMatches.map(
+        const fallbackDescriptions = (req.body as any).businessMatches.map(
           (match: any, index: number) => ({
             businessId: match.id,
             description: `This business model scored ${match.fitScore}% for your profile, indicating significant misalignment with your current goals, skills, and preferences. Based on your quiz responses, you would likely face substantial challenges in this field that could impact your success. Consider focusing on higher-scoring business models that better match your natural strengths and current situation.`,
@@ -3125,15 +3123,15 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
           });
         }
 
-        res.json({ descriptions: fallbackDescriptions });
+        (res as any).json({ descriptions: fallbackDescriptions });
       }
     },
   );
 
   // AI Content Migration Endpoint
-  app.post(
+  (app as any).post(
     "/api/admin/migrate-ai-content",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
         console.log(" Starting AI content migration...");
 
@@ -3144,14 +3142,14 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         }
 
         console.log("AI content migration completed successfully");
-        res.json({
+        (res as any).json({
           success: true,
           message: "AI content migration completed",
           ...result,
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("❌ AI content migration failed:", error);
-        res.status(500).json({
+        (res as any).status(500).json({
           success: false,
           error: "Migration failed",
           message: error instanceof Error ? error.message : "Unknown error",
@@ -3161,33 +3159,33 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
   );
 
   // Get stored email for unpaid users
-  app.get(
+  (app as any).get(
     "/api/get-stored-email/:sessionId",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { sessionId } = req.params;
+        const { sessionId } = (req.params as any);
         const storedUser = await storage.getTemporaryUser(sessionId);
 
         if (storedUser) {
-          res.json({ email: storedUser.email });
+          (res as any).json({ email: storedUser.email });
         } else {
-          res.json({ email: null });
+          (res as any).json({ email: null });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error getting stored email:", error);
-        res.status(500).json({ error: "Internal server error" });
+        (res as any).status(500).json({ error: "Internal server error" });
       }
     },
   );
 
   // Get all collected emails endpoint for marketing/advertising
-  app.get("/api/admin/all-emails", async (req: Request, res: Response) => {
+  (app as any).get("/api/admin/all-emails", async (req: any, res: any) => {
     try {
       console.log("Fetching all collected emails...");
 
       // Get emails from paid users (permanent storage)
       if (!db) {
-        return res.status(500).json({ error: "Database not available" });
+        return (res as any).status(500).json({ error: "Database not available" });
       }
       const paidUsers = await db.user.findMany({
         where: { email: { not: null } },
@@ -3218,7 +3216,7 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
-      res.json({
+      (res as any).json({
         success: true,
         totalEmails: emailList.length,
         emails: emailList,
@@ -3228,40 +3226,40 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
           uniqueEmails: emailList.length,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching all emails:", error);
-      res.status(500).json({ error: "Failed to fetch emails" });
+      (res as any).status(500).json({ error: "Failed to fetch emails" });
     }
   });
 
   // Send email endpoint for testing
-  app.post("/api/send-email", async (req, res) => {
+  (app as any).post("/api/send-email", async (req, res) => {
     try {
-      const { to, subject, html, quizAttemptId } = req.body;
+      const { to, subject, html, quizAttemptId } = (req.body as any);
       if (!to || !subject || !html) {
-        return res.status(400).json({ success: false, error: "Missing to, subject, or html" });
+        return (res as any).status(400).json({ success: false, error: "Missing to, subject, or html" });
       }
       const result = await emailService.sendEmail({ to, subject, html, quizAttemptId });
       console.log('[EMAIL DEBUG] /api/send-email result:', result);
       if (result.success) {
-        res.json({ success: true });
+        (res as any).json({ success: true });
       } else if (result.rateLimitInfo) {
-        res.status(429).json({ success: false, error: "Rate limit exceeded", rateLimitInfo: result.rateLimitInfo });
+        (res as any).status(429).json({ success: false, error: "Rate limit exceeded", rateLimitInfo: result.rateLimitInfo });
       } else {
-        res.status(500).json({ success: false, error: result.error || "Failed to send email" });
+        (res as any).status(500).json({ success: false, error: result.error || "Failed to send email" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in /api/send-email:", error);
-      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+      (res as any).status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
   // Send quiz results email
-  app.post("/api/send-quiz-results", async (req, res) => {
+  (app as any).post("/api/send-quiz-results", async (req, res) => {
     try {
-      const { email, quizData, attemptId } = req.body;
+      const { email, quizData, attemptId } = (req.body as any);
       if (!email || !quizData) {
-        return res.status(400).json({ success: false, error: "Missing email or quiz data" });
+        return (res as any).status(400).json({ success: false, error: "Missing email or quiz data" });
       }
 
       console.log('[EMAIL DEBUG] Sending quiz results to:', email);
@@ -3291,28 +3289,28 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
       console.log('[EMAIL DEBUG] /api/send-quiz-results result:', result);
       
       if (result.success) {
-        res.json({ success: true, message: "Quiz results sent successfully" });
+        (res as any).json({ success: true, message: "Quiz results sent successfully" });
       } else if (result.rateLimitInfo) {
-        res.status(429).json({ 
+        (res as any).status(429).json({ 
           success: false, 
           error: "Rate limit exceeded", 
           rateLimitInfo: result.rateLimitInfo 
         });
       } else {
-        res.status(500).json({ success: false, error: "Failed to send quiz results" });
+        (res as any).status(500).json({ success: false, error: "Failed to send quiz results" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in /api/send-quiz-results:", error);
-      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+      (res as any).status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
   // Send full report email
-  app.post("/api/send-full-report", async (req, res) => {
+  (app as any).post("/api/send-full-report", async (req, res) => {
     try {
-      const { email, quizData, attemptId } = req.body;
+      const { email, quizData, attemptId } = (req.body as any);
       if (!email || !quizData) {
-        return res.status(400).json({ success: false, error: "Missing email or quiz data" });
+        return (res as any).status(400).json({ success: false, error: "Missing email or quiz data" });
       }
 
       console.log('[EMAIL DEBUG] Sending full report to:', email);
@@ -3321,72 +3319,72 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
       console.log('[EMAIL DEBUG] /api/send-full-report result:', result);
       
       if (result.success) {
-        res.json({ success: true, message: "Full report sent successfully" });
+        (res as any).json({ success: true, message: "Full report sent successfully" });
       } else if (result.rateLimitInfo) {
-        res.status(429).json({ 
+        (res as any).status(429).json({ 
           success: false, 
           error: "Rate limit exceeded", 
           rateLimitInfo: result.rateLimitInfo 
         });
       } else {
-        res.status(500).json({ success: false, error: "Failed to send full report" });
+        (res as any).status(500).json({ success: false, error: "Failed to send full report" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in /api/send-full-report:", error);
-      res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+      (res as any).status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
   // Get payment details by paymentId (for test/dev only)
-  app.get("/api/payment/:paymentId", async (req: Request, res: Response) => {
+  (app as any).get("/api/payment/:paymentId", async (req: any, res: any) => {
     try {
-      const paymentId = parseInt(req.params.paymentId);
+      const paymentId = parseInt((req.params as any).paymentId);
       if (!paymentId) {
-        return res.status(400).json({ error: "Invalid payment ID" });
+        return (res as any).status(400).json({ error: "Invalid payment ID" });
       }
       const payment = await storage.getPaymentById(paymentId);
       if (!payment) {
-        return res.status(404).json({ error: "Payment not found" });
+        return (res as any).status(404).json({ error: "Payment not found" });
       }
-      res.json({ success: true, payment });
-    } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).json({ success: true, payment });
+    } catch (error: any) {
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Contact form endpoint
-  app.post('/api/contact', async (req: Request, res: Response) => {
+  (app as any).post('/api/contact', async (req: any, res: any) => {
     try {
-      const { name, email, message } = req.body;
+      const { name, email, message } = (req.body as any);
       
       if (!name || !email || !message) {
-        return res.status(400).json({ error: 'Name, email, and message are required' });
+        return (res as any).status(400).json({ error: 'Name, email, and message are required' });
       }
       
       // Here you would typically send an email using your email service
       // For now, we'll just log the contact form submission
       console.log('Contact form submission:', { name, email, message });
       
-      res.json({ message: 'Contact form submitted successfully' });
-    } catch (error) {
+      (res as any).json({ message: 'Contact form submitted successfully' });
+    } catch (error: any) {
       console.error('Contact form error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      (res as any).status(500).json({ error: 'Internal server error' });
     }
   });
 
   // Quiz payment creation endpoint
-  app.post('/api/create-quiz-payment', async (req: Request, res: Response) => {
+  (app as any).post('/api/create-quiz-payment', async (req: any, res: any) => {
     try {
-      const { quizAttemptId, email, paymentMethod } = req.body;
+      const { quizAttemptId, email, paymentMethod } = (req.body as any);
       
       if (!quizAttemptId || !email) {
-        return res.status(400).json({ error: 'Quiz attempt ID and email are required' });
+        return (res as any).status(400).json({ error: 'Quiz attempt ID and email are required' });
       }
 
       // Find the quiz attempt
       const attempt = await storage.getQuizAttempt(parseInt(quizAttemptId));
       if (!attempt) {
-        return res.status(404).json({ error: 'Quiz attempt not found' });
+        return (res as any).status(404).json({ error: 'Quiz attempt not found' });
       }
 
       // Create or find user
@@ -3413,31 +3411,31 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         status: 'pending'
       });
 
-      res.json({
+      (res as any).json({
         success: true,
         paymentId: payment.id,
         userId: user.id,
         quizAttemptId: attempt.id
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create quiz payment error:', error);
-      res.status(500).json({ error: 'Failed to create quiz payment' });
+      (res as any).status(500).json({ error: 'Failed to create quiz payment' });
     }
   });
 
   // Access pass payment creation endpoint
-  app.post('/api/create-access-pass-payment', async (req: Request, res: Response) => {
+  (app as any).post('/api/create-access-pass-payment', async (req: any, res: any) => {
     try {
-      const { userId, paymentMethod } = req.body;
+      const { userId, paymentMethod } = (req.body as any);
       
       if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
+        return (res as any).status(400).json({ error: 'User ID is required' });
       }
 
       // Verify user exists
       const user = await storage.getUser(userId);
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return (res as any).status(404).json({ error: 'User not found' });
       }
 
       // Create payment record for access pass using storage abstraction
@@ -3449,23 +3447,23 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         status: 'pending'
       });
 
-      res.json({
+      (res as any).json({
         success: true,
         paymentId: payment.id,
         userId: parseInt(userId)
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create access pass payment error:', error);
-      res.status(500).json({ error: 'Failed to create access pass payment' });
+      (res as any).status(500).json({ error: 'Failed to create access pass payment' });
     }
   });
 
-  app.post('/api/create-report-unlock-payment', async (req: Request, res: Response) => {
+  (app as any).post('/api/create-report-unlock-payment', async (req: any, res: any) => {
     try {
-      const { userId, quizAttemptId, email, quizData } = req.body;
+      const { userId, quizAttemptId, email, quizData } = (req.body as any);
       
       if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
+        return (res as any).status(400).json({ error: 'Email is required' });
       }
 
       let finalUserId = userId;
@@ -3476,7 +3474,7 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         // Authenticated user
         const user = await storage.getUser(userId);
         if (!user) {
-          return res.status(404).json({ error: 'User not found' });
+          return (res as any).status(404).json({ error: 'User not found' });
         }
         if (!user.isTemporary) {
           // Fully authenticated user
@@ -3531,39 +3529,39 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         }
       });
 
-      res.json({
+      (res as any).json({
         success: true,
         clientSecret,
         paymentId: payment.id,
         userId: finalUserId,
         quizAttemptId: finalQuizAttemptId
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create report unlock payment error:', error);
-      res.status(500).json({ error: 'Failed to create report unlock payment' });
+      (res as any).status(500).json({ error: 'Failed to create report unlock payment' });
     }
   });
 
-  app.post('/api/capture-paypal-payment', async (req: Request, res: Response) => {
+  (app as any).post('/api/capture-paypal-payment', async (req: any, res: any) => {
     try {
-      const { orderID, paymentID, payerID, quizAttemptId, email } = req.body;
+      const { orderID, paymentID, payerID, quizAttemptId, email } = (req.body as any);
       
       if (!orderID || !paymentID || !payerID) {
-        return res.status(400).json({ error: 'PayPal payment details are required' });
+        return (res as any).status(400).json({ error: 'PayPal payment details are required' });
       }
 
       // For now, just return success without database operations
       // This can be enhanced later with proper payment processing
-      res.json({
+      (res as any).json({
         success: true,
         paymentId: 'mock-payment-' + Date.now(),
         userId: null,
         quizAttemptId: quizAttemptId,
         message: 'Payment captured successfully (mock)'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Capture PayPal payment error:', error);
-      res.status(500).json({ 
+      (res as any).status(500).json({ 
         error: 'Payment processing error',
         message: 'Please try again or contact support if the problem persists'
       });
@@ -3571,11 +3569,11 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
   });
 
   // Missing routes that frontend expects
-  app.get('/api/ai-insights', async (req: Request, res: Response) => {
+  (app as any).get('/api/ai-insights', async (req: any, res: any) => {
     try {
       const userId = getUserIdFromRequest(req);
       if (!userId) {
-        return res.status(401).json({ error: 'Authentication required' });
+        return (res as any).status(401).json({ error: 'Authentication required' });
       }
 
       // Get AI insights for the user
@@ -3589,16 +3587,16 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         take: 10
       });
 
-      res.json({ insights });
-    } catch (error) {
+      (res as any).json({ insights });
+    } catch (error: any) {
       console.error('Get AI insights error:', error);
-      res.status(500).json({ error: 'Failed to get AI insights' });
+      (res as any).status(500).json({ error: 'Failed to get AI insights' });
     }
   });
 
-  app.get('/api/business-resources/:businessModel', async (req: Request, res: Response) => {
+  (app as any).get('/api/business-resources/:businessModel', async (req: any, res: any) => {
     try {
-      const { businessModel } = req.params;
+      const { businessModel } = (req.params as any);
       
       // Mock business resources for now
       const resources = {
@@ -3628,47 +3626,47 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
         ]
       };
 
-      res.json(modelResources);
-    } catch (error) {
+      (res as any).json(modelResources);
+    } catch (error: any) {
       console.error('Get business resources error:', error);
-      res.status(500).json({ error: 'Failed to get business resources' });
+      (res as any).status(500).json({ error: 'Failed to get business resources' });
     }
   });
 
-  app.get('/api/email-link/:attemptId/:email', async (req: Request, res: Response) => {
+  (app as any).get('/api/email-link/:attemptId/:email', async (req: any, res: any) => {
     try {
-      const { attemptId, email } = req.params;
+      const { attemptId, email } = (req.params as any);
       
       if (!attemptId || !email) {
-        return res.status(400).json({ error: 'Attempt ID and email are required' });
+        return (res as any).status(400).json({ error: 'Attempt ID and email are required' });
       }
 
       // Generate email link (mock implementation)
       const link = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/results?attempt=${attemptId}&email=${encodeURIComponent(email)}`;
       
-      res.json({ link });
-    } catch (error) {
+      (res as any).json({ link });
+    } catch (error: any) {
       console.error('Generate email link error:', error);
-      res.status(500).json({ error: 'Failed to generate email link' });
+      (res as any).status(500).json({ error: 'Failed to generate email link' });
     }
   });
 
   // TEST-ONLY: Mark a user as paid by email (development only)
   if (process.env.NODE_ENV === 'development') {
-    app.post('/api/admin/mark-user-paid', async (req: Request, res: Response) => {
+    (app as any).post('/api/admin/mark-user-paid', async (req: any, res: any) => {
       try {
-        const { email } = req.body;
+        const { email } = (req.body as any);
         if (!email) {
-          return res.status(400).json({ error: 'Email is required' });
+          return (res as any).status(400).json({ error: 'Email is required' });
         }
         const user = await storage.getUserByEmail(email);
         if (!user) {
-          return res.status(404).json({ error: 'User not found' });
+          return (res as any).status(404).json({ error: 'User not found' });
         }
         await storage.makeUserPaidAndRemoveQuizExpiration(user.id);
-        res.json({ success: true, userId: user.id });
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to mark user as paid', details: error?.message });
+        (res as any).json({ success: true, userId: user.id });
+      } catch (error: any) {
+        (res as any).status(500).json({ error: 'Failed to mark user as paid', details: error?.message });
       }
     });
   }
@@ -3676,9 +3674,9 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
   // --- TEST-ONLY ENDPOINTS (development only) ---
   if (process.env.NODE_ENV !== 'production') {
     // Create or update a user with isPaid=true
-    app.post('/api/test-setup-user', async (req, res) => {
-      const { email, password } = req.body;
-      if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
+    (app as any).post('/api/test-setup-user', async (req, res) => {
+      const { email, password } = (req.body as any);
+      if (!email || !password) return (res as any).status(400).json({ error: 'Missing email or password' });
       try {
         const bcrypt = await import('bcryptjs');
         const passwordHash = await bcrypt.hash(password, 10);
@@ -3693,19 +3691,19 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
             data: { email, password: passwordHash, isPaid: true, isTemporary: false }
           });
         }
-        res.json({ success: true, user });
+        (res as any).json({ success: true, user });
       } catch (err) {
-        res.status(500).json({ error: err.message });
+        (res as any).status(500).json({ error: err.message });
       }
     });
 
     // Create or update a paid quiz attempt for the user
-    app.post('/api/test-setup-quiz-attempt', async (req, res) => {
-      const { email, isPaid } = req.body;
-      if (!email) return res.status(400).json({ error: 'Missing email' });
+    (app as any).post('/api/test-setup-quiz-attempt', async (req, res) => {
+      const { email, isPaid } = (req.body as any);
+      if (!email) return (res as any).status(400).json({ error: 'Missing email' });
       try {
         const user = await storage.prisma.user.findUnique({ where: { email } });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user) return (res as any).status(404).json({ error: 'User not found' });
         // Find or create a quiz attempt
         let attempt = await storage.prisma.quizAttempt.findFirst({ where: { userId: user.id } });
         if (attempt) {
@@ -3739,9 +3737,9 @@ CRITICAL: Use ONLY the actual data provided above. Do NOT make up specific numbe
             }
           });
         }
-        res.json({ success: true, attempt });
+        (res as any).json({ success: true, attempt });
       } catch (err) {
-        res.status(500).json({ error: err.message });
+        (res as any).status(500).json({ error: err.message });
       }
     });
   }

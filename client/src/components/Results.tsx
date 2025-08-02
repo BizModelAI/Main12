@@ -293,7 +293,14 @@ const Results: React.FC<ResultsProps> = ({ quizData, onBack, userEmail }) => {
       const storedInsights = localStorage.getItem('quiz-completion-ai-insights');
       if (storedInsights) {
         try {
-          const parsed = JSON.parse(storedInsights);
+          const parsed = (() => {
+        try {
+          return JSON.parse(storedInsights);
+        } catch (error) {
+          console.error('Error parsing stored insights:', error);
+          return null;
+        }
+      })();
           if (parsed && parsed.insights && !parsed.error) {
             // Convert the old format to the new format expected by the context
             const convertedData = {

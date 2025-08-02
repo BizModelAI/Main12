@@ -6,7 +6,7 @@ const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Health check endpoint
-router.get('/health', async (req: any, res: any) => {
+(router as any).get('/health', async (req: any, res: any) => {
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
@@ -17,7 +17,7 @@ router.get('/health', async (req: any, res: any) => {
       environment: process.env.NODE_ENV || 'development',
       database: 'connected'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Health check failed:', error);
     (res as any).status(500).json({
       status: 'unhealthy',
@@ -28,7 +28,7 @@ router.get('/health', async (req: any, res: any) => {
 });
 
 // Health check endpoint (alternative path)
-router.get('/health-check', async (req: any, res: any) => {
+(router as any).get('/health-check', async (req: any, res: any) => {
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
@@ -39,7 +39,7 @@ router.get('/health-check', async (req: any, res: any) => {
       environment: process.env.NODE_ENV || 'development',
       database: 'connected'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Health check failed:', error);
     (res as any).status(500).json({
       status: 'unhealthy',

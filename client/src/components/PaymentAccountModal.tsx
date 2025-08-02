@@ -208,7 +208,14 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
   // Helper to ensure quizAttemptId is set before payment
   const ensureQuizAttemptId = async (email: string) => {
     const quizData = localStorage.getItem("quizData");
-    const parsedQuizData = quizData ? JSON.parse(quizData) : {};
+    const parsedQuizData = quizData ? (() => {
+        try {
+          return JSON.parse(quizData);
+        } catch (error) {
+          console.error('Error parsing quiz data:', error);
+          return {};
+        }
+      })() : {};
     let quizAttemptId;
     try {
       const saveResponse = await fetch("/api/save-quiz-data", {
@@ -244,7 +251,14 @@ export const PaymentAccountModal: React.FC<PaymentAccountModalProps> = ({
 
       // Include quiz data in signup for temporary account storage
       const quizData = localStorage.getItem("quizData");
-      const parsedQuizData = quizData ? JSON.parse(quizData) : {};
+      const parsedQuizData = quizData ? (() => {
+        try {
+          return JSON.parse(quizData);
+        } catch (error) {
+          console.error('Error parsing quiz data:', error);
+          return {};
+        }
+      })() : {};
 
       await signup(
         formData.email,

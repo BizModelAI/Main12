@@ -1,24 +1,19 @@
 import express from 'express';
+import { requireAdminAuth } from '../middleware/adminAuth';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
 const router = (express as any).Router();
 const prisma = new PrismaClient();
 
-// Admin middleware (basic check - you might want to add proper admin authentication)
-const adminAuth = (req: any, res: any, next: any) => {
-  const adminKey = (req.headers as any)['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_SECRET) {
-    return (res as any).status(401).json({ error: 'Admin access required' });
-  }
-  next();
-};
+// Use proper admin authentication middleware
+
 
 // Apply admin auth to all routes
-router.use(adminAuth);
+(router as any).use(requireAdminAuth);
 
 // Routes
-router.get('/health', async (req: any, res: any) => {
+(router as any).get('/health', async (req: any, res: any) => {
   try {
     const userCount = await prisma.user.count();
     const attemptCount = await prisma.quizAttempt.count();
@@ -33,15 +28,15 @@ router.get('/health', async (req: any, res: any) => {
       },
       environment: process.env.NODE_ENV || 'development'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Admin health check error:', error);
     (res as any).status(500).json({ error: 'Database connection failed' });
   }
 });
 
-router.post('/convert-temp-user', async (req: any, res: any) => {
+(router as any).post('/convert-temp-user', async (req: any, res: any) => {
   try {
-    const { tempUserId, email, password, firstName, lastName } = req.body;
+    const { tempUserId, email, password, firstName, lastName } = (req.body as any);
     
     const tempUser = await prisma.user.findUnique({
       where: { id: parseInt(tempUserId) }
@@ -64,13 +59,13 @@ router.post('/convert-temp-user', async (req: any, res: any) => {
     });
     
     (res as any).json({ success: true, user: updatedUser });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Convert temp user error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/payments', async (req: any, res: any) => {
+(router as any).get('/payments', async (req: any, res: any) => {
   try {
     const payments = await prisma.payment.findMany({
       include: {
@@ -87,15 +82,15 @@ router.get('/payments', async (req: any, res: any) => {
     });
     
     (res as any).json({ payments });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get payments error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.post('/refunds', async (req: any, res: any) => {
+(router as any).post('/refunds', async (req: any, res: any) => {
   try {
-    const { paymentId, reason } = req.body;
+    const { paymentId, reason } = (req.body as any);
     
     const payment = await prisma.payment.findUnique({
       where: { id: parseInt(paymentId) }
@@ -116,7 +111,7 @@ router.post('/refunds', async (req: any, res: any) => {
     });
     
     (res as any).json({ success: true, refund });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create refund error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }

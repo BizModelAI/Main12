@@ -89,7 +89,14 @@ export const BusinessModelScoresProvider: React.FC<BusinessModelScoresProviderPr
 
           // Check if scores are still valid
           if (now < expiresAt) {
-            const scoresData: BusinessModelScoresData = JSON.parse(storedScores);
+            const scoresData: BusinessModelScoresData = (() => {
+        try {
+          return JSON.parse(storedScores);
+        } catch (error) {
+          console.error('Error parsing stored scores:', error);
+          return null;
+        }
+      })();
             setScores(scoresData.scores);
             setLastUpdated(scoresData.timestamp);
             setQuizAttemptId(scoresData.quizAttemptId || null);

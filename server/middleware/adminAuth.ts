@@ -51,16 +51,16 @@ export function requireAdminAuth(
 ) {
   try {
     // Get admin credentials from headers
-    const adminKey = (req.headers as any)["x-admin-key"] as string;
-    const adminId = ((req.headers as any)["x-admin-id"] as string) || "admin";
+    const adminKey = ((req.headers as any) as any)["x-admin-key"] as string;
+    const adminId = (((req.headers as any) as any)["x-admin-id"] as string) || "admin";
 
     // Validate admin key
     if (!adminKey || adminKey !== process.env.ADMIN_SECRET) {
-      console.warn(` Unauthorized admin access attempt from ${req.ip}:`, {
+      console.warn(` Unauthorized admin access attempt from ${(req.ip as any)}:`, {
         headers: {
-          userAgent: (req.headers as any)["user-agent"],
-          origin: (req.headers as any).origin,
-          referer: (req.headers as any).referer,
+          userAgent: ((req.headers as any) as any)["user-agent"],
+          origin: ((req.headers as any) as any).origin,
+          referer: ((req.headers as any) as any).referer,
         },
         timestamp: new Date().toISOString(),
       });
@@ -91,7 +91,7 @@ export function requireAdminAuth(
     }
 
     // Create session key for this admin
-    const sessionKey = `${req.ip}-${adminId}-${(req.headers as any)["user-agent"]}`;
+    const sessionKey = `${(req.ip as any)}-${adminId}-${((req.headers as any) as any)["user-agent"]}`;
     const now = Date.now();
 
     // Check existing session
@@ -109,7 +109,7 @@ export function requireAdminAuth(
         id: adminId,
       });
 
-      console.log(`✅ Admin authenticated: ${adminId} from ${req.ip}`);
+      console.log(`✅ Admin authenticated: ${adminId} from ${(req.ip as any)}`);
     }
 
     // Add admin info to request
@@ -121,11 +121,11 @@ export function requireAdminAuth(
 
     // Log admin action for audit trail
     console.log(
-      ` Admin action: ${req.method} ${(req as any).path} by ${adminId} from ${req.ip}`,
+      ` Admin action: ${(req.method as any)} ${(req as any).path} by ${adminId} from ${(req.ip as any)}`,
     );
 
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Admin authentication error:", error);
     res
       .status(500)
@@ -146,12 +146,12 @@ export function logAdminAction(action: string) {
   return (req: AdminAuthRequest, res: any, next: any) => {
     console.log(` Admin Action Log: ${action}`, {
       adminId: req.admin?.id || "unknown",
-      ip: req.ip,
-      userAgent: (req.headers as any)["user-agent"],
+      ip: (req.ip as any),
+      userAgent: ((req.headers as any) as any)["user-agent"],
       timestamp: new Date().toISOString(),
       body:
-        req.method === "POST"
-          ? JSON.stringify(req.body).substring(0, 200)
+        (req.method as any) === "POST"
+          ? JSON.stringify((req.body as any)).substring(0, 200)
           : "N/A",
     });
 
@@ -169,7 +169,7 @@ export function adminRateLimit(
   windowMs: number = 60000,
 ) {
   return (req: AdminAuthRequest, res: any, next: any) => {
-    const adminId: string = req.admin?.id || req.ip || "";
+    const adminId: string = req.admin?.id || (req.ip as any) || "";
     const now = Date.now();
 
     const requests = adminRateLimitMap.get(adminId) || [];

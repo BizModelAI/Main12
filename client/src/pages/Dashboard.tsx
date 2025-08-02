@@ -131,7 +131,12 @@ const Dashboard: React.FC = () => {
     const hasSelected = localStorage.getItem("hasEverSelectedModel");
 
     if (savedModel) {
-      setSelectedBusinessModel(JSON.parse(savedModel));
+      try {
+        setSelectedBusinessModel(JSON.parse(savedModel));
+      } catch (error) {
+        console.error('Error parsing saved business model:', error);
+        localStorage.removeItem('selectedBusinessModel');
+      }
     }
 
     if (hasSelected === "true") {

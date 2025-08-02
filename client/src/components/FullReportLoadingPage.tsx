@@ -179,7 +179,14 @@ export default function FullReportLoadingPage({
       // Try localStorage first
       const storedInsights = localStorage.getItem('quiz-completion-ai-insights');
       if (storedInsights) {
-        const parsed = JSON.parse(storedInsights);
+        const parsed = (() => {
+        try {
+          return JSON.parse(storedInsights);
+        } catch (error) {
+          console.error('Error parsing stored insights:', error);
+          return null;
+        }
+      })();
         if (parsed && parsed.insights && !parsed.error) {
           console.log("📋 Found Results page data in localStorage");
           return {

@@ -5,7 +5,7 @@ const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Get pricing for user without creating payment intent
-router.get("/user-pricing/:userId", async (req: any, res: any) => {
+(router as any).get("/user-pricing/:userId", async (req: any, res: any) => {
   try {
     const { userId } = (req as any).params;
 
@@ -43,15 +43,15 @@ router.get("/user-pricing/:userId", async (req: any, res: any) => {
         isPaid: pricingUser.isPaid || payments.length > 0
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error getting user pricing:", error);
     (res as any).status(500).json({ error: "Internal server error" });
   }
 });
 
 // Stripe configuration endpoint (secure - only exposes publishable key)
-router.get("/stripe-config", (req: any, res: any) => {
-  const origin = process.env.FRONTEND_URL || (req.headers as any).origin || "*";
+(router as any).get("/stripe-config", (req: any, res: any) => {
+  const origin = process.env.FRONTEND_URL || ((req.headers as any) as any).origin || "*";
   (res as any).header("Access-Control-Allow-Origin", origin);
   (res as any).header("Access-Control-Allow-Credentials", "true");
   (res as any).header("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -68,7 +68,7 @@ router.get("/stripe-config", (req: any, res: any) => {
 });
 
 // Get payment status by payment ID
-router.get("/payment/:paymentId", async (req: any, res: any) => {
+(router as any).get("/payment/:paymentId", async (req: any, res: any) => {
   try {
     const { paymentId } = (req as any).params;
 
@@ -116,7 +116,7 @@ router.get("/payment/:paymentId", async (req: any, res: any) => {
     } else {
       return (res as any).status(404).json({ error: "Payment not found" });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error getting payment status:", error);
     (res as any).status(500).json({ error: "Internal server error" });
   }

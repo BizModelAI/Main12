@@ -29,14 +29,14 @@ const recordGuestSchema = z.object({
 });
 
 // Routes
-router.post('/record-guest', async (req: any, res: any) => {
+(router as any).post('/record-guest', async (req: any, res: any) => {
   try {
     // Validate request body exists
-    if (!req.body || typeof req.body !== 'object') {
+    if (!(req.body as any) || typeof (req.body as any) !== 'object') {
       return (res as any).status(400).json({ error: 'Request body is required' });
     }
 
-    const { quizData, tempUserId } = recordGuestSchema.parse(req.body);
+    const { quizData, tempUserId } = recordGuestSchema.parse((req.body as any));
     
     // Generate quizAttemptId for guest users
     const finalQuizAttemptId = `guest-${Date.now()}-${Math.random().toString(36).substring(2)}`;
@@ -73,7 +73,7 @@ router.post('/record-guest', async (req: any, res: any) => {
       attemptId: quizAttempt.id,
       userId
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Record guest error:', error);
     if (error instanceof z.ZodError) {
       return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
@@ -82,14 +82,14 @@ router.post('/record-guest', async (req: any, res: any) => {
   }
 });
 
-router.post('/record', async (req: any, res: any) => {
+(router as any).post('/record', async (req: any, res: any) => {
   try {
     const token = getUserIdFromRequest(req);
     if (!token) {
       return (res as any).status(401).json({ error: 'Not authenticated' });
     }
     
-    const { quizData } = req.body;
+    const { quizData } = (req.body as any);
     
     // Generate quizAttemptId for authenticated users
     const quizAttemptId = `auth-${Date.now()}-${Math.random().toString(36).substring(2)}`;
@@ -107,13 +107,13 @@ router.post('/record', async (req: any, res: any) => {
       success: true,
       attemptId: quizAttempt.id
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Record quiz error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/', async (req: any, res: any) => {
+(router as any).get('/', async (req: any, res: any) => {
   try {
     const token = getUserIdFromRequest(req);
     if (!token) {
@@ -129,13 +129,13 @@ router.get('/', async (req: any, res: any) => {
     });
     
     (res as any).json({ attempts });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get attempts error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/:id', async (req: any, res: any) => {
+(router as any).get('/:id', async (req: any, res: any) => {
   try {
     const { id } = (req as any).params;
     const token = getUserIdFromRequest(req);
@@ -170,13 +170,13 @@ router.get('/:id', async (req: any, res: any) => {
     }
     
     (res as any).json({ attempt });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get attempt error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/user/:userId', async (req: any, res: any) => {
+(router as any).get('/user/:userId', async (req: any, res: any) => {
   try {
     const { userId } = (req as any).params;
     const token = getUserIdFromRequest(req);
@@ -198,13 +198,13 @@ router.get('/user/:userId', async (req: any, res: any) => {
     });
     
     (res as any).json({ attempts });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get user attempts error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.get('/by-id/:attemptId', async (req: any, res: any) => {
+(router as any).get('/by-id/:attemptId', async (req: any, res: any) => {
   try {
     const { attemptId } = (req as any).params;
     
@@ -228,14 +228,14 @@ router.get('/by-id/:attemptId', async (req: any, res: any) => {
     }
     
     (res as any).json({ attempt });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get attempt by ID error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // AI content routes
-router.get('/attempt/:quizAttemptId', async (req: any, res: any) => {
+(router as any).get('/attempt/:quizAttemptId', async (req: any, res: any) => {
   try {
     const { quizAttemptId } = (req as any).params;
     
@@ -259,16 +259,16 @@ router.get('/attempt/:quizAttemptId', async (req: any, res: any) => {
     }
     
     (res as any).json({ attempt });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get attempt by quizAttemptId error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
-router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
+(router as any).post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
   try {
     const { quizAttemptId } = (req as any).params;
-    const { content, contentType = 'business_analysis' } = req.body;
+    const { content, contentType = 'business_analysis' } = (req.body as any);
     
     const attempt = await prisma.quizAttempt.findUnique({
       where: { id: parseInt(quizAttemptId) }
@@ -308,17 +308,17 @@ router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => 
     });
     
     (res as any).status(201).json({ aiContent });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Save AI content error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get AI content for a specific quiz attempt
-router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
+(router as any).get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
   try {
     const { quizAttemptId } = (req as any).params;
-    const { contentType } = req.query;
+    const { contentType } = (req.query as any);
     
     // Find the quiz attempt by numeric ID
     const attempt = await prisma.quizAttempt.findUnique({
@@ -360,7 +360,7 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
     });
     
     (res as any).json({ success: true, aiContent });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get AI content error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
@@ -368,10 +368,10 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
 
 import { EmailService } from '../services/emailService';
 
-router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
+(router as any).post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
   try {
     const { quizAttemptId } = (req as any).params;
-    const { email, firstName, lastName } = req.body;
+    const { email, firstName, lastName } = (req.body as any);
     
     const attempt = await prisma.quizAttempt.findFirst({
       where: { quizAttemptId }
@@ -427,7 +427,7 @@ router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
         rateLimitInfo: result.rateLimitInfo 
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Email sending error:', error);
     (res as any).status(500).json({ error: 'Internal server error' });
   }
