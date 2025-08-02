@@ -31,12 +31,28 @@ const recordGuestSchema = z.object({
 // Routes
 (router as any).post('/record-guest', async (req: any, res: any) => {
   try {
+    console.log('📝 Record guest attempt started');
+    
     // Validate request body exists
     if (!(req.body as any) || typeof (req.body as any) !== 'object') {
+      console.error('❌ Invalid request body');
       return (res as any).status(400).json({ error: 'Request body is required' });
+    }
+    
+    // Test database connection first
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('✅ Database connection verified');
+    } catch (dbError) {
+      console.error('❌ Database connection failed:', dbError);
+      return (res as any).status(503).json({ 
+        error: 'Database unavailable', 
+        details: 'Please try again in a moment' 
+      });
     }
 
     const { quizData, tempUserId } = recordGuestSchema.parse((req.body as any));
+    console.log('✅ Request data validated');
     
     // Generate quizAttemptId for guest users
     const finalQuizAttemptId = `guest-${Date.now()}-${Math.random().toString(36).substring(2)}`;
@@ -44,41 +60,73 @@ const recordGuestSchema = z.object({
     // Create or find temp user
     let userId: number;
     if (tempUserId) {
+      console.log(`🔄 Using existing temp user: ${tempUserId}`);
       userId = tempUserId;
     } else {
-      const tempUser = await prisma.user.create({
-        data: {
-          email: `temp-${Date.now()}@temp.com`,
-          password: 'temp-password',
-          firstName: 'Guest',
-          lastName: 'User',
-          isTemporary: true
-        }
-      });
-      userId = tempUser.id;
+      console.log('👤 Creating new temp user');
+      try {
+        const tempUser = await prisma.user.create({
+          data: {
+            email: `temp-${Date.now()}@temp.com`,
+            password: 'temp-password',
+            firstName: 'Guest',
+            lastName: 'User',
+            isTemporary: true
+          }
+        });
+        userId = tempUser.id;
+        console.log(`✅ Created temp user with ID: ${userId}`);
+      } catch (userError) {
+        console.error('❌ Failed to create temp user:', userError);
+        return (res as any).status(500).json({ 
+          error: 'Failed to create user account', 
+          details: 'Database error during user creation' 
+        });
+      }
     }
     
     // Record quiz attempt
-    const quizAttempt = await prisma.quizAttempt.create({
-      data: {
-        quizAttemptId: finalQuizAttemptId,
+    console.log('💾 Saving quiz attempt to database');
+    try {
+      const quizAttempt = await prisma.quizAttempt.create({
+        data: {
+          quizAttemptId: finalQuizAttemptId,
+          userId,
+          quizData,
+          completedAt: new Date()
+        }
+      });
+      
+      console.log(`✅ Quiz attempt saved with ID: ${quizAttempt.id}`);
+      
+      (res as any).status(201).json({
+        success: true,
+        attemptId: quizAttempt.id,
         userId,
-        quizData,
-        completedAt: new Date()
-      }
-    });
-    
-    (res as any).status(201).json({
-      success: true,
-      attemptId: quizAttempt.id,
-      userId
-    });
-  } catch (error: any) {
-    console.error('Record guest error:', error);
-    if (error instanceof z.ZodError) {
-      return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
+        quizAttemptId: finalQuizAttemptId
+      });
+    } catch (attemptError) {
+      console.error('❌ Failed to save quiz attempt:', attemptError);
+      return (res as any).status(500).json({ 
+        error: 'Failed to save quiz attempt', 
+        details: 'Database error during quiz save' 
+      });
     }
-    (res as any).status(500).json({ error: 'Internal server error' });
+    
+  } catch (error: any) {
+    console.error('❌ Record guest error:', error);
+    if (error instanceof z.ZodError) {
+      console.error('❌ Validation error:', error.errors);
+      return (res as any).status(400).json({ 
+        error: 'Invalid input data', 
+        details: error.errors 
+      });
+    }
+    console.error('❌ Unexpected error:', error.message);
+    (res as any).status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Please try again'
+    });
   }
 });
 

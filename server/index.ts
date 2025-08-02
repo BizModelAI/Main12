@@ -47,7 +47,8 @@ app.use(cors({
   origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
+  optionsSuccessStatus: 200 // for legacy browser support
 }));
 
 // Import and use route handlers
