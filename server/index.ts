@@ -35,13 +35,17 @@ app.use(session({
 }));
 
 // CORS configuration
+const corsOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+      process.env.FRONTEND_URL || 'http://localhost:5174',
+      'http://localhost:5175', // Allow the current frontend port
+      'http://localhost:5173',  // Allow common Vite dev server port
+      // Production URL will be set via environment variable
+    ];
+
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5174',
-    'http://localhost:5175', // Allow the current frontend port
-    'http://localhost:5173',  // Allow common Vite dev server port
-    // Production URL will be set via environment variable
-  ],
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -148,10 +152,34 @@ process.on('uncaughtException', (error) => {
   // Don't exit the process, just log the error
 });
 
+// Validate required environment variables
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'SESSION_SECRET',
+  'JWT_SECRET',
+  'OPENAI_API_KEY'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error('❌ Missing required environment variables:');
+  missingVars.forEach(varName => console.error(`   - ${varName}`));
+  console.error('\nPlease set these variables in your Render dashboard or .env file');
+  process.exit(1);
+}
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5174'}`);
+  console.log(`🌐 CORS Origins: ${corsOrigins.join(', ')}`);
+  
+  // Log Render-specific info if available
+  if (process.env.RENDER) {
+    console.log(`🏗️  Running on Render`);
+    console.log(`🔗 External URL: ${process.env.RENDER_EXTERNAL_URL || 'Not set'}`);
+  }
 }).on('error', (err: any) => {
   console.error('❌ Server failed to start:', err);
   process.exit(1);
