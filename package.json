@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cd client && yarn dev",
     "build": "cd client && npm install --legacy-peer-deps && npm run build && cd .. && echo '✅ Build completed successfully'",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "dev:server": "tsx server/index.ts",
     "dev:full": "concurrently \"npm run dev:server\" \"npm run dev\"",
     "check": "tsc",
