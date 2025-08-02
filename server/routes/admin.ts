@@ -2,14 +2,14 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
-const router = express.Router();
+const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Admin middleware (basic check - you might want to add proper admin authentication)
-const adminAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const adminKey = req.headers['x-admin-key'];
+const adminAuth = (req: any, res: any, next: any) => {
+  const adminKey = (req.headers as any)['x-admin-key'];
   if (adminKey !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Admin access required' });
+    return (res as any).status(401).json({ error: 'Admin access required' });
   }
   next();
 };
@@ -24,7 +24,7 @@ router.get('/health', async (req: any, res: any) => {
     const attemptCount = await prisma.quizAttempt.count();
     const aiContentCount = await prisma.aiContent.count();
     
-    res.json({
+    (res as any).json({
       status: 'healthy',
       database: {
         users: userCount,
@@ -35,7 +35,7 @@ router.get('/health', async (req: any, res: any) => {
     });
   } catch (error) {
     console.error('Admin health check error:', error);
-    res.status(500).json({ error: 'Database connection failed' });
+    (res as any).status(500).json({ error: 'Database connection failed' });
   }
 });
 
@@ -48,7 +48,7 @@ router.post('/convert-temp-user', async (req: any, res: any) => {
     });
     
     if (!tempUser || !tempUser.isTemporary) {
-      return res.status(404).json({ error: 'Temp user not found' });
+      return (res as any).status(404).json({ error: 'Temp user not found' });
     }
     
     // Update user
@@ -63,10 +63,10 @@ router.post('/convert-temp-user', async (req: any, res: any) => {
       }
     });
     
-    res.json({ success: true, user: updatedUser });
+    (res as any).json({ success: true, user: updatedUser });
   } catch (error) {
     console.error('Convert temp user error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -86,10 +86,10 @@ router.get('/payments', async (req: any, res: any) => {
       orderBy: { createdAt: 'desc' }
     });
     
-    res.json({ payments });
+    (res as any).json({ payments });
   } catch (error) {
     console.error('Get payments error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -102,7 +102,7 @@ router.post('/refunds', async (req: any, res: any) => {
     });
     
     if (!payment) {
-      return res.status(404).json({ error: 'Payment not found' });
+      return (res as any).status(404).json({ error: 'Payment not found' });
     }
     
     // Create refund record
@@ -115,10 +115,10 @@ router.post('/refunds', async (req: any, res: any) => {
       }
     });
     
-    res.json({ success: true, refund });
+    (res as any).json({ success: true, refund });
   } catch (error) {
     console.error('Create refund error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 

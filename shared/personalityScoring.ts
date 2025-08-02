@@ -73,7 +73,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const motivationScore = motivationScores[data.mainMotivation as keyof typeof motivationScores] || {};
   Object.entries(motivationScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q2: First income timeline
@@ -85,7 +85,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const timelineScore = timelineScores[data.firstIncomeTimeline as keyof typeof timelineScores] || {};
   Object.entries(timelineScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q3: Success income goal
@@ -100,7 +100,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
                      data.successIncomeGoal >= 2000 ? 2000 : 500;
   const incomeScore = incomeScores[incomeLevel as keyof typeof incomeScores] || {};
   Object.entries(incomeScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q4: Upfront investment
@@ -115,7 +115,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
                          data.upfrontInvestment >= 250 ? 250 : 0;
   const investmentScore = investmentScores[investmentLevel as keyof typeof investmentScores] || {};
   Object.entries(investmentScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q5: Passion identity alignment (1-5 scale)
@@ -127,7 +127,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     focusPreference: data.passionIdentityAlignment - 3
   };
   Object.entries(passionMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q6: Business exit plan
@@ -138,7 +138,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const exitScore = exitScores[data.businessExitPlan as keyof typeof exitScores] || {};
   Object.entries(exitScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q7: Business growth size
@@ -150,7 +150,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const growthScore = growthScores[data.businessGrowthSize as keyof typeof growthScores] || {};
   Object.entries(growthScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q8: Passive income importance (1-5 scale)
@@ -160,7 +160,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     structurePreference: data.passiveIncomeImportance - 3
   };
   Object.entries(passiveMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q9: Weekly time commitment
@@ -175,7 +175,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
                    data.weeklyTimeCommitment >= 5 ? 10 : 5;
   const timeScore = timeScores[timeLevel as keyof typeof timeScores] || {};
   Object.entries(timeScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q10: Long-term consistency (1-5 scale)
@@ -189,7 +189,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     resilience: data.longTermConsistency
   };
   Object.entries(consistencyMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q11: Trial and error comfort (1-5 scale)
@@ -203,7 +203,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     resilience: (data.trialErrorComfort - 1) * 0.8
   };
   Object.entries(trialErrorMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q12: Learning preference
@@ -215,7 +215,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const learningScore = learningScores[data.learningPreference as keyof typeof learningScores] || {};
   Object.entries(learningScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q13: Systems/routines enjoyment (1-5 scale)
@@ -226,7 +226,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     techComfort: data.systemsRoutinesEnjoyment - 3
   };
   Object.entries(systemsMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q14: Discouragement resilience (1-5 scale)
@@ -240,7 +240,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     resilience: data.discouragementResilience
   };
   Object.entries(resilienceMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q15: Tool learning willingness
@@ -250,7 +250,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const toolScore = toolWillingnessScores[data.toolLearningWillingness as keyof typeof toolWillingnessScores] || {};
   Object.entries(toolScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q16: Organization level (1-5 scale)
@@ -261,7 +261,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     techComfort: Math.floor((data.organizationLevel - 3) * 1.5)
   };
   Object.entries(organizationMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q17: Self-motivation level (1-5 scale)
@@ -272,7 +272,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     feedbackResilience: Math.floor((data.selfMotivationLevel - 3) * 1.5)
   };
   Object.entries(selfMotivationMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q18: Uncertainty handling (1-5 scale)
@@ -286,7 +286,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     resilience: (data.uncertaintyHandling - 1) * 0.7
   };
   Object.entries(uncertaintyMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q19: Repetitive tasks feeling
@@ -298,7 +298,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const repetitiveScore = repetitiveScores[data.repetitiveTasksFeeling as keyof typeof repetitiveScores] || {};
   Object.entries(repetitiveScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q20: Work collaboration preference
@@ -310,7 +310,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const collaborationScore = collaborationScores[data.workCollaborationPreference as keyof typeof collaborationScores] || {};
   Object.entries(collaborationScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q21: Brand face comfort (1-5 scale)
@@ -321,7 +321,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     creativity: data.brandFaceComfort - 3
   };
   Object.entries(brandFaceMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q22: Competitiveness level (1-5 scale)
@@ -332,7 +332,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     feedbackResilience: Math.floor((data.competitivenessLevel - 3) * 1.5)
   };
   Object.entries(competitivenessMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q23: Creative work enjoyment (1-5 scale)
@@ -345,7 +345,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     focusPreference: data.creativeWorkEnjoyment === 5 ? 1 : data.creativeWorkEnjoyment === 4 ? 2 : data.creativeWorkEnjoyment === 3 ? 3 : data.creativeWorkEnjoyment === 2 ? 4 : 5
   };
   Object.entries(creativeWorkMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q24: Direct communication enjoyment (1-5 scale)
@@ -356,7 +356,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     motivation: Math.floor((data.directCommunicationEnjoyment - 3) * 1.5)
   };
   Object.entries(communicationMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q25: Work structure preference
@@ -368,7 +368,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const workStructureScore = workStructureScores[data.workStructurePreference as keyof typeof workStructureScores] || {};
   Object.entries(workStructureScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q26: Tech skills rating (1-5 scale)
@@ -378,7 +378,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     structurePreference: Math.floor((data.techSkillsRating - 3) * 0.5)
   };
   Object.entries(techSkillsMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q27: Workspace availability
@@ -388,7 +388,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const workspaceScore = workspaceScores[data.workspaceAvailability as keyof typeof workspaceScores] || {};
   Object.entries(workspaceScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q28: Support system strength
@@ -400,7 +400,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const supportScore = supportScores[data.supportSystemStrength as keyof typeof supportScores] || {};
   Object.entries(supportScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q29: Internet/device reliability (1-5 scale)
@@ -411,7 +411,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     discipline: data.internetDeviceReliability - 3
   };
   Object.entries(reliabilityMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q30: Familiar tools
@@ -425,7 +425,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   data.familiarTools?.forEach(tool => {
     const toolScore = toolBonuses[tool as keyof typeof toolBonuses] || {};
     Object.entries(toolScore).forEach(([key, value]) => {
-      rawScores[key as keyof RawScores] += value;
+      rawScores[key as keyof RawScores] += (value as number);
     });
   });
 
@@ -438,7 +438,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const decisionScore = decisionScores[data.decisionMakingStyle as keyof typeof decisionScores] || {};
   Object.entries(decisionScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q32: Risk comfort level (1-5 scale)
@@ -449,7 +449,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     feedbackResilience: Math.floor((data.riskComfortLevel - 3) * 1.5)
   };
   Object.entries(riskComfortMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q33: Feedback rejection response (1-5 scale)
@@ -463,7 +463,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     resilience: data.feedbackRejectionResponse
   };
   Object.entries(feedbackResponseMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q34: Path preference
@@ -475,7 +475,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const pathScore = pathScores[data.pathPreference as keyof typeof pathScores] || {};
   Object.entries(pathScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q35: Control importance (1-5 scale)
@@ -486,7 +486,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
     discipline: data.controlImportance - 3
   };
   Object.entries(controlMultiplier).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Additional scoring for remaining questions...
@@ -497,7 +497,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const onlineScore = onlinePresenceScores[data.onlinePresenceComfort as keyof typeof onlinePresenceScores] || {};
   Object.entries(onlineScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q37: Client calls comfort
@@ -507,7 +507,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const clientCallsScore = clientCallsScores[data.clientCallsComfort as keyof typeof clientCallsScores] || {};
   Object.entries(clientCallsScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q38: Physical shipping openness
@@ -517,7 +517,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const shippingScore = shippingScores[data.physicalShippingOpenness as keyof typeof shippingScores] || {};
   Object.entries(shippingScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Q39: Work style preference
@@ -528,7 +528,7 @@ export function calculatePersonalityScores(data: QuizData): PersonalityScores {
   };
   const workStyleScore = workStyleScores[data.workStylePreference as keyof typeof workStyleScores] || {};
   Object.entries(workStyleScore).forEach(([key, value]) => {
-    rawScores[key as keyof RawScores] += value;
+    rawScores[key as keyof RawScores] += (value as number);
   });
 
   // Normalize scores to 1-5 scale

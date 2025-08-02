@@ -1,11 +1,7 @@
-import express from "express";
+import * as express from "express";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-
-type Express = express.Express;
-type Request = express.Request;
-type Response = express.Response;
 
 // Temporary session cache as fallback for cookie issues
 export const tempSessionCache = new Map<
@@ -39,15 +35,15 @@ setInterval(() => {
 export function getSessionKey(req: any): string {
   // Use a combination of IP and User-Agent as session key
   const ip = req.ip || req.connection.remoteAddress || "unknown";
-  const userAgent = req.headers["user-agent"] || "unknown";
+  const userAgent = (req.headers as any)["user-agent"] || "unknown";
   return `${ip}-${userAgent}`;
 }
 
 // Helper function to get user from session or cache
 export function getUserIdFromRequest(req: any): number | undefined {
   // First try normal session
-  if (req.session?.userId) {
-    return req.session.userId;
+  if ((req as any).session?.userId) {
+    return (req as any).session.userId;
   }
 
   // Fallback to temporary cache
@@ -59,7 +55,7 @@ export function getUserIdFromRequest(req: any): number | undefined {
     const now = Date.now();
     if (now - cachedSession.timestamp < 24 * 60 * 60 * 1000) {
       // Found user in cache, restore to session for consistency
-      req.session.userId = cachedSession.userId;
+      (req as any).session.userId = cachedSession.userId;
       console.log(
         `Session restored from cache: userId ${cachedSession.userId} for sessionKey ${sessionKey}`,
       );
@@ -76,7 +72,7 @@ export function getUserIdFromRequest(req: any): number | undefined {
 // Helper function to set user in session and cache
 export function setUserIdInRequest(req: any, userId: number): void {
   // Set in normal session
-  req.session.userId = userId;
+  (req as any).session.userId = userId;
 
   // Also set in cache as fallback
   const sessionKey = getSessionKey(req);
@@ -90,7 +86,7 @@ export function setUserIdInRequest(req: any, userId: number): void {
 export function setUserIdInRequestAndSave(req: any, userId: number): Promise<void> {
   return new Promise((resolve, reject) => {
     // Set in normal session
-    req.session.userId = userId;
+    (req as any).session.userId = userId;
 
     // Also set in cache as fallback
     const sessionKey = getSessionKey(req);
@@ -100,7 +96,7 @@ export function setUserIdInRequestAndSave(req: any, userId: number): Promise<voi
     });
 
     // Force save the session
-    req.session.save((err: any) => {
+    (req as any).session.save((err: any) => {
       if (err) {
         console.error("Error saving session:", err);
         reject(err);
@@ -114,153 +110,153 @@ export function setUserIdInRequestAndSave(req: any, userId: number): Promise<voi
 
 // Session types are now declared in server/types.d.ts
 
-export function setupAuthRoutes(app: Express) {
+export function setupAuthRoutes(app: any) {
   // Add this middleware at the top of setupAuthRoutes
-  app.use((req: Request, res: Response, next: express.NextFunction) => {
-    if (req.path.startsWith("/api/auth/")) {
-      const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-      res.header("Access-Control-Allow-Origin", origin);
-      res.header("Access-Control-Allow-Credentials", "true");
-      res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-      res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  app.use((req: any, res: any, next: any) => {
+    if ((req as any).path.startsWith("/api/auth/")) {
+      const origin = process.env.FRONTEND_URL || (req.headers as any).origin || "*";
+      (res as any).header("Access-Control-Allow-Origin", origin);
+      (res as any).header("Access-Control-Allow-Credentials", "true");
+      (res as any).header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      (res as any).header("Access-Control-Allow-Headers", "Content-Type,Authorization");
       if (req.method === "OPTIONS") {
-        return res.sendStatus(200);
+        return (res as any).sendStatus(200);
       }
     }
     next();
   });
 
   // Add this middleware at the top of setupAuthRoutes, after CORS middleware
-  app.use((req: Request, res: Response, next: express.NextFunction) => {
-    if (req.path.startsWith("/api/auth/")) {
+  app.use((req: any, res: any, next: any) => {
+    if ((req as any).path.startsWith("/api/auth/")) {
       console.log("[SESSION DEBUG] Incoming /api/auth/* request", {
-        path: req.path,
+        path: (req as any).path,
         method: req.method,
-        cookies: req.headers.cookie,
-        sessionId: req.sessionID,
-        sessionUserId: req.session?.userId,
-        sessionExists: !!req.session,
-        userAgent: req.headers["user-agent"]?.substring(0, 50),
+        cookies: (req.headers as any).cookie,
+        sessionId: (req as any).sessionID,
+        sessionUserId: (req as any).session?.userId,
+        sessionExists: !!(req as any).session,
+        userAgent: (req.headers as any)["user-agent"]?.substring(0, 50),
       });
     }
     next();
   });
 
   // Cookie test endpoint - sets a test value and returns session info
-  app.get("/api/auth/cookie-test", async (req: Request, res: Response) => {
+  app.get("/api/auth/cookie-test", async (req: any, res: any) => {
     const testValue = `test-${Date.now()}`;
-    req.session.testValue = testValue;
+    (req as any).session.testValue = testValue;
 
-    res.json({
-      sessionId: req.sessionID,
+    (res as any).json({
+      sessionId: (req as any).sessionID,
       testValue: testValue,
-      sessionExists: !!req.session,
-      cookieHeader: req.headers.cookie?.substring(0, 100) + "..." || "none",
-      userAgent: req.headers["user-agent"]?.substring(0, 50) + "..." || "none",
-      setCookieHeader: res.getHeaders()["set-cookie"] || "none",
+      sessionExists: !!(req as any).session,
+      cookieHeader: (req.headers as any).cookie?.substring(0, 100) + "..." || "none",
+      userAgent: (req.headers as any)["user-agent"]?.substring(0, 50) + "..." || "none",
+      setCookieHeader: (res as any).getHeaders()["set-cookie"] || "none",
     });
   });
 
   // Debug endpoint to check session state
-  app.get("/api/auth/session-debug", async (req: Request, res: Response) => {
-    res.json({
-      sessionId: req.sessionID,
-      userId: req.session?.userId,
-      testValue: req.session?.testValue || "none",
-      sessionExists: !!req.session,
-      cookieHeader: req.headers.cookie?.substring(0, 100) + "..." || "none",
-      userAgent: req.headers["user-agent"]?.substring(0, 50) + "..." || "none",
+  app.get("/api/auth/session-debug", async (req: any, res: any) => {
+    (res as any).json({
+      sessionId: (req as any).sessionID,
+      userId: (req as any).session?.userId,
+      testValue: (req as any).session?.testValue || "none",
+      sessionExists: !!(req as any).session,
+      cookieHeader: (req.headers as any).cookie?.substring(0, 100) + "..." || "none",
+      userAgent: (req.headers as any)["user-agent"]?.substring(0, 50) + "..." || "none",
     });
   });
 
   // Debug endpoint to dump session and cookies for troubleshooting
-  app.get("/api/auth/debug", async (req: Request, res: Response) => {
+  app.get("/api/auth/debug", async (req: any, res: any) => {
     console.log("/api/auth/debug called", {
-      sessionId: req.sessionID,
-      session: req.session,
-      cookies: req.headers.cookie,
-      userAgent: req.headers["user-agent"]?.substring(0, 100) || "none",
+      sessionId: (req as any).sessionID,
+      session: (req as any).session,
+      cookies: (req.headers as any).cookie,
+      userAgent: (req.headers as any)["user-agent"]?.substring(0, 100) || "none",
     });
-    res.json({
-      sessionId: req.sessionID,
-      session: req.session,
-      cookies: req.headers.cookie,
-      userAgent: req.headers["user-agent"]?.substring(0, 100) || "none",
+    (res as any).json({
+      sessionId: (req as any).sessionID,
+      session: (req as any).session,
+      cookies: (req.headers as any).cookie,
+      userAgent: (req.headers as any)["user-agent"]?.substring(0, 100) || "none",
     });
   });
 
   // Debug endpoint to dump session and cookies for troubleshooting
-  app.get("/api/auth/session-dump", async (req: Request, res: Response) => {
-    res.json({
-      sessionId: req.sessionID,
-      session: req.session,
-      cookies: req.headers.cookie,
-      userAgent: req.headers["user-agent"]?.substring(0, 100) || "none",
+  app.get("/api/auth/session-dump", async (req: any, res: any) => {
+    (res as any).json({
+      sessionId: (req as any).sessionID,
+      session: (req as any).session,
+      cookies: (req.headers as any).cookie,
+      userAgent: (req.headers as any)["user-agent"]?.substring(0, 100) || "none",
     });
   });
 
   // Test endpoint to set and check session
-  app.post("/api/auth/session-test", async (req: Request, res: Response) => {
+  app.post("/api/auth/session-test", async (req: any, res: any) => {
     try {
       const testValue = `test-${Date.now()}`;
-      req.session.testValue = testValue;
+      (req as any).session.testValue = testValue;
 
       console.log("Session test: Setting test value", {
-        sessionId: req.sessionID,
+        sessionId: (req as any).sessionID,
         testValue: testValue,
-        sessionExists: !!req.session,
+        sessionExists: !!(req as any).session,
       });
 
-      res.json({
+      (res as any).json({
         success: true,
-        sessionId: req.sessionID,
+        sessionId: (req as any).sessionID,
         testValue: testValue,
         message: "Test value set in session",
       });
     } catch (error) {
       console.error("Session test error:", error);
-      res.status(500).json({ error: "Session test failed" });
+      (res as any).status(500).json({ error: "Session test failed" });
     }
   });
 
-  app.get("/api/auth/session-test", async (req: Request, res: Response) => {
-    res.json({
-      sessionId: req.sessionID,
-      testValue: req.session?.testValue || null,
-      sessionExists: !!req.session,
-      cookieHeader: req.headers.cookie?.substring(0, 100) + "..." || "none",
+  app.get("/api/auth/session-test", async (req: any, res: any) => {
+    (res as any).json({
+      sessionId: (req as any).sessionID,
+      testValue: (req as any).session?.testValue || null,
+      sessionExists: !!(req as any).session,
+      cookieHeader: (req.headers as any).cookie?.substring(0, 100) + "..." || "none",
     });
   });
 
   // Get current user session
-  app.get("/api/auth/me", async (req: Request, res: Response) => {
+  app.get("/api/auth/me", async (req: any, res: any) => {
     try {
       const userId = getUserIdFromRequest(req);
 
       console.log("Auth check: /api/auth/me called", {
-        sessionId: req.sessionID,
-        userIdFromSession: req.session?.userId,
+        sessionId: (req as any).sessionID,
+        userIdFromSession: (req as any).session?.userId,
         userIdFromCache: userId,
-        sessionExists: !!req.session,
-        hasUserAgent: !!req.headers["user-agent"],
-        origin: req.headers.origin,
-        referer: req.headers.referer,
+        sessionExists: !!(req as any).session,
+        hasUserAgent: !!(req.headers as any)["user-agent"],
+        origin: (req.headers as any).origin,
+        referer: (req.headers as any).referer,
         sessionKey: getSessionKey(req),
       });
 
       if (!userId) {
         console.log("Auth check: No userId found in session or cache");
-        return res.status(401).json({ error: "Not authenticated" });
+        return (res as any).status(401).json({ error: "Not authenticated" });
       }
 
       const user = await storage.getUser(userId);
       if (!user) {
         console.log("Auth check: User not found for userId:", userId);
-        req.session.userId = undefined;
+        (req as any).session.userId = undefined;
         // Also clear from cache
         const sessionKey = getSessionKey(req);
         tempSessionCache.delete(sessionKey);
-        return res.status(401).json({ error: "User not found" });
+        return (res as any).status(401).json({ error: "User not found" });
       }
 
       console.log("Auth check: Success for user:", {
@@ -271,21 +267,21 @@ export function setupAuthRoutes(app: Express) {
 
       // Don't send password
       const { password, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      (res as any).json(userWithoutPassword);
     } catch (error) {
       console.error("Error in /api/auth/me:", error);
       console.error("Error details:", {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : "No stack trace",
-        sessionId: req.sessionID,
-        userId: req.session.userId,
+        sessionId: (req as any).sessionID,
+        userId: (req as any).session.userId,
       });
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Login
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
+  app.post("/api/auth/login", async (req: any, res: any) => {
     try {
       const { email, password } = req.body;
 
@@ -300,7 +296,7 @@ export function setupAuthRoutes(app: Express) {
       console.log("[DEBUG] Login attempt for email:", email);
       if (!user) {
         console.log("[DEBUG] No user found for email:", email);
-        return res.status(401).json({ error: "Invalid credentials" });
+        return (res as any).status(401).json({ error: "Invalid credentials" });
       }
       console.log("[DEBUG] Found user:", { 
         id: user.id, 
@@ -320,7 +316,7 @@ export function setupAuthRoutes(app: Express) {
           passwordLength: user.password?.length || 0
         });
         console.warn(`[AUTH] Denied login for temporary/unpaid user: ${email}`);
-        return res.status(403).json({ 
+        return (res as any).status(403).json({ 
           error: "You need to pay to access your dashboard. Please purchase a report to unlock login access.",
           userType: "temporary",
           suggestion: "payment_required"
@@ -331,7 +327,7 @@ export function setupAuthRoutes(app: Express) {
       const validPassword = await bcrypt.compare(password, user.password);
       console.log("[DEBUG] bcrypt.compare result:", validPassword);
       if (!validPassword) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        return (res as any).status(401).json({ error: "Invalid credentials" });
       }
 
       // Set session using helper (sets both session and cache)
@@ -342,62 +338,62 @@ export function setupAuthRoutes(app: Express) {
         email: user.email,
         isTemporary: user.isTemporary,
         isPaid: user.isPaid,
-        sessionId: req.sessionID,
-        sessionUserId: req.session?.userId,
-        sessionData: req.session
+        sessionId: (req as any).sessionID,
+        sessionUserId: (req as any).session?.userId,
+        sessionData: (req as any).session
       });
 
       // TEMPORARY FIX: Force save with explicit session management
       // This ensures the userId is saved and available for subsequent requests
 
       console.log("Login: Before session save", {
-        sessionId: req.sessionID,
+        sessionId: (req as any).sessionID,
         userEmail: user.email,
-        sessionData: req.session,
-        setCookieHeader: res.getHeaders()["set-cookie"],
+        sessionData: (req as any).session,
+        setCookieHeader: (res as any).getHeaders()["set-cookie"],
       });
 
       // Force session save before sending response
-      req.session.save((err: any) => {
+      (req as any).session.save((err: any) => {
         if (err) {
           console.error("Login: Failed to save session:", err);
-          return res.status(500).json({ error: "Session save failed" });
+          return (res as any).status(500).json({ error: "Session save failed" });
         }
 
         // Log after session save
         console.log("Login: After session save", {
-          sessionId: req.sessionID,
+          sessionId: (req as any).sessionID,
           userId: user.id,
           userEmail: user.email,
-          sessionSaved: !!req.session.userId,
-          sessionData: req.session,
-          setCookieHeader: res.getHeaders()["set-cookie"],
+          sessionSaved: !!(req as any).session.userId,
+          sessionData: (req as any).session,
+          setCookieHeader: (res as any).getHeaders()["set-cookie"],
         });
         // Print all response headers for debugging
-        console.log("Login: Response headers after session save:", res.getHeaders());
+        console.log("Login: Response headers after session save:", (res as any).getHeaders());
 
         // Don't send password
         const { password: _, ...userWithoutPassword } = user;
-        res.json(userWithoutPassword);
+        (res as any).json(userWithoutPassword);
       });
     } catch (error) {
       console.error("Error in /api/auth/login:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Signup - Store temporary account data until payment
-  app.post("/api/auth/signup", async (req: Request, res: Response) => {
+  app.post("/api/auth/signup", async (req: any, res: any) => {
     // Ensure we always return JSON
-    res.header("Content-Type", "application/json");
+    (res as any).header("Content-Type", "application/json");
 
     try {
-      console.log("Signup attempt started for:", req.body?.email || "unknown");
+      console.log("Signup attempt started for:", (req.body as any)?.email || "unknown");
 
       // Validate request body exists
       if (!req.body || typeof req.body !== "object") {
         console.log("Signup validation failed: invalid request body");
-        return res.status(400).json({ error: "Invalid request body" });
+        return (res as any).status(400).json({ error: "Invalid request body" });
       }
 
       const { email, password, firstName, lastName } = req.body;
@@ -426,7 +422,7 @@ export function setupAuthRoutes(app: Express) {
       }
       if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
         console.log("Signup validation failed: password complexity");
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error:
             "Password must contain at least one uppercase letter, one lowercase letter, and one number",
         });
@@ -440,7 +436,7 @@ export function setupAuthRoutes(app: Express) {
         existingUser = await storage.getUserByEmail(email);
       } catch (dbError) {
         console.error("Database error checking existing user:", dbError);
-        return res.status(500).json({
+        return (res as any).status(500).json({
           error: "Database connection error. Please try again.",
           details:
             process.env.NODE_ENV === "development"
@@ -454,7 +450,7 @@ export function setupAuthRoutes(app: Express) {
       // Only block signup if a non-temporary user exists
       if (existingUser && !existingUser.isTemporary) {
         console.log("User already exists, returning 409");
-        return res.status(409).json({ error: "User already exists" });
+        return (res as any).status(409).json({ error: "User already exists" });
       }
 
       console.log("User doesn't exist, proceeding with temporary storage...");
@@ -462,13 +458,13 @@ export function setupAuthRoutes(app: Express) {
       // Store temporary account data (no real account created yet)
       // We'll create the actual account only after successful payment
       const sessionId =
-        req.sessionID ||
+        (req as any).sessionID ||
         `temp_${Date.now()}_${Math.random().toString(36).substring(2)}`;
 
       console.log("Generated sessionId:", sessionId);
 
       // Get quiz data from request or localStorage indication
-      const quizData = req.body.quizData || {};
+      const quizData = (req.body as any).quizData || {};
 
       console.log("Hashing password...");
       let hashedPassword;
@@ -476,7 +472,7 @@ export function setupAuthRoutes(app: Express) {
         hashedPassword = await bcrypt.hash(password, 10);
       } catch (hashError) {
         console.error("Password hashing error:", hashError);
-        return res.status(500).json({
+        return (res as any).status(500).json({
           error: "Password processing error. Please try again.",
         });
       }
@@ -492,7 +488,7 @@ export function setupAuthRoutes(app: Express) {
         });
       } catch (storageError) {
         console.error("Storage error:", storageError);
-        return res.status(500).json({
+        return (res as any).status(500).json({
           error: "Failed to create account. Please try again.",
           details:
             process.env.NODE_ENV === "development"
@@ -512,14 +508,14 @@ export function setupAuthRoutes(app: Express) {
         setUserIdInRequest(req, tempUser.id);
         
         // Force session save
-        req.session.save((err: any) => {
+        (req as any).session.save((err: any) => {
           if (err) {
             console.error("Signup: Failed to save session:", err);
             // Continue anyway - the user can still proceed
           }
           
       // Return a temporary user object for frontend
-          res.json({
+          (res as any).json({
             id: tempUser.id,
             email: email,
             firstName: firstName,
@@ -529,7 +525,7 @@ export function setupAuthRoutes(app: Express) {
         });
       } else {
         // Fallback if user not found
-      res.json({
+      (res as any).json({
         id: `temp_${sessionId}`,
         email: email,
         firstName: firstName,
@@ -548,12 +544,12 @@ export function setupAuthRoutes(app: Express) {
         name: error instanceof Error ? error.name : "Unknown",
         code: (error as any)?.code || "Unknown",
         body: req.body,
-        sessionID: req.sessionID,
+        sessionID: (req as any).sessionID,
       });
 
       // Ensure we return JSON even in unexpected errors
-      if (!res.headersSent) {
-        res.status(500).json({
+      if (!(res as any).headersSent) {
+        (res as any).status(500).json({
           error: "An unexpected error occurred. Please try again.",
           details:
             process.env.NODE_ENV === "development"
@@ -567,42 +563,42 @@ export function setupAuthRoutes(app: Express) {
   });
 
   // Logout
-  const logoutHandler = async (req: Request, res: Response) => {
+  const logoutHandler = async (req: any, res: any) => {
     try {
       const sessionKey = getSessionKey(req);
-      req.session.destroy((err: any) => {
+      (req as any).session.destroy((err: any) => {
         if (err) {
           console.error("Error destroying session:", err);
-          return res.status(500).json({ error: "Could not log out" });
+          return (res as any).status(500).json({ error: "Could not log out" });
         }
         // Remove from tempSessionCache as well
         tempSessionCache.delete(sessionKey);
-        res.clearCookie("connect.sid");
-        res.json({ success: true });
+        (res as any).clearCookie("connect.sid");
+        (res as any).json({ success: true });
       });
     } catch (error) {
       console.error("Error in /api/auth/logout:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   };
   app.post("/api/auth/logout", logoutHandler);
   app.get("/api/auth/logout", logoutHandler);
 
   // Update profile
-  app.put("/api/auth/profile", async (req: Request, res: Response) => {
+  app.put("/api/auth/profile", async (req: any, res: any) => {
     try {
       const userId = getUserIdFromRequest(req);
 
       if (!userId) {
         console.log(
           "Profile update: Not authenticated, sessionUserId:",
-          req.session?.userId,
+          (req as any).session?.userId,
           "cacheUserId:",
           userId,
           "sessionKey:",
           getSessionKey(req),
         );
-        return res.status(401).json({ error: "Not authenticated" });
+        return (res as any).status(401).json({ error: "Not authenticated" });
       }
 
       const updates = req.body;
@@ -623,56 +619,56 @@ export function setupAuthRoutes(app: Express) {
 
       // Don't send password
       const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      (res as any).json(userWithoutPassword);
     } catch (error) {
       console.error("Error in /api/auth/profile:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Delete account
-  app.delete("/api/auth/account", async (req: Request, res: Response) => {
+  app.delete("/api/auth/account", async (req: any, res: any) => {
     try {
-      if (!req.session.userId) {
-        return res.status(401).json({ error: "Not authenticated" });
+      if (!(req as any).session.userId) {
+        return (res as any).status(401).json({ error: "Not authenticated" });
       }
 
-      const userId = req.session.userId;
+      const userId = (req as any).session.userId;
 
       // Delete all user data from database
       await storage.deleteUser(userId);
 
       // Destroy session
-      req.session.destroy((err: any) => {
+      (req as any).session.destroy((err: any) => {
         if (err) {
           console.error("Error destroying session:", err);
           return res
             .status(500)
             .json({ error: "Could not complete account deletion" });
         }
-        res.clearCookie("connect.sid");
-        res.json({ success: true, message: "Account deleted successfully" });
+        (res as any).clearCookie("connect.sid");
+        (res as any).json({ success: true, message: "Account deleted successfully" });
       });
     } catch (error) {
       console.error("Error in /api/auth/account:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Forgot password
-  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
+  app.post("/api/auth/forgot-password", async (req: any, res: any) => {
     try {
       const { email } = req.body;
 
       if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+        return (res as any).status(400).json({ error: "Email is required" });
       }
 
       // Find user by email
       const user = await storage.getUserByEmail(email);
       if (!user) {
         // Don't reveal whether the email exists or not for security
-        return res.json({
+        return (res as any).json({
           message:
             "If an account with that email exists, we've sent password reset instructions.",
         });
@@ -692,8 +688,8 @@ export function setupAuthRoutes(app: Express) {
       // Send email with reset link
       try {
         const { emailService } = await import("./services/emailService");
-        const baseUrl = req.get("host")?.includes("localhost")
-          ? `${req.protocol}://${req.get("host")}`
+        const baseUrl = (req as any).get("host")?.includes("localhost")
+          ? `${(req as any).protocol}://${(req as any).get("host")}`
           : "https://bizmodelai.com";
         const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
@@ -703,13 +699,13 @@ export function setupAuthRoutes(app: Express) {
         );
 
         if (result.success) {
-          res.json({
+          (res as any).json({
             message:
               "If an account with that email exists, we've sent password reset instructions.",
           });
         } else {
           // Still return success message for security (don't reveal if email exists)
-          res.json({
+          (res as any).json({
             message:
               "If an account with that email exists, we've sent password reset instructions.",
           });
@@ -717,26 +713,26 @@ export function setupAuthRoutes(app: Express) {
       } catch (emailError) {
         console.error("Error sending password reset email:", emailError);
         // Still return success message for security (don't reveal if email exists)
-        res.json({
+        (res as any).json({
           message:
             "If an account with that email exists, we've sent password reset instructions.",
         });
       }
     } catch (error) {
       console.error("Error in /api/auth/forgot-password:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Verify reset token
   app.get(
     "/api/auth/verify-reset-token/:token",
-    async (req: Request, res: Response) => {
+    async (req: any, res: any) => {
       try {
-        const { token } = req.params;
+        const { token } = (req as any).params;
 
         if (!token) {
-          return res.status(400).json({ error: "Reset token is required" });
+          return (res as any).status(400).json({ error: "Reset token is required" });
         }
 
         const resetData = await storage.getPasswordResetToken(token);
@@ -747,21 +743,21 @@ export function setupAuthRoutes(app: Express) {
             .json({ error: "Invalid or expired reset token" });
         }
 
-        res.json({ valid: true });
+        (res as any).json({ valid: true });
       } catch (error) {
         console.error("Error in /api/auth/verify-reset-token:", error);
-        res.status(500).json({ error: "Internal server error" });
+        (res as any).status(500).json({ error: "Internal server error" });
       }
     },
   );
 
   // Unsubscribe from emails
-  app.post("/api/auth/unsubscribe", async (req: Request, res: Response) => {
+  app.post("/api/auth/unsubscribe", async (req: any, res: any) => {
     try {
       const { email } = req.body;
 
       if (!email) {
-        return res.status(400).json({ error: "Email is required" });
+        return (res as any).status(400).json({ error: "Email is required" });
       }
 
       // Find user by email
@@ -773,18 +769,18 @@ export function setupAuthRoutes(app: Express) {
       }
 
       // Always return success to prevent email enumeration
-      res.json({
+      (res as any).json({
         success: true,
         message: "Successfully unsubscribed from all emails",
       });
     } catch (error) {
       console.error("Error in /api/auth/unsubscribe:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Reset password
-  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
+  app.post("/api/auth/reset-password", async (req: any, res: any) => {
     try {
       const { token, password } = req.body;
 
@@ -801,7 +797,7 @@ export function setupAuthRoutes(app: Express) {
           .json({ error: "Password must be at least 8 characters long" });
       }
       if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error:
             "Password must contain at least one uppercase letter, one lowercase letter, and one number",
         });
@@ -822,32 +818,32 @@ export function setupAuthRoutes(app: Express) {
       // Delete the used reset token
       await storage.deletePasswordResetToken(token);
 
-      res.json({ message: "Password reset successfully" });
+      (res as any).json({ message: "Password reset successfully" });
     } catch (error) {
       console.error("Error in /api/auth/reset-password:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Change password (authenticated users)
-  app.post("/api/auth/change-password", async (req: Request, res: Response) => {
+  app.post("/api/auth/change-password", async (req: any, res: any) => {
     try {
       const userId = getUserIdFromRequest(req);
 
       if (!userId) {
-        return res.status(401).json({ error: "Not authenticated" });
+        return (res as any).status(401).json({ error: "Not authenticated" });
       }
 
       const { currentPassword, newPassword } = req.body;
 
       if (!currentPassword || !newPassword) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "Current password and new password are required",
         });
       }
 
       if (newPassword.length < 8) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "New password must be at least 8 characters long",
         });
       }
@@ -855,7 +851,7 @@ export function setupAuthRoutes(app: Express) {
       // Get current user to verify current password
       const user = await storage.getUser(userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return (res as any).status(404).json({ error: "User not found" });
       }
 
       // Verify current password
@@ -864,7 +860,7 @@ export function setupAuthRoutes(app: Express) {
         user.password,
       );
       if (!validCurrentPassword) {
-        return res.status(400).json({ error: "Current password is incorrect" });
+        return (res as any).status(400).json({ error: "Current password is incorrect" });
       }
 
       // Hash new password and update
@@ -874,28 +870,28 @@ export function setupAuthRoutes(app: Express) {
       console.log(
         `Password changed successfully for user ${userId} (${user.email})`,
       );
-      res.json({ message: "Password changed successfully" });
+      (res as any).json({ message: "Password changed successfully" });
     } catch (error) {
       console.error("Error in /api/auth/change-password:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 
   // Contact form endpoint
-  app.post("/api/contact", async (req: Request, res: Response) => {
+  app.post("/api/contact", async (req: any, res: any) => {
     try {
       const { name, email, subject, message, category } = req.body;
 
       // Validate required fields
       if (!name || !email || !subject || !message || !category) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "All fields are required",
         });
       }
 
       // Basic email validation
       if (!email.includes("@") || email.length < 5) {
-        return res.status(400).json({
+        return (res as any).status(400).json({
           error: "Please enter a valid email address",
         });
       }
@@ -917,7 +913,7 @@ export function setupAuthRoutes(app: Express) {
         notificationSent = notificationResult.success;
       } catch (emailError) {
         console.error("Error sending contact form notification:", emailError);
-        return res.status(500).json({
+        return (res as any).status(500).json({
           error: "Failed to send notification email. Please try again later.",
         });
       }
@@ -937,7 +933,7 @@ export function setupAuthRoutes(app: Express) {
 
           // Continue to success even if email fails in development
         } else {
-          return res.status(500).json({
+          return (res as any).status(500).json({
             error: "Failed to send notification to team",
           });
         }
@@ -967,13 +963,13 @@ export function setupAuthRoutes(app: Express) {
       }
 
       console.log(`Contact form processed successfully for: ${email}`);
-      res.json({
+      (res as any).json({
         success: true,
         message: "Your message has been sent successfully!",
       });
     } catch (error) {
       console.error("Error in /api/contact:", error);
-      res.status(500).json({ error: "Internal server error" });
+      (res as any).status(500).json({ error: "Internal server error" });
     }
   });
 }

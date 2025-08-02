@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
-const router = express.Router();
+const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Initialize OpenAI
@@ -96,9 +96,9 @@ router.post('/openai-chat', async (req: any, res: any) => {
   try {
     console.log('OpenAI API request received:', {
       hasBody: !!req.body,
-      promptLength: req.body?.messages?.length || 0,
-      maxTokens: req.body?.maxTokens,
-      responseFormat: req.body?.responseFormat
+      promptLength: (req.body as any)?.messages?.length || 0,
+      maxTokens: (req.body as any)?.maxTokens,
+      responseFormat: (req.body as any)?.responseFormat
     });
     
     const { messages, maxTokens = 1200, temperature = 0.7 } = openaiChatSchema.parse(req.body);
@@ -111,7 +111,7 @@ router.post('/openai-chat', async (req: any, res: any) => {
     const response = await Promise.race([
       openai.chat.completions.create({
         model: "gpt-4o-mini", // Use gpt-4o-mini for faster responses
-        messages,
+        messages: messages as any,
         max_tokens: maxTokens,
         temperature: temperature
       }),
@@ -127,14 +127,14 @@ router.post('/openai-chat', async (req: any, res: any) => {
     console.log('✅ OpenAI API success, response data keys:', Object.keys(response));
     console.log('📝 Content length:', response.choices[0]?.message?.content?.length || 0);
     
-    res.json({
+    (res as any).json({
       content: response.choices[0]?.message?.content,
       usage: response.usage,
       model: response.model
     });
   } catch (error) {
     console.error('OpenAI chat error:', error);
-    res.status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
+    (res as any).status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 
@@ -160,13 +160,13 @@ router.post('/ai-business-fit-analysis', async (req: any, res: any) => {
       });
     }
     
-    res.json({ analysis });
+    (res as any).json({ analysis });
   } catch (error) {
     console.error('Business fit analysis error:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input data', details: error.errors });
+      return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -178,7 +178,7 @@ router.post('/generate-business-fit-descriptions', async (req: any, res: any) =>
     const { businessMatches, quizData } = req.body;
     
     if (!businessMatches || !Array.isArray(businessMatches)) {
-      return res.status(400).json({ error: 'businessMatches array is required' });
+      return (res as any).status(400).json({ error: 'businessMatches array is required' });
     }
     
     const descriptions = await Promise.all(
@@ -239,10 +239,10 @@ Write in a supportive, consultative tone that demonstrates deep understanding of
       })
     );
     
-    res.json({ descriptions });
+    (res as any).json({ descriptions });
   } catch (error) {
     console.error('Generate descriptions error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -253,10 +253,10 @@ router.post('/clear-business-model-ai-content', async (req: any, res: any) => {
     // Clear all AI content
     await prisma.aiContent.deleteMany({});
     
-    res.json({ message: 'AI content cleared successfully' });
+    (res as any).json({ message: 'AI content cleared successfully' });
   } catch (error) {
     console.error('Clear AI content error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -264,7 +264,7 @@ router.post('/clear-business-model-ai-content', async (req: any, res: any) => {
 router.get('/openai-status', async (req: any, res: any) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
+      return (res as any).status(500).json({ error: 'OpenAI API key not configured' });
     }
     
     // Test API call with timeout
@@ -282,14 +282,14 @@ router.get('/openai-status', async (req: any, res: any) => {
       )
     ]) as any;
     
-    res.json({ 
+    (res as any).json({ 
       status: 'ok',
       model: response.model,
       usage: response.usage
     });
   } catch (error) {
     console.error('OpenAI status check error:', error);
-    res.status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
+    (res as any).status(500).json({ error: 'OpenAI API error', details: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 

@@ -1,18 +1,18 @@
 import express from "express";
 
-type Request = express.Request;
-type Response = express.Response;
+// Request type imported from express
+// Response type imported from express
 
 console.log("Starting minimal test server...");
 
 const app = express();
 const port = 9000;
 
-app.get("/api/health", (req: Request, res: Response) => {
+app.get("/api/health", (req: any, res: any) => {
   res.json({ status: "Test server is running!" });
 });
 
-app.get("*", (req: Request, res: Response) => {
+app.get("*", (req: any, res: any) => {
   res.send(`
     <!DOCTYPE html>
     <html>

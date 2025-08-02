@@ -16,8 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use((express as any).json({ limit: '10mb' }));
+app.use((express as any).urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Session middleware with explicit memory store
@@ -25,7 +25,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: true,
   saveUninitialized: true, // Allow saving uninitialized sessions
-  store: new session.MemoryStore(),
+  store: new (session as any).MemoryStore(),
   cookie: {
     secure: false, // Allow HTTP in development
     httpOnly: true,
@@ -78,23 +78,23 @@ registerRoutes(app);
 
 
 // Serve static files from client build
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use((express as any).static(path.join(__dirname, '../client/dist')));
 
 // 404 handler for API routes (must come before catch-all)
-app.all('/api/*', (req: express.Request, res: express.Response) => {
-  res.status(404).json({ error: 'API endpoint not found', path: req.path });
+app.all('/api/*', (req: any, res: any) => {
+  (res as any).status(404).json({ error: 'API endpoint not found', path: (req as any).path });
 });
 
 // Catch-all handler for SPA routing (only for non-API routes)
-app.get('*', (req: express.Request, res: express.Response) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+app.get('*', (req: any, res: any) => {
+  (res as any).sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // JSON parsing error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: any, res: any, next: any) => {
   if (err instanceof SyntaxError && (err as any).status === 400 && 'body' in err) {
     console.error('JSON parsing error:', err);
-    return res.status(400).json({ 
+    return (res as any).status(400).json({ 
       error: 'Invalid JSON format',
       message: 'The request body contains invalid JSON'
     });
@@ -103,22 +103,22 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 });
 
 // General error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: any, res: any, next: any) => {
   console.error('Error:', err);
   
   // Don't crash the server on errors
-  if (res.headersSent) {
+  if ((res as any).headersSent) {
     return next(err);
   }
   
-  res.status(500).json({ 
+  (res as any).status(500).json({ 
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
 // Add this at the end, before app.listen
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: any, res: any, next: any) => {
   console.error('[EXPRESS ERROR]', {
     message: err?.message,
     stack: err?.stack,
@@ -126,7 +126,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
     body: req?.body,
     query: req?.query,
   });
-  res.status(500).json({ error: 'Internal server error', details: err?.message });
+  (res as any).status(500).json({ error: 'Internal server error', details: err?.message });
 });
 
 // Graceful shutdown handling

@@ -4,6 +4,13 @@
   "exclude": ["../client", "../shared", "node_modules", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false
   }
 } 

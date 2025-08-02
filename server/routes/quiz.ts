@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { getUserIdFromRequest } from '../auth';
 
-const router = express.Router();
+const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Helper functions - removed JWT functions, using main auth system
@@ -33,7 +33,7 @@ router.post('/record-guest', async (req: any, res: any) => {
   try {
     // Validate request body exists
     if (!req.body || typeof req.body !== 'object') {
-      return res.status(400).json({ error: 'Request body is required' });
+      return (res as any).status(400).json({ error: 'Request body is required' });
     }
 
     const { quizData, tempUserId } = recordGuestSchema.parse(req.body);
@@ -68,7 +68,7 @@ router.post('/record-guest', async (req: any, res: any) => {
       }
     });
     
-    res.status(201).json({
+    (res as any).status(201).json({
       success: true,
       attemptId: quizAttempt.id,
       userId
@@ -76,9 +76,9 @@ router.post('/record-guest', async (req: any, res: any) => {
   } catch (error) {
     console.error('Record guest error:', error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input data', details: error.errors });
+      return (res as any).status(400).json({ error: 'Invalid input data', details: error.errors });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -86,7 +86,7 @@ router.post('/record', async (req: any, res: any) => {
   try {
     const token = getUserIdFromRequest(req);
     if (!token) {
-      return res.status(401).json({ error: 'Not authenticated' });
+      return (res as any).status(401).json({ error: 'Not authenticated' });
     }
     
     const { quizData } = req.body;
@@ -103,13 +103,13 @@ router.post('/record', async (req: any, res: any) => {
       }
     });
     
-    res.status(201).json({
+    (res as any).status(201).json({
       success: true,
       attemptId: quizAttempt.id
     });
   } catch (error) {
     console.error('Record quiz error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -117,7 +117,7 @@ router.get('/', async (req: any, res: any) => {
   try {
     const token = getUserIdFromRequest(req);
     if (!token) {
-      return res.status(401).json({ error: 'Not authenticated' });
+      return (res as any).status(401).json({ error: 'Not authenticated' });
     }
     
     const attempts = await prisma.quizAttempt.findMany({
@@ -128,16 +128,16 @@ router.get('/', async (req: any, res: any) => {
       }
     });
     
-    res.json({ attempts });
+    (res as any).json({ attempts });
   } catch (error) {
     console.error('Get attempts error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.get('/:id', async (req: any, res: any) => {
   try {
-    const { id } = req.params;
+    const { id } = (req as any).params;
     const token = getUserIdFromRequest(req);
     
     let userId: number | undefined;
@@ -161,32 +161,32 @@ router.get('/:id', async (req: any, res: any) => {
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
     // Check if user can access this attempt
     if (userId && attempt.userId !== userId) {
-      return res.status(403).json({ error: 'Access denied' });
+      return (res as any).status(403).json({ error: 'Access denied' });
     }
     
-    res.json({ attempt });
+    (res as any).json({ attempt });
   } catch (error) {
     console.error('Get attempt error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.get('/user/:userId', async (req: any, res: any) => {
   try {
-    const { userId } = req.params;
+    const { userId } = (req as any).params;
     const token = getUserIdFromRequest(req);
     
     if (!token) {
-      return res.status(401).json({ error: 'Not authenticated' });
+      return (res as any).status(401).json({ error: 'Not authenticated' });
     }
     
     if (token !== parseInt(userId)) {
-      return res.status(403).json({ error: 'Access denied' });
+      return (res as any).status(403).json({ error: 'Access denied' });
     }
     
     const attempts = await prisma.quizAttempt.findMany({
@@ -197,16 +197,16 @@ router.get('/user/:userId', async (req: any, res: any) => {
       }
     });
     
-    res.json({ attempts });
+    (res as any).json({ attempts });
   } catch (error) {
     console.error('Get user attempts error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.get('/by-id/:attemptId', async (req: any, res: any) => {
   try {
-    const { attemptId } = req.params;
+    const { attemptId } = (req as any).params;
     
     const attempt = await prisma.quizAttempt.findFirst({
       where: { quizAttemptId: attemptId },
@@ -224,20 +224,20 @@ router.get('/by-id/:attemptId', async (req: any, res: any) => {
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
-    res.json({ attempt });
+    (res as any).json({ attempt });
   } catch (error) {
     console.error('Get attempt by ID error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // AI content routes
 router.get('/attempt/:quizAttemptId', async (req: any, res: any) => {
   try {
-    const { quizAttemptId } = req.params;
+    const { quizAttemptId } = (req as any).params;
     
     const attempt = await prisma.quizAttempt.findFirst({
       where: { quizAttemptId },
@@ -255,19 +255,19 @@ router.get('/attempt/:quizAttemptId', async (req: any, res: any) => {
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
-    res.json({ attempt });
+    (res as any).json({ attempt });
   } catch (error) {
     console.error('Get attempt by quizAttemptId error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
   try {
-    const { quizAttemptId } = req.params;
+    const { quizAttemptId } = (req as any).params;
     const { content, contentType = 'business_analysis' } = req.body;
     
     const attempt = await prisma.quizAttempt.findUnique({
@@ -275,14 +275,14 @@ router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => 
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
     // For authenticated users, verify access
     const token = getUserIdFromRequest(req);
     if (token) {
       if (attempt.userId !== token) {
-        return res.status(403).json({ error: 'Access denied' });
+        return (res as any).status(403).json({ error: 'Access denied' });
       }
     } else {
       // For unauthenticated users, check if this is a temporary user
@@ -292,10 +292,10 @@ router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => 
         });
         
         if (!user || !user.isTemporary) {
-          return res.status(401).json({ error: 'Authentication required for non-temporary users' });
+          return (res as any).status(401).json({ error: 'Authentication required for non-temporary users' });
         }
       } else {
-        return res.status(401).json({ error: 'Authentication required' });
+        return (res as any).status(401).json({ error: 'Authentication required' });
       }
     }
     
@@ -307,17 +307,17 @@ router.post('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => 
       }
     });
     
-    res.status(201).json({ aiContent });
+    (res as any).status(201).json({ aiContent });
   } catch (error) {
     console.error('Save AI content error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Get AI content for a specific quiz attempt
 router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
   try {
-    const { quizAttemptId } = req.params;
+    const { quizAttemptId } = (req as any).params;
     const { contentType } = req.query;
     
     // Find the quiz attempt by numeric ID
@@ -326,14 +326,14 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
     // For authenticated users, verify access
     const token = getUserIdFromRequest(req);
     if (token) {
       if (attempt.userId !== token) {
-        return res.status(403).json({ error: 'Access denied' });
+        return (res as any).status(403).json({ error: 'Access denied' });
       }
     } else {
       // For unauthenticated users, check if this is a temporary user
@@ -343,10 +343,10 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
         });
         
         if (!user || !user.isTemporary) {
-          return res.status(401).json({ error: 'Authentication required for non-temporary users' });
+          return (res as any).status(401).json({ error: 'Authentication required for non-temporary users' });
         }
       } else {
-        return res.status(401).json({ error: 'Authentication required' });
+        return (res as any).status(401).json({ error: 'Authentication required' });
       }
     }
     
@@ -359,10 +359,10 @@ router.get('/attempt/:quizAttemptId/ai-content', async (req: any, res: any) => {
       orderBy: { generatedAt: 'desc' }
     });
     
-    res.json({ success: true, aiContent });
+    (res as any).json({ success: true, aiContent });
   } catch (error) {
     console.error('Get AI content error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -370,7 +370,7 @@ import { EmailService } from '../services/emailService';
 
 router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
   try {
-    const { quizAttemptId } = req.params;
+    const { quizAttemptId } = (req as any).params;
     const { email, firstName, lastName } = req.body;
     
     const attempt = await prisma.quizAttempt.findFirst({
@@ -378,7 +378,7 @@ router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
     });
     
     if (!attempt) {
-      return res.status(404).json({ error: 'Quiz attempt not found' });
+      return (res as any).status(404).json({ error: 'Quiz attempt not found' });
     }
     
     // Update user email if it's a temp user and the email is different
@@ -419,9 +419,9 @@ router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
     const result = await emailService.sendQuizResults(email, attempt.quizData as any, attempt.id, hasPaidForReport);
     
     if (result.success) {
-      res.json({ success: true, message: 'Email sent successfully' });
+      (res as any).json({ success: true, message: 'Email sent successfully' });
     } else {
-      res.status(429).json({ 
+      (res as any).status(429).json({ 
         success: false, 
         error: 'Rate limit exceeded',
         rateLimitInfo: result.rateLimitInfo 
@@ -429,7 +429,7 @@ router.post('/attempt/:quizAttemptId/email', async (req: any, res: any) => {
     }
   } catch (error) {
     console.error('Email sending error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    (res as any).status(500).json({ error: 'Internal server error' });
   }
 });
 

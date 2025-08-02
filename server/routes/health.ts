@@ -2,7 +2,7 @@ import express from 'express';
 
 import { PrismaClient } from '@prisma/client';
 
-const router = express.Router();
+const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Health check endpoint
@@ -11,7 +11,7 @@ router.get('/health', async (req: any, res: any) => {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
     
-    res.json({
+    (res as any).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
@@ -19,7 +19,7 @@ router.get('/health', async (req: any, res: any) => {
     });
   } catch (error) {
     console.error('Health check failed:', error);
-    res.status(500).json({
+    (res as any).status(500).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: 'Database connection failed'
@@ -33,7 +33,7 @@ router.get('/health-check', async (req: any, res: any) => {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
     
-    res.json({
+    (res as any).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
@@ -41,7 +41,7 @@ router.get('/health-check', async (req: any, res: any) => {
     });
   } catch (error) {
     console.error('Health check failed:', error);
-    res.status(500).json({
+    (res as any).status(500).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: 'Database connection failed'

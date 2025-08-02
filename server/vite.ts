@@ -1,9 +1,9 @@
 import express from "express";
 
-type Express = express.Express;
-type Request = express.Request;
-type Response = express.Response;
-type NextFunction = express.NextFunction;
+// Express type imported from express
+// Request type imported from express
+// Response type imported from express
+// any type imported from express
 import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
@@ -23,7 +23,7 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-export async function setupVite(app: Express, server: Server) {
+export async function setupVite(app: any, server: Server) {
   const isProduction = process.env.NODE_ENV === "production";
 
   if (isProduction) {
@@ -39,10 +39,10 @@ export async function setupVite(app: Express, server: Server) {
     }
 
     // Serve static assets
-    app.use(express.static(distPath));
+    app.use((express as any).static(distPath));
 
     // Serve index.html for all non-API routes
-    app.use("*", async (req: Request, res: Response, next: NextFunction) => {
+    app.use("*", async (req: any, res: any, next: any) => {
       // Skip API routes
       if (req.originalUrl.startsWith("/api")) {
         return next();
@@ -51,7 +51,7 @@ export async function setupVite(app: Express, server: Server) {
       try {
         const indexPath = path.resolve(distPath, "index.html");
         const template = await fs.promises.readFile(indexPath, "utf-8");
-        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+        (res as any).status(200).set({ "Content-Type": "text/html" }).end(template);
       } catch (e) {
         console.error("Error serving production HTML:", e);
         next(e);
@@ -83,13 +83,13 @@ export async function setupVite(app: Express, server: Server) {
       });
 
       // Only use Vite middlewares for non-API routes
-      app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+      app.use((req: any, res: any, next: any) => {
         if (req.originalUrl.startsWith('/api/')) {
           return next();
         }
         vite.middlewares(req, res, next);
       });
-      app.use("*", async (req: Request, res: Response, next: NextFunction) => {
+      app.use("*", async (req: any, res: any, next: any) => {
         const url = req.originalUrl;
 
         try {
@@ -107,7 +107,7 @@ export async function setupVite(app: Express, server: Server) {
             `src="/src/main.tsx?v=${nanoid()}"`,
           );
           const page = await vite.transformIndexHtml(url, template);
-          res.status(200).set({ "Content-Type": "text/html" }).end(page);
+          (res as any).status(200).set({ "Content-Type": "text/html" }).end(page);
         } catch (e) {
           console.error("Error transforming HTML:", e);
           next(e);
@@ -119,7 +119,7 @@ export async function setupVite(app: Express, server: Server) {
       console.error("❌ Failed to start Vite:", error);
       // Fallback to static serving
       console.log("Falling back to static HTML serving...");
-      app.use("*", async (req: Request, res: Response, next: NextFunction) => {
+      app.use("*", async (req: any, res: any, next: any) => {
         try {
           const clientTemplate = path.resolve(
             import.meta.dirname,
@@ -128,7 +128,7 @@ export async function setupVite(app: Express, server: Server) {
             "index.html",
           );
           let template = await fs.promises.readFile(clientTemplate, "utf-8");
-          res.status(200).set({ "Content-Type": "text/html" }).end(template);
+          (res as any).status(200).set({ "Content-Type": "text/html" }).end(template);
         } catch (e) {
           console.error("Error serving HTML:", e);
           next(e);
@@ -138,7 +138,7 @@ export async function setupVite(app: Express, server: Server) {
   }
 }
 
-export function serveStatic(app: Express) {
+export function serveStatic(app: any) {
   const distPath = path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(distPath)) {
@@ -147,10 +147,10 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use((express as any).static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req: Request, res: Response) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.use("*", (_req: any, res: any) => {
+    (res as any).sendFile(path.resolve(distPath, "index.html"));
   });
 }

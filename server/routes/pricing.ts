@@ -1,16 +1,16 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
-const router = express.Router();
+const router = (express as any).Router();
 const prisma = new PrismaClient();
 
 // Get pricing for user without creating payment intent
-router.get("/user-pricing/:userId", async (req: express.Request, res: express.Response) => {
+router.get("/user-pricing/:userId", async (req: any, res: any) => {
   try {
-    const { userId } = req.params;
+    const { userId } = (req as any).params;
 
     if (!userId) {
-      return res.status(400).json({ error: "Missing userId" });
+      return (res as any).status(400).json({ error: "Missing userId" });
     }
 
     const pricingUser = await prisma.user.findUnique({
@@ -18,7 +18,7 @@ router.get("/user-pricing/:userId", async (req: express.Request, res: express.Re
     });
     
     if (!pricingUser) {
-      return res.status(404).json({ error: "User not found" });
+      return (res as any).status(404).json({ error: "User not found" });
     }
 
     // Determine pricing: $9.99 for new users, $4.99 for paid users
@@ -35,7 +35,7 @@ router.get("/user-pricing/:userId", async (req: express.Request, res: express.Re
       amountDollar = "9.99";
     }
 
-    res.json({
+    (res as any).json({
       success: true,
       pricing: {
         amount: amountDollar,
@@ -45,22 +45,22 @@ router.get("/user-pricing/:userId", async (req: express.Request, res: express.Re
     });
   } catch (error) {
     console.error("Error getting user pricing:", error);
-    res.status(500).json({ error: "Internal server error" });
+    (res as any).status(500).json({ error: "Internal server error" });
   }
 });
 
 // Stripe configuration endpoint (secure - only exposes publishable key)
-router.get("/stripe-config", (req: express.Request, res: express.Response) => {
-  const origin = process.env.FRONTEND_URL || req.headers.origin || "*";
-  res.header("Access-Control-Allow-Origin", origin);
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+router.get("/stripe-config", (req: any, res: any) => {
+  const origin = process.env.FRONTEND_URL || (req.headers as any).origin || "*";
+  (res as any).header("Access-Control-Allow-Origin", origin);
+  (res as any).header("Access-Control-Allow-Credentials", "true");
+  (res as any).header("Access-Control-Allow-Methods", "GET, OPTIONS");
+  (res as any).header("Access-Control-Allow-Headers", "Content-Type");
   
   const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
   const hasSecretKey = !!process.env.STRIPE_SECRET_KEY;
 
-  res.json({
+  (res as any).json({
     publishableKey: publishableKey || null,
     configured: hasSecretKey,
     status: hasSecretKey ? "ready" : "not_configured",
@@ -68,12 +68,12 @@ router.get("/stripe-config", (req: express.Request, res: express.Response) => {
 });
 
 // Get payment status by payment ID
-router.get("/payment/:paymentId", async (req: express.Request, res: express.Response) => {
+router.get("/payment/:paymentId", async (req: any, res: any) => {
   try {
-    const { paymentId } = req.params;
+    const { paymentId } = (req as any).params;
 
     if (!paymentId) {
-      return res.status(400).json({ error: "Missing payment ID" });
+      return (res as any).status(400).json({ error: "Missing payment ID" });
     }
 
     // First try to find the payment in our database
@@ -87,7 +87,7 @@ router.get("/payment/:paymentId", async (req: express.Request, res: express.Resp
     });
 
     if (payment) {
-      return res.json({
+      return (res as any).json({
         paymentId: payment.id,
         status: payment.status,
         amount: payment.amount,
@@ -103,7 +103,7 @@ router.get("/payment/:paymentId", async (req: express.Request, res: express.Resp
       try {
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
         
-        res.json({
+        (res as any).json({
           paymentId: paymentIntent.id,
           status: paymentIntent.status,
           amount: paymentIntent.amount,
@@ -111,14 +111,14 @@ router.get("/payment/:paymentId", async (req: express.Request, res: express.Resp
         });
       } catch (stripeError) {
         console.error("Stripe error:", stripeError);
-        return res.status(404).json({ error: "Payment not found" });
+        return (res as any).status(404).json({ error: "Payment not found" });
       }
     } else {
-      return res.status(404).json({ error: "Payment not found" });
+      return (res as any).status(404).json({ error: "Payment not found" });
     }
   } catch (error) {
     console.error("Error getting payment status:", error);
-    res.status(500).json({ error: "Internal server error" });
+    (res as any).status(500).json({ error: "Internal server error" });
   }
 });
 

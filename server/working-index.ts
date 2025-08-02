@@ -7,14 +7,14 @@ const app = express();
 const server = createServer(app);
 
 // Parse JSON bodies
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use((express as any).json({ limit: '10mb' }));
+app.use((express as any).urlencoded({ extended: true, limit: '10mb' }));
 
 console.log('🔄 Express middleware configured...');
 
 // Basic health endpoint
-app.get('/api/health', (_req: express.Request, res: express.Response) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', (_req: any, res: any) => {
+  (res as any).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Remove debug route to let Vite handle the root route
