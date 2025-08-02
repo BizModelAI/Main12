@@ -2,14 +2,27 @@ import express from 'express';
 import OpenAI from 'openai';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
 
 const router = (express as any).Router();
 const prisma = new PrismaClient();
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Initialize OpenAI with proper error handling
+let openai: OpenAI;
+try {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY environment variable is required');
+  }
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+} catch (error) {
+  console.error('❌ Failed to initialize OpenAI:', error);
+  throw error;
+}
 
 // Validation schemas
 const openaiChatSchema = z.object({
